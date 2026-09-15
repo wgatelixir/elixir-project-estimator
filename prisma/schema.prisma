@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstimationStatus {
+  DRAFT
+  FINAL
+}
+
+model Estimation {
+  id          String           @id @default(cuid())
+  clientName  String
+  projectName String?
+  ownerName   String?
+  status      EstimationStatus @default(DRAFT)
+
+  // Full estimation state: workstreams, line items, complexity choices,
+  // ElixirSync checkboxes, Third Party lines, rates, PM %, subscriptions.
+  // Kept as JSON (shape enforced in src/lib/types.ts) so it can evolve
+  // without a migration on every field. See EstimationState in that file.
+  data Json @db.JsonB
+
+  totalHours Float @default(0)
+  totalPrice Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientName])
+  @@index([updatedAt])
+}
