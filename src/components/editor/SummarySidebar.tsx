@@ -14,7 +14,7 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-900">Summary</h2>
+        <h2 className="text-sm font-semibold text-brand-ink">Summary</h2>
         <dl className="mt-3 space-y-1.5 text-sm">
           {totals.workstreams
             .filter((w) => w.enabled)
@@ -47,7 +47,7 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
         <div className="mt-3 border-t border-slate-100 pt-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-500">Billable effort</span>
-            <span className="tabular-nums font-medium text-slate-900">
+            <span className="tabular-nums font-medium text-brand-ink">
               {formatHours(totals.billableHours)}
             </span>
           </div>
@@ -70,7 +70,7 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
               max={1}
               value={pmPercent}
               onChange={(e) => onChangePm({ pmPercent: Number(e.target.value) })}
-              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums"
+              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
             <span>rate &euro;</span>
             <input
@@ -78,7 +78,7 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
               min={0}
               value={pmRate}
               onChange={(e) => onChangePm({ pmRate: Number(e.target.value) })}
-              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums"
+              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </div>
         </div>
@@ -98,15 +98,15 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
 
         <div className="mt-3 border-t border-slate-200 pt-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-slate-900">Total effort</span>
-            <span className="tabular-nums font-medium text-slate-900">
+            <span className="font-medium text-brand-ink">Total effort</span>
+            <span className="tabular-nums font-medium text-brand-ink">
               {formatHours(totals.totalEffortHours)}
             </span>
           </div>
         </div>
 
-        <div className="mt-2 rounded-md bg-slate-900 p-3 text-white">
-          <div className="text-xs uppercase tracking-wide text-slate-300">Grand total</div>
+        <div className="mt-2 rounded-md bg-brand-indigo p-3 text-white">
+          <div className="text-xs font-semibold uppercase tracking-wide text-brand-crimson">Grand total</div>
           <div className="text-xl font-semibold tabular-nums">
             {formatCurrency(totals.grandTotalPrice)}
           </div>

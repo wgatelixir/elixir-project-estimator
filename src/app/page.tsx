@@ -31,7 +31,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Estimations</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-brand-ink">Estimations</h1>
           <p className="mt-1 text-sm text-slate-500">
             Every saved project estimation, kept as a snapshot you can reopen, duplicate for a
             new version, or pull numbers from for a proposal.
@@ -68,7 +68,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             {estimations.map((e) => (
               <tr key={e.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <a href={`/estimations/${e.id}`} className="font-medium text-slate-900 hover:underline">
+                  <a
+                    href={`/estimations/${e.id}`}
+                    className="font-medium text-brand-ink transition-colors hover:text-brand-crimson hover:underline"
+                  >
                     {e.clientName}
                   </a>
                   {e.projectName && <div className="text-xs text-slate-500">{e.projectName}</div>}
@@ -80,7 +83,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <td className="px-4 py-3 text-right tabular-nums text-slate-700">
                   {formatHours(e.totalHours)}
                 </td>
-                <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900">
+                <td className="px-4 py-3 text-right tabular-nums font-medium text-brand-ink">
                   {formatCurrency(e.totalPrice)}
                 </td>
                 <td className="px-4 py-3 text-slate-500">{formatDate(e.updatedAt)}</td>

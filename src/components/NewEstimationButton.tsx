@@ -39,7 +39,7 @@ export function NewEstimationButton() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-700"
+        className="inline-flex items-center justify-center rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-indigo-hover"
       >
         + New estimation
       </button>
@@ -47,12 +47,12 @@ export function NewEstimationButton() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-ink/40 px-4">
       <form
         onSubmit={handleCreate}
         className="w-full max-w-sm rounded-lg bg-white p-5 shadow-xl"
       >
-        <h2 className="text-base font-semibold text-slate-900">New estimation</h2>
+        <h2 className="text-base font-semibold text-brand-ink">New estimation</h2>
         <p className="mt-1 text-xs text-slate-500">
           Starts from the standard Elixir estimation template. You can adjust or remove anything
           afterwards.
@@ -64,7 +64,7 @@ export function NewEstimationButton() {
               autoFocus
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
               placeholder="Acme Corp"
             />
           </label>
@@ -73,7 +73,7 @@ export function NewEstimationButton() {
             <input
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
               placeholder="HubSpot Sales & Marketing rollout"
             />
           </label>
@@ -82,12 +82,12 @@ export function NewEstimationButton() {
             <input
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
               placeholder="Optional — no login, so we track this by name"
             />
           </label>
         </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-brand-crimson">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
@@ -99,7 +99,7 @@ export function NewEstimationButton() {
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+            className="rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover disabled:opacity-60"
           >
             {submitting ? "Creating…" : "Create"}
           </button>

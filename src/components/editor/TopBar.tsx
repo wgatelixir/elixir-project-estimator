@@ -30,24 +30,24 @@ export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, err
             value={meta.clientName}
             onChange={(e) => onChange({ clientName: e.target.value })}
             placeholder="Client / prospect name"
-            className="min-w-[200px] flex-1 rounded-md border border-slate-300 px-3 py-2 text-base font-semibold text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className="min-w-[200px] flex-1 rounded-md border border-slate-300 px-3 py-2 text-base font-semibold text-brand-ink focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
           />
           <input
             value={meta.projectName}
             onChange={(e) => onChange({ projectName: e.target.value })}
             placeholder="Project name"
-            className="min-w-[200px] flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className="min-w-[200px] flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
           />
           <input
             value={meta.ownerName}
             onChange={(e) => onChange({ ownerName: e.target.value })}
             placeholder="Your name"
-            className="w-40 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className="w-40 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
           />
           <select
             value={meta.status}
             onChange={(e) => onChange({ status: e.target.value as EstimationStatus })}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
           >
             <option value="DRAFT">Draft</option>
             <option value="FINAL">Final</option>
@@ -61,18 +61,18 @@ export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, err
           <button
             onClick={onSave}
             disabled={saving || !dirty}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>
         </div>
       </div>
       <div className="mt-2">
-        <Link href="/" className="text-xs text-slate-400 hover:text-slate-600">
+        <Link href="/" className="text-xs text-slate-400 transition-colors hover:text-brand-crimson">
           &larr; Back to dashboard
         </Link>
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-brand-crimson">{error}</p>}
     </div>
   );
 }

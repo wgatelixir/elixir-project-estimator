@@ -55,12 +55,12 @@ export function ThirdPartyPanel({
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-900">
+        <label className="flex items-center gap-2 text-sm font-medium text-brand-ink">
           <input
             type="checkbox"
             checked={state.enabled}
             onChange={(e) => onChange({ ...state, enabled: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300"
+            className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
           Include third party integration
         </label>
@@ -95,7 +95,7 @@ export function ThirdPartyPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
             />
           </label>
-          <span className="font-medium text-slate-900">
+          <span className="font-medium text-brand-ink">
             {formatHours(totalHours)} &middot; {formatCurrency(totalHours * state.hourlyRate)}
           </span>
         </div>
@@ -125,7 +125,7 @@ export function ThirdPartyPanel({
                       type="checkbox"
                       checked={item.enabled}
                       onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
-                      className="h-4 w-4 rounded border-slate-300"
+                      className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
                     />
                   </td>
                   <td className="px-3 py-2 text-slate-500">{item.activity}</td>
@@ -133,21 +133,21 @@ export function ThirdPartyPanel({
                     <input
                       value={item.topic}
                       onChange={(e) => updateItem(item.id, { topic: e.target.value })}
-                      className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                      className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   <td className="px-3 py-2">
                     <input
                       value={item.from ?? ""}
                       onChange={(e) => updateItem(item.id, { from: e.target.value })}
-                      className="w-24 rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                      className="w-24 rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   <td className="px-3 py-2">
                     <input
                       value={item.to ?? ""}
                       onChange={(e) => updateItem(item.id, { to: e.target.value })}
-                      className="w-24 rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                      className="w-24 rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   <td className="px-3 py-2">
@@ -163,13 +163,13 @@ export function ThirdPartyPanel({
                       ))}
                     </select>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums font-medium text-slate-900">
+                  <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
                     {formatHours(thirdPartyLineItemHours(item, state))}
                   </td>
                   <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-slate-300 hover:text-red-600"
+                      className="text-slate-300 hover:text-brand-crimson"
                     >
                       &times;
                     </button>
@@ -210,7 +210,7 @@ export function ThirdPartyPanel({
         />
         <button
           onClick={addItem}
-          className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
+          className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
         >
           + Add line
         </button>

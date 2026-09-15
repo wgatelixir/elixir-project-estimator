@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
+/*
+ * Elixir Solutions brand palette, sourced from the official sales deck
+ * template's theme ("Elixir colors" color scheme in template.pptx) rather
+ * than guessed: indigo + crimson on an off-white mist background, matching
+ * the "elixir" wordmark (indigo type, crimson dot).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eff3f3;
+  --foreground: #1f1f1f;
+
+  --color-brand-indigo: #130078;
+  --color-brand-indigo-hover: #0d0056;
+  --color-brand-crimson: #e5003e;
+  --color-brand-crimson-hover: #c20033;
+  --color-brand-ink: #1f1f1f;
+  --color-brand-mist: #eff3f3;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand-indigo: var(--color-brand-indigo);
+  --color-brand-indigo-hover: var(--color-brand-indigo-hover);
+  --color-brand-crimson: var(--color-brand-crimson);
+  --color-brand-crimson-hover: var(--color-brand-crimson-hover);
+  --color-brand-ink: var(--color-brand-ink);
+  --color-brand-mist: var(--color-brand-mist);
+  --font-sans: var(--font-poppins);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Century Gothic first for anyone with the real brand font installed
+     (common on Windows/Office machines); Poppins is the web-safe fallback. */
+  font-family: "Century Gothic", var(--font-sans), Arial, Helvetica, sans-serif;
 }

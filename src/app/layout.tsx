@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Elixir's brand typeface is Century Gothic (see template.pptx theme), which
+// isn't a licensed web font. Poppins is the closest freely-embeddable
+// geometric sans, so it's the fallback for anyone without Century Gothic
+// installed locally.
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -20,21 +21,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
-        <header className="border-b border-slate-200 bg-white">
+    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-brand-mist text-brand-ink">
+        <header className="border-b border-black/5 bg-white">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-sm font-bold text-white">
-                E
+            <Link href="/" className="flex items-center gap-3">
+              <Image src="/elixir-logo.png" alt="Elixir" width={95} height={32} priority />
+              <span className="border-l border-black/10 pl-3 text-sm font-medium text-brand-ink/70">
+                Project Estimator
               </span>
-              <span>Project Estimator</span>
             </Link>
-            <nav className="text-sm text-slate-500">
-              <Link href="/" className="hover:text-slate-900">
+            <nav className="text-sm text-brand-ink/60">
+              <Link href="/" className="transition-colors hover:text-brand-crimson">
                 Dashboard
               </Link>
             </nav>

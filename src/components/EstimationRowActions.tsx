@@ -44,7 +44,7 @@ export function EstimationRowActions({ id, clientName }: { id: string; clientNam
       <button
         onClick={remove}
         disabled={busy !== null}
-        className="rounded px-2 py-1 font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+        className="rounded px-2 py-1 font-medium text-brand-crimson hover:bg-brand-crimson/10 disabled:opacity-50"
       >
         {busy === "delete" ? "…" : "Delete"}
       </button>

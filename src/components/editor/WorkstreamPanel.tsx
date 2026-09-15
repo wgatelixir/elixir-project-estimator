@@ -69,12 +69,12 @@ export function WorkstreamPanel({
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-900">
+        <label className="flex items-center gap-2 text-sm font-medium text-brand-ink">
           <input
             type="checkbox"
             checked={workstream.enabled}
             onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300"
+            className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
           Include this workstream
         </label>
@@ -89,7 +89,7 @@ export function WorkstreamPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
             />
           </label>
-          <span className="font-medium text-slate-900">
+          <span className="font-medium text-brand-ink">
             {formatHours(totalHours)} &middot; {formatCurrency(totalHours * workstream.hourlyRate)}
           </span>
         </div>
@@ -116,7 +116,7 @@ export function WorkstreamPanel({
                     type="checkbox"
                     checked={item.enabled}
                     onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
-                    className="h-4 w-4 rounded border-slate-300"
+                    className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
                   />
                 </td>
                 <td className="px-3 py-2 text-slate-500">{item.activity}</td>
@@ -124,7 +124,7 @@ export function WorkstreamPanel({
                   <input
                     value={item.topic}
                     onChange={(e) => updateItem(item.id, { topic: e.target.value })}
-                    className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                    className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                   />
                 </td>
                 <td className="px-3 py-2 text-right">
@@ -133,7 +133,7 @@ export function WorkstreamPanel({
                     step="0.5"
                     value={item.standardEffort}
                     onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
-                    className="w-16 rounded border border-transparent px-1.5 py-1 text-right tabular-nums hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                    className="w-16 rounded border border-transparent px-1.5 py-1 text-right tabular-nums hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                   />
                 </td>
                 <td className="px-3 py-2">
@@ -149,13 +149,13 @@ export function WorkstreamPanel({
                     ))}
                   </select>
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums font-medium text-slate-900">
+                <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
                   {formatHours(lineItemFinalEffort(item, workstream))}
                 </td>
                 <td className="px-3 py-2 text-right">
                   <button
                     onClick={() => removeItem(item.id)}
-                    className="text-slate-300 hover:text-red-600"
+                    className="text-slate-300 hover:text-brand-crimson"
                     title="Remove line"
                   >
                     &times;
@@ -205,7 +205,7 @@ export function WorkstreamPanel({
         </select>
         <button
           onClick={addItem}
-          className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
+          className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
         >
           + Add line
         </button>
@@ -214,7 +214,7 @@ export function WorkstreamPanel({
       <div className="border-t border-slate-100 p-3">
         <button
           onClick={() => setShowTables((v) => !v)}
-          className="text-xs font-medium text-slate-500 hover:text-slate-800"
+          className="text-xs font-medium text-slate-500 hover:text-brand-indigo"
         >
           {showTables ? "−" : "+"} Complexity tables (advanced)
         </button>

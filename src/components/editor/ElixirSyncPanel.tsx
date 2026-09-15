@@ -49,13 +49,13 @@ function StreamRow({
           type="checkbox"
           checked={stream.included}
           onChange={(e) => onChange({ ...stream, included: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300"
+          className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
         />
         <button
           onClick={() => setOpen((v) => !v)}
           className="flex flex-1 items-center justify-between text-left text-sm"
         >
-          <span className={stream.included ? "font-medium text-slate-900" : "text-slate-500"}>
+          <span className={stream.included ? "font-medium text-brand-ink" : "text-slate-500"}>
             {stream.label}
           </span>
           <span className="ml-3 flex items-center gap-2 text-slate-400">
@@ -84,7 +84,7 @@ function StreamRow({
                     <input
                       value={item.label}
                       onChange={(e) => updateItem(item.id, { label: e.target.value })}
-                      className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 hover:border-slate-200 focus:border-slate-400 focus:outline-none"
+                      className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   {(["optimistic", "pessimistic", "realistic"] as const).map((field) => (
@@ -101,7 +101,7 @@ function StreamRow({
                   <td className="text-right">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-slate-300 hover:text-red-600"
+                      className="text-slate-300 hover:text-brand-crimson"
                     >
                       &times;
                     </button>
@@ -119,7 +119,7 @@ function StreamRow({
             />
             <button
               onClick={addItem}
-              className="rounded bg-slate-900 px-2 py-1 text-xs font-medium text-white hover:bg-slate-700"
+              className="rounded bg-brand-indigo px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-indigo-hover"
             >
               + Add
             </button>
@@ -151,12 +151,12 @@ export function ElixirSyncPanel({
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-900">
+        <label className="flex items-center gap-2 text-sm font-medium text-brand-ink">
           <input
             type="checkbox"
             checked={state.enabled}
             onChange={(e) => onChange({ ...state, enabled: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300"
+            className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
           Include ElixirSync integration
         </label>
@@ -191,7 +191,7 @@ export function ElixirSyncPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
             />
           </label>
-          <span className="font-medium text-slate-900">
+          <span className="font-medium text-brand-ink">
             {formatHours(includedHours)} &middot; {formatCurrency(includedHours * hourlyRate)}
           </span>
         </div>
