@@ -112,14 +112,14 @@ export function WorkstreamPanel({
               <th className="w-8 px-3 py-2" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-200">
             {workstream.items.map((item) => {
               const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
               const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
               return (
                 <tr
                   key={item.id}
-                  className={`border-l-4 ${activityStyle.rowAccent} ${item.enabled ? "" : "opacity-40"}`}
+                  className={`${activityStyle.rowBg} ${item.enabled ? "" : "opacity-40"}`}
                 >
                   <td className="px-3 py-2">
                     <input

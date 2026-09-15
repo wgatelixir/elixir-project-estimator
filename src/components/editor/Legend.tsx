@@ -7,7 +7,7 @@ import {
 
 export function PanelLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 border-b border-slate-100 bg-slate-50/60 px-4 py-2 text-xs text-slate-500">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-slate-100 bg-slate-50/60 px-3 py-1.5 text-[11px] text-slate-500">
       <span className="font-medium text-slate-400">Activity:</span>
       {ACTIVITY_LEGEND.map((band) => {
         const style = ACTIVITY_STYLES[band];
