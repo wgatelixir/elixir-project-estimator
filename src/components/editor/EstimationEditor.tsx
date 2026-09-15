@@ -17,6 +17,9 @@ import { TabBar, type TabDef } from "./TabBar";
 import { WorkstreamPanel } from "./WorkstreamPanel";
 import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
+import { ProposalSummary } from "./ProposalSummary";
+
+const PROPOSAL_TAB_ID = "proposal_summary";
 
 interface Meta {
   clientName: string;
@@ -50,6 +53,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
       ...data.standardWorkstreams.map((ws) => ({ id: ws.key, label: ws.label })),
       { id: "third_party_integration", label: "Third Party Integration" },
       { id: "elixirsync_integration", label: "ElixirSync Integration" },
+      { id: PROPOSAL_TAB_ID, label: "📄 Proposal Summary" },
     ],
     [data.standardWorkstreams]
   );
@@ -131,38 +135,47 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
         error={error}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0">
+      {activeTab === PROPOSAL_TAB_ID ? (
+        <div className="mt-6">
           <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
           <div className="mt-4">
-            {activeWorkstream && (
-              <WorkstreamPanel
-                workstream={activeWorkstream}
-                onChange={(next) => updateWorkstream(activeWorkstream.key, next)}
-              />
-            )}
-            {activeTab === "third_party_integration" && (
-              <ThirdPartyPanel state={data.thirdPartyIntegration} onChange={updateThirdParty} />
-            )}
-            {activeTab === "elixirsync_integration" && (
-              <ElixirSyncPanel
-                state={data.elixirSyncIntegration}
-                onChange={updateElixirSync}
-                hourlyRate={data.elixirSyncIntegration.hourlyRate}
-              />
-            )}
+            <ProposalSummary meta={meta} data={data} />
           </div>
         </div>
+      ) : (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
+            <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
+            <div className="mt-4">
+              {activeWorkstream && (
+                <WorkstreamPanel
+                  workstream={activeWorkstream}
+                  onChange={(next) => updateWorkstream(activeWorkstream.key, next)}
+                />
+              )}
+              {activeTab === "third_party_integration" && (
+                <ThirdPartyPanel state={data.thirdPartyIntegration} onChange={updateThirdParty} />
+              )}
+              {activeTab === "elixirsync_integration" && (
+                <ElixirSyncPanel
+                  state={data.elixirSyncIntegration}
+                  onChange={updateElixirSync}
+                  hourlyRate={data.elixirSyncIntegration.hourlyRate}
+                />
+              )}
+            </div>
+          </div>
 
-        <div>
-          <SummarySidebar
-            totals={totals}
-            pmRate={data.pmRate}
-            pmPercent={data.pmPercent}
-            onChangePm={updatePm}
-          />
+          <div>
+            <SummarySidebar
+              totals={totals}
+              pmRate={data.pmRate}
+              pmPercent={data.pmPercent}
+              onChangePm={updatePm}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

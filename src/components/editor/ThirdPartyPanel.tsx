@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
 import { thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
+import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, COMPLEXITY_STYLES } from "@/lib/style";
+import { PanelLegend } from "./Legend";
 
 function slugId() {
   return `tp-${Math.random().toString(36).slice(2, 9)}`;
@@ -101,8 +103,10 @@ export function ThirdPartyPanel({
         </div>
       </div>
 
+      <PanelLegend />
+
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
@@ -118,8 +122,13 @@ export function ThirdPartyPanel({
           <tbody className="divide-y divide-slate-100">
             {state.items.map((item) => {
               const table = item.activity === "Session" ? state.sessionComplexity : state.setupComplexity;
+              const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
+              const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
               return (
-                <tr key={item.id} className={item.enabled ? "" : "opacity-40"}>
+                <tr
+                  key={item.id}
+                  className={`border-l-4 ${activityStyle.rowAccent} ${item.enabled ? "" : "opacity-40"}`}
+                >
                   <td className="px-3 py-2">
                     <input
                       type="checkbox"
@@ -128,7 +137,13 @@ export function ThirdPartyPanel({
                       className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
                     />
                   </td>
-                  <td className="px-3 py-2 text-slate-500">{item.activity}</td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
+                    >
+                      {item.activity}
+                    </span>
+                  </td>
                   <td className="px-3 py-2">
                     <input
                       value={item.topic}
@@ -154,7 +169,7 @@ export function ThirdPartyPanel({
                     <select
                       value={item.complexity}
                       onChange={(e) => updateItem(item.id, { complexity: e.target.value })}
-                      className="rounded border border-slate-200 px-1.5 py-1 text-sm"
+                      className={`rounded border px-1.5 py-1 text-sm font-medium ${complexityStyle.select}`}
                     >
                       {Object.keys(table).map((level) => (
                         <option key={level} value={level}>

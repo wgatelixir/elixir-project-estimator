@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { ComplexityTable, LineActivityType, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
+import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, COMPLEXITY_STYLES } from "@/lib/style";
+import { PanelLegend } from "./Legend";
 
 function slugId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -95,8 +97,10 @@ export function WorkstreamPanel({
         </div>
       </div>
 
+      <PanelLegend />
+
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
@@ -109,60 +113,73 @@ export function WorkstreamPanel({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {workstream.items.map((item) => (
-              <tr key={item.id} className={item.enabled ? "" : "opacity-40"}>
-                <td className="px-3 py-2">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
-                    className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
-                  />
-                </td>
-                <td className="px-3 py-2 text-slate-500">{item.activity}</td>
-                <td className="px-3 py-2">
-                  <input
-                    value={item.topic}
-                    onChange={(e) => updateItem(item.id, { topic: e.target.value })}
-                    className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                  />
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={item.standardEffort}
-                    onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
-                    className="w-16 rounded border border-transparent px-1.5 py-1 text-right tabular-nums hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                  />
-                </td>
-                <td className="px-3 py-2">
-                  <select
-                    value={item.complexity}
-                    onChange={(e) => updateItem(item.id, { complexity: e.target.value })}
-                    className="rounded border border-slate-200 px-1.5 py-1 text-sm"
-                  >
-                    {complexityOptionsFor(item, workstream).map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
-                  {formatHours(lineItemFinalEffort(item, workstream))}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="text-slate-300 hover:text-brand-crimson"
-                    title="Remove line"
-                  >
-                    &times;
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {workstream.items.map((item) => {
+              const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
+              const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
+              return (
+                <tr
+                  key={item.id}
+                  className={`border-l-4 ${activityStyle.rowAccent} ${item.enabled ? "" : "opacity-40"}`}
+                >
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
+                      className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
+                    >
+                      {item.activity}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <input
+                      value={item.topic}
+                      onChange={(e) => updateItem(item.id, { topic: e.target.value })}
+                      className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={item.standardEffort}
+                      onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
+                      className="w-16 rounded border border-transparent px-1.5 py-1 text-right tabular-nums hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <select
+                      value={item.complexity}
+                      onChange={(e) => updateItem(item.id, { complexity: e.target.value })}
+                      className={`rounded border px-1.5 py-1 text-sm font-medium ${complexityStyle.select}`}
+                    >
+                      {complexityOptionsFor(item, workstream).map((level) => (
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
+                    {formatHours(lineItemFinalEffort(item, workstream))}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-slate-300 hover:text-brand-crimson"
+                      title="Remove line"
+                    >
+                      &times;
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
