@@ -6,7 +6,8 @@ import type {
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
-import { formatCurrency } from "@/lib/format";
+import { computeEstimationTotals } from "@/lib/calculations";
+import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { RateHint } from "./RateHint";
 
@@ -19,11 +20,25 @@ const HUB_KEYS = [
   "dealhub_implementation",
 ];
 
+/** Live hours/price for a row, once its workstream is checked and worked out in its own tab - blank while unchecked so an all-zero row doesn't clutter the list. */
+function ResultBadge({ enabled, hours, price }: { enabled: boolean; hours: number; price: number }) {
+  if (!enabled) return null;
+  return (
+    <span className="min-w-[110px] text-right font-medium tabular-nums text-brand-ink">
+      {formatHours(hours)} &middot; {formatCurrency(price)}
+    </span>
+  );
+}
+
 function WorkstreamRow({
   workstream,
+  hours,
+  price,
   onChange,
 }: {
   workstream: StandardWorkstream;
+  hours: number;
+  price: number;
   onChange: (next: StandardWorkstream) => void;
 }) {
   return (
@@ -39,9 +54,12 @@ function WorkstreamRow({
           {workstream.label}
         </span>
       </span>
-      <span className="flex items-center gap-2 text-xs">
-        <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
-        <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
+      <span className="flex items-center gap-3 text-xs">
+        <span className="flex items-center gap-2">
+          <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
+          <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
+        </span>
+        <ResultBadge enabled={workstream.enabled} hours={hours} price={price} />
       </span>
     </label>
   );
@@ -52,12 +70,16 @@ function ToggleRow({
   rate,
   defaultRate,
   enabled,
+  hours,
+  price,
   onChange,
 }: {
   label: string;
   rate: number;
   defaultRate: number;
   enabled: boolean;
+  hours: number;
+  price: number;
   onChange: (enabled: boolean) => void;
 }) {
   return (
@@ -71,9 +93,12 @@ function ToggleRow({
         />
         <span className={`text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>{label}</span>
       </span>
-      <span className="flex items-center gap-2 text-xs">
-        <span className="font-medium text-slate-600">&euro;{rate}/h</span>
-        <RateHint rate={rate} defaultRate={defaultRate} />
+      <span className="flex items-center gap-3 text-xs">
+        <span className="flex items-center gap-2">
+          <span className="font-medium text-slate-600">&euro;{rate}/h</span>
+          <RateHint rate={rate} defaultRate={defaultRate} />
+        </span>
+        <ResultBadge enabled={enabled} hours={hours} price={price} />
       </span>
     </label>
   );
@@ -103,6 +128,9 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
   const foundation = FOUNDATION_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
   const hubs = HUB_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
 
+  const totals = computeEstimationTotals(data);
+  const resultFor = (key: string) => totals.workstreams.find((w) => w.key === key);
+
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -115,13 +143,25 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
 
       <GroupCard title="Foundation workstreams" description="Cross-cutting work that applies regardless of which hubs are in scope.">
         {foundation.map((ws) => (
-          <WorkstreamRow key={ws.key} workstream={ws} onChange={(next) => onChangeWorkstream(ws.key, next)} />
+          <WorkstreamRow
+            key={ws.key}
+            workstream={ws}
+            hours={resultFor(ws.key)?.hours ?? 0}
+            price={resultFor(ws.key)?.price ?? 0}
+            onChange={(next) => onChangeWorkstream(ws.key, next)}
+          />
         ))}
       </GroupCard>
 
       <GroupCard title="HubSpot hub implementations" description="The hubs this project will implement.">
         {hubs.map((ws) => (
-          <WorkstreamRow key={ws.key} workstream={ws} onChange={(next) => onChangeWorkstream(ws.key, next)} />
+          <WorkstreamRow
+            key={ws.key}
+            workstream={ws}
+            hours={resultFor(ws.key)?.hours ?? 0}
+            price={resultFor(ws.key)?.price ?? 0}
+            onChange={(next) => onChangeWorkstream(ws.key, next)}
+          />
         ))}
       </GroupCard>
 
@@ -131,6 +171,8 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
           rate={data.elixirSyncIntegration.hourlyRate}
           defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration}
           enabled={data.elixirSyncIntegration.enabled}
+          hours={totals.elixirSync.hours}
+          price={totals.elixirSync.price}
           onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
         />
         <ToggleRow
@@ -138,16 +180,31 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
           rate={data.thirdPartyIntegration.hourlyRate}
           defaultRate={DEFAULT_HOURLY_RATES.third_party_integration}
           enabled={data.thirdPartyIntegration.enabled}
+          hours={totals.thirdParty.hours}
+          price={totals.thirdParty.price}
           onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
         />
       </GroupCard>
 
       <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
         <span className="text-slate-500">Project management rate</span>
-        <span className="flex items-center gap-2">
-          <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate)}/h</span>
-          <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} />
+        <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2">
+            <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate)}/h</span>
+            <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} />
+          </span>
+          <span className="min-w-[110px] text-right text-xs font-medium tabular-nums text-brand-ink">
+            {formatHours(totals.pmHours)} &middot; {formatCurrency(totals.pmPrice)}
+          </span>
         </span>
+      </div>
+
+      <div className="flex items-center justify-between rounded-lg bg-brand-indigo px-4 py-3 text-white shadow-sm">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-white/80">Project total</div>
+          <div className="text-xs text-white/70">{formatHours(totals.totalEffortHours)} total effort</div>
+        </div>
+        <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice)}</div>
       </div>
     </div>
   );
