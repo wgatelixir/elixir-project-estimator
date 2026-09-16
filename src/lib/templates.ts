@@ -907,7 +907,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "cms_implementation",
     label: "CMS Implementation",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "cms_implementation-1-cms-kick-off-approach",
@@ -1277,7 +1277,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "deployment_golive",
     label: "HubSpot Deployment & Go-Live",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "deployment_golive-1-sales-key-user-training",

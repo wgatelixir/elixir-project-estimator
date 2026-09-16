@@ -52,15 +52,20 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   // The Proposal Summary is reached via a button under the grand total in
   // the sidebar, not through this tab bar - keeping it out of `tabs` keeps
-  // the bar to workstreams only.
+  // the bar to workstreams only. Only workstreams/integrations checked on
+  // the Cover page get a tab, so the bar always matches what's in scope.
   const tabs: TabDef[] = useMemo(
     () => [
       { id: COVER_TAB_ID, label: "📃 Cover" },
-      ...data.standardWorkstreams.map((ws) => ({ id: ws.key, label: ws.label })),
-      { id: "third_party_integration", label: "Third Party Integration" },
-      { id: "elixirsync_integration", label: "ElixirSync Integration" },
+      ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: ws.label })),
+      ...(data.thirdPartyIntegration.enabled
+        ? [{ id: "third_party_integration", label: "Third Party Integration" }]
+        : []),
+      ...(data.elixirSyncIntegration.enabled
+        ? [{ id: "elixirsync_integration", label: "ElixirSync Integration" }]
+        : []),
     ],
-    [data.standardWorkstreams]
+    [data.standardWorkstreams, data.thirdPartyIntegration.enabled, data.elixirSyncIntegration.enabled]
   );
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "");
 
