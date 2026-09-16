@@ -106,7 +106,7 @@ export function ThirdPartyPanel({
         </div>
       </div>
 
-      <PanelLegend />
+      <PanelLegend variant="thirdParty" />
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">

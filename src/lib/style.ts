@@ -56,6 +56,30 @@ export const COMPLEXITY_STYLES: Record<ComplexityBand, ComplexityStyle> = {
 };
 
 export const COMPLEXITY_LEGEND: ComplexityBand[] = ["low", "standard", "medium", "high"];
+export const COMPLEXITY_LEGEND_THIRD_PARTY: ComplexityBand[] = ["na", "low", "medium", "high"];
+
+/**
+ * What each complexity level means, condensed from the source spreadsheet's
+ * own "Comment" column (e.g. "3 hr Session with 2 people, high complexity
+ * and high preparation time"). Two variants because the meaning genuinely
+ * differs: standard workstreams describe session/setup prep time, while
+ * Third Party Integration describes integration-flow risk (and has no
+ * "Standard" level, only N/A/Low/Medium/High).
+ */
+export const COMPLEXITY_DESCRIPTIONS: Record<"standard" | "thirdParty", Partial<Record<ComplexityBand, string>>> = {
+  standard: {
+    low: "Less prep than usual — a quick, simple session or setup.",
+    standard: "The normal case — typical preparation and effort.",
+    medium: "More than standard — extra preparation and complexity.",
+    high: "Most complex — significant preparation, complexity and risk.",
+  },
+  thirdParty: {
+    na: "Not needed for this integration.",
+    low: "Known integration flows and technical setup — small risk of issues.",
+    medium: "Partly known integration flows and setup — medium risk of issues.",
+    high: "Unknown integration flows and setup — high risk of issues.",
+  },
+};
 
 export type ActivityBand = "session" | "setup" | "desk-work";
 
