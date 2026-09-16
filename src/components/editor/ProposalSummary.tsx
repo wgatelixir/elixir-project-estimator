@@ -8,6 +8,7 @@ import {
   ACTIVITY_STYLES,
   classifyActivity,
   classifyComplexity,
+  complexityHoursByBand,
   COMPLEXITY_STYLES,
 } from "@/lib/style";
 import { PanelLegend } from "./Legend";
@@ -103,10 +104,6 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-        <PanelLegend variant="standard" />
-      </div>
-
       {enabledWorkstreams.map((ws) => {
         const items = ws.items.filter((item) => item.enabled);
         const hours = items.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
@@ -163,65 +160,73 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 </tr>
               </tfoot>
             </table>
+            <PanelLegend
+              variant="standard"
+              position="bottom"
+              sessionHours={complexityHoursByBand(ws.sessionComplexity)}
+              setupHours={complexityHoursByBand(ws.setupComplexity)}
+            />
           </SectionCard>
         );
       })}
 
       {thirdParty.enabled && (
-        <>
-          <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-            <PanelLegend variant="thirdParty" showActivity={false} />
-          </div>
-          <SectionCard
-            title="Third Party Integration"
-            subtitle={`${formatHours(totals.thirdParty.hours)} · ${formatCurrency(totals.thirdParty.price)}`}
-          >
-            <table className="w-full table-fixed text-left">
-              <ColGroup widths={THIRD_PARTY_COLS} />
-              <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="truncate px-3 py-1 font-medium">Activity</th>
-                  <th className="truncate px-3 py-1 font-medium">Topic</th>
-                  <th className="truncate px-3 py-1 font-medium">From</th>
-                  <th className="truncate px-3 py-1 font-medium">To</th>
-                  <th className="truncate px-3 py-1 font-medium">Complexity</th>
-                  <th className="truncate px-3 py-1 text-right font-medium">Hours</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {thirdParty.items
-                  .filter((item) => item.enabled)
-                  .map((item) => {
-                    const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
-                    return (
-                      <tr key={item.id} className={activityStyle.rowBg}>
-                        <td className="px-3 py-1">
-                          <ActivityPill activity={item.activity} />
-                        </td>
-                        <td className="truncate px-3 py-1 text-brand-ink">{item.topic}</td>
-                        <td className="truncate px-3 py-1 text-slate-600">{item.from || "—"}</td>
-                        <td className="truncate px-3 py-1 text-slate-600">{item.to || "—"}</td>
-                        <td className="px-3 py-1">
-                          <ComplexityPill level={item.complexity} />
-                        </td>
-                        <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                          {formatHours(thirdPartyLineItemHours(item, thirdParty))}
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-              <tfoot>
-                <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-                  <td className="px-3 py-1" colSpan={5}>
-                    Total
-                  </td>
-                  <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.thirdParty.hours)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </SectionCard>
-        </>
+        <SectionCard
+          title="Third Party Integration"
+          subtitle={`${formatHours(totals.thirdParty.hours)} · ${formatCurrency(totals.thirdParty.price)}`}
+        >
+          <table className="w-full table-fixed text-left">
+            <ColGroup widths={THIRD_PARTY_COLS} />
+            <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
+              <tr>
+                <th className="truncate px-3 py-1 font-medium">Activity</th>
+                <th className="truncate px-3 py-1 font-medium">Topic</th>
+                <th className="truncate px-3 py-1 font-medium">From</th>
+                <th className="truncate px-3 py-1 font-medium">To</th>
+                <th className="truncate px-3 py-1 font-medium">Complexity</th>
+                <th className="truncate px-3 py-1 text-right font-medium">Hours</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {thirdParty.items
+                .filter((item) => item.enabled)
+                .map((item) => {
+                  const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
+                  return (
+                    <tr key={item.id} className={activityStyle.rowBg}>
+                      <td className="px-3 py-1">
+                        <ActivityPill activity={item.activity} />
+                      </td>
+                      <td className="truncate px-3 py-1 text-brand-ink">{item.topic}</td>
+                      <td className="truncate px-3 py-1 text-slate-600">{item.from || "—"}</td>
+                      <td className="truncate px-3 py-1 text-slate-600">{item.to || "—"}</td>
+                      <td className="px-3 py-1">
+                        <ComplexityPill level={item.complexity} />
+                      </td>
+                      <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                        {formatHours(thirdPartyLineItemHours(item, thirdParty))}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+                <td className="px-3 py-1" colSpan={5}>
+                  Total
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.thirdParty.hours)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <PanelLegend
+            variant="thirdParty"
+            showActivity={false}
+            position="bottom"
+            sessionHours={complexityHoursByBand(thirdParty.sessionComplexity)}
+            setupHours={complexityHoursByBand(thirdParty.setupComplexity)}
+          />
+        </SectionCard>
       )}
 
       {elixirSync.enabled && (
@@ -348,7 +353,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
         </table>
         <div className="flex items-center justify-between bg-brand-indigo px-3 py-2 text-white">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-brand-crimson">Grand total</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-white/80">Grand total</div>
             <div className="text-[10px] text-white/70">{formatHours(totals.totalEffortHours)} total effort</div>
           </div>
           <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice)}</div>

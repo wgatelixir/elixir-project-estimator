@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ComplexityTable, LineActivityType, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
-import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, COMPLEXITY_STYLES } from "@/lib/style";
+import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, complexityHoursByBand, COMPLEXITY_STYLES } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { PanelLegend } from "./Legend";
 import { RateHint } from "./RateHint";
@@ -100,7 +100,10 @@ export function WorkstreamPanel({
         </div>
       </div>
 
-      <PanelLegend />
+      <PanelLegend
+        sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
+        setupHours={complexityHoursByBand(workstream.setupComplexity)}
+      />
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">

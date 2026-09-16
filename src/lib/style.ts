@@ -3,6 +3,8 @@
 // read-only proposal summary (static pills) so the two stay visually
 // consistent.
 
+import type { ComplexityTable } from "./types";
+
 export type ComplexityBand = "low" | "standard" | "medium" | "high" | "na";
 
 /** Classifies any of the source sheets' level labels ("Low", "High complexity", "N/A", ...). */
@@ -57,6 +59,15 @@ export const COMPLEXITY_STYLES: Record<ComplexityBand, ComplexityStyle> = {
 
 export const COMPLEXITY_LEGEND: ComplexityBand[] = ["low", "standard", "medium", "high"];
 export const COMPLEXITY_LEGEND_THIRD_PARTY: ComplexityBand[] = ["na", "low", "medium", "high"];
+
+/** Maps a workstream/integration's own complexity table to the +/- hours delta per band, for the legend. */
+export function complexityHoursByBand(table: ComplexityTable): Partial<Record<ComplexityBand, number>> {
+  const result: Partial<Record<ComplexityBand, number>> = {};
+  for (const [level, entry] of Object.entries(table)) {
+    result[classifyComplexity(level)] = entry.hours;
+  }
+  return result;
+}
 
 /**
  * What each complexity level means, condensed from the source spreadsheet's
