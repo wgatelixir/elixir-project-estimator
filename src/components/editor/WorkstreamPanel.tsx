@@ -195,6 +195,24 @@ export function WorkstreamPanel({
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+              <td className="px-3 py-2" colSpan={5}>
+                Total final effort
+              </td>
+              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours)}</td>
+              <td className="px-3 py-2" />
+            </tr>
+            <tr className="bg-slate-50 text-brand-ink">
+              <td className="px-3 py-2" colSpan={5}>
+                Budget
+              </td>
+              <td className="px-3 py-2 text-right font-semibold tabular-nums">
+                {formatCurrency(totalHours * workstream.hourlyRate)}
+              </td>
+              <td className="px-3 py-2" />
+            </tr>
+          </tfoot>
         </table>
       </div>
 
