@@ -17,7 +17,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "business_assessment",
     label: "Business Assessment",
     enabled: true,
-    hourlyRate: 175,
+    hourlyRate: 150,
     items: [
       {
         id: "business_assessment-1-strategy-interview",
@@ -127,7 +127,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "technical_assessment",
     label: "Technical Assessment",
     enabled: true,
-    hourlyRate: 175,
+    hourlyRate: 150,
     items: [
       {
         id: "technical_assessment-1-understanding-situation-processes",
@@ -347,7 +347,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "sales_implementation",
     label: "Sales Implementation",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "sales_implementation-1-sales-kick-off-workshop",
@@ -527,7 +527,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "service_implementation",
     label: "Service Implementation",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "service_implementation-1-service-kick-off-workshop",
@@ -707,7 +707,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "marketing_implementation",
     label: "Marketing Implementation",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "marketing_implementation-1-marketing-kick-off-tech-questionnaire",
@@ -2283,7 +2283,7 @@ export const ELIXIRSYNC_INTEGRATION_TEMPLATE: ElixirSyncIntegrationState = {
   subscriptionUnitPrice: 5000,
 };
 
-export const DEFAULT_PM_RATE = 175;
+export const DEFAULT_PM_RATE = 150;
 export const DEFAULT_PM_PERCENT = 0.15;
 
 export function createDefaultEstimationState(): EstimationState {

@@ -14,11 +14,13 @@ import { computeEstimationTotals } from "@/lib/calculations";
 import { TopBar } from "./TopBar";
 import { SummarySidebar } from "./SummarySidebar";
 import { TabBar, type TabDef } from "./TabBar";
+import { CoverPage } from "./CoverPage";
 import { WorkstreamPanel } from "./WorkstreamPanel";
 import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
 import { ProposalSummary } from "./ProposalSummary";
 
+const COVER_TAB_ID = "cover";
 const PROPOSAL_TAB_ID = "proposal_summary";
 
 interface Meta {
@@ -48,12 +50,15 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   const totals = useMemo(() => computeEstimationTotals(data), [data]);
 
+  // The Proposal Summary is reached via a button under the grand total in
+  // the sidebar, not through this tab bar - keeping it out of `tabs` keeps
+  // the bar to workstreams only.
   const tabs: TabDef[] = useMemo(
     () => [
+      { id: COVER_TAB_ID, label: "📃 Cover" },
       ...data.standardWorkstreams.map((ws) => ({ id: ws.key, label: ws.label })),
       { id: "third_party_integration", label: "Third Party Integration" },
       { id: "elixirsync_integration", label: "ElixirSync Integration" },
-      { id: PROPOSAL_TAB_ID, label: "📄 Proposal Summary" },
     ],
     [data.standardWorkstreams]
   );
@@ -147,6 +152,14 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           <div className="min-w-0">
             <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
             <div className="mt-4">
+              {activeTab === COVER_TAB_ID && (
+                <CoverPage
+                  data={data}
+                  onChangeWorkstream={updateWorkstream}
+                  onChangeThirdParty={updateThirdParty}
+                  onChangeElixirSync={updateElixirSync}
+                />
+              )}
               {activeWorkstream && (
                 <WorkstreamPanel
                   workstream={activeWorkstream}
@@ -172,6 +185,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               pmRate={data.pmRate}
               pmPercent={data.pmPercent}
               onChangePm={updatePm}
+              onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
             />
           </div>
         </div>

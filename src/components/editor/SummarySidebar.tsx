@@ -8,9 +8,10 @@ interface SummarySidebarProps {
   pmRate: number;
   pmPercent: number;
   onChangePm: (next: { pmRate?: number; pmPercent?: number }) => void;
+  onOpenProposal: () => void;
 }
 
-export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: SummarySidebarProps) {
+export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm, onOpenProposal }: SummarySidebarProps) {
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -111,6 +112,13 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm }: Summar
             {formatCurrency(totals.grandTotalPrice)}
           </div>
         </div>
+
+        <button
+          onClick={onOpenProposal}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-brand-indigo px-3 py-2 text-sm font-medium text-brand-indigo transition-colors hover:bg-brand-indigo hover:text-white"
+        >
+          📄 View Proposal Summary
+        </button>
       </div>
     </div>
   );
