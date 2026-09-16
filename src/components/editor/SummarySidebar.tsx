@@ -2,6 +2,16 @@
 
 import type { EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
+import type { ComplexityBand } from "@/lib/style";
+import { PanelLegend } from "./Legend";
+
+export interface ActiveComplexityLegend {
+  label: string;
+  variant: "standard" | "thirdParty";
+  sessionHours: Partial<Record<ComplexityBand, number>>;
+  setupHours: Partial<Record<ComplexityBand, number>>;
+  comments: Partial<Record<ComplexityBand, string>>;
+}
 
 interface SummarySidebarProps {
   totals: EstimationTotals;
@@ -9,9 +19,18 @@ interface SummarySidebarProps {
   pmPercent: number;
   onChangePm: (next: { pmRate?: number; pmPercent?: number }) => void;
   onOpenProposal: () => void;
+  /** Complexity guide for whichever tab is currently open, so it stays visible while scrolling a long workstream. Undefined on tabs with no complexity system (Cover, ElixirSync). */
+  legend?: ActiveComplexityLegend;
 }
 
-export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm, onOpenProposal }: SummarySidebarProps) {
+export function SummarySidebar({
+  totals,
+  pmRate,
+  pmPercent,
+  onChangePm,
+  onOpenProposal,
+  legend,
+}: SummarySidebarProps) {
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -120,6 +139,23 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm, onOpenPr
           📄 View Proposal Summary
         </button>
       </div>
+
+      {legend && (
+        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="px-4 pt-3 pb-1">
+            <h2 className="text-sm font-semibold text-brand-ink">{legend.label}</h2>
+            <p className="text-xs text-slate-400">Complexity guide</p>
+          </div>
+          <PanelLegend
+            variant={legend.variant}
+            showActivity={legend.variant === "standard"}
+            sessionHours={legend.sessionHours}
+            setupHours={legend.setupHours}
+            comments={legend.comments}
+            layout="compact"
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   ACTIVITY_STYLES,
   classifyActivity,
   classifyComplexity,
+  complexityCommentsByBand,
   complexityHoursByBand,
   COMPLEXITY_STYLES,
 } from "@/lib/style";
@@ -165,6 +166,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               position="bottom"
               sessionHours={complexityHoursByBand(ws.sessionComplexity)}
               setupHours={complexityHoursByBand(ws.setupComplexity)}
+              comments={complexityCommentsByBand(ws.sessionComplexity)}
             />
           </SectionCard>
         );
@@ -225,6 +227,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             position="bottom"
             sessionHours={complexityHoursByBand(thirdParty.sessionComplexity)}
             setupHours={complexityHoursByBand(thirdParty.setupComplexity)}
+            comments={complexityCommentsByBand(thirdParty.sessionComplexity)}
           />
         </SectionCard>
       )}

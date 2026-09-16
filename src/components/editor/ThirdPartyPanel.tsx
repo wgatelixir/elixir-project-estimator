@@ -4,7 +4,14 @@ import { useState } from "react";
 import type { ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
 import { thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
-import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, complexityHoursByBand, COMPLEXITY_STYLES } from "@/lib/style";
+import {
+  ACTIVITY_STYLES,
+  classifyActivity,
+  classifyComplexity,
+  complexityCommentsByBand,
+  complexityHoursByBand,
+  COMPLEXITY_STYLES,
+} from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { PanelLegend } from "./Legend";
 import { RateHint } from "./RateHint";
@@ -110,6 +117,7 @@ export function ThirdPartyPanel({
         variant="thirdParty"
         sessionHours={complexityHoursByBand(state.sessionComplexity)}
         setupHours={complexityHoursByBand(state.setupComplexity)}
+        comments={complexityCommentsByBand(state.sessionComplexity)}
       />
 
       <div className="overflow-x-auto">

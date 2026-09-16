@@ -70,12 +70,28 @@ export function complexityHoursByBand(table: ComplexityTable): Partial<Record<Co
 }
 
 /**
- * What each complexity level means, condensed from the source spreadsheet's
- * own "Comment" column (e.g. "3 hr Session with 2 people, high complexity
- * and high preparation time"). Two variants because the meaning genuinely
- * differs: standard workstreams describe session/setup prep time, while
- * Third Party Integration describes integration-flow risk (and has no
- * "Standard" level, only N/A/Low/Medium/High).
+ * Maps a complexity table to the source spreadsheet's own "Comment" text per
+ * band (e.g. "3 hr Session with 2 people, high complexity and high
+ * preparation time"). Only the Session table carries these in the original
+ * sheet - Setup rows share the same levels but were left uncommented there -
+ * so callers should read this from a Session table even when describing
+ * Setup rows too. Entries without a comment (nulls) are omitted so callers
+ * can fall back to COMPLEXITY_DESCRIPTIONS.
+ */
+export function complexityCommentsByBand(table: ComplexityTable): Partial<Record<ComplexityBand, string>> {
+  const result: Partial<Record<ComplexityBand, string>> = {};
+  for (const [level, entry] of Object.entries(table)) {
+    if (entry.comment) result[classifyComplexity(level)] = entry.comment;
+  }
+  return result;
+}
+
+/**
+ * Generic fallback wording for each complexity level, used only when a
+ * workstream/integration's own table has no Comment text for that band.
+ * Two variants because the meaning genuinely differs: standard workstreams
+ * describe session/setup prep time, while Third Party Integration describes
+ * integration-flow risk (and has no "Standard" level, only N/A/Low/Medium/High).
  */
 export const COMPLEXITY_DESCRIPTIONS: Record<"standard" | "thirdParty", Partial<Record<ComplexityBand, string>>> = {
   standard: {

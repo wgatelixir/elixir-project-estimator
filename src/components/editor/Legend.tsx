@@ -18,8 +18,12 @@ interface PanelLegendProps {
   sessionHours?: Partial<Record<ComplexityBand, number>>;
   /** +/- hours delta per band, read from the Setup complexity table currently in effect. */
   setupHours?: Partial<Record<ComplexityBand, number>>;
+  /** Real spreadsheet "Comment" text per band (from the Session table - see complexityCommentsByBand). Falls back to the generic COMPLEXITY_DESCRIPTIONS wording where absent. */
+  comments?: Partial<Record<ComplexityBand, string>>;
   /** Where the legend sits relative to its panel's content, so its border faces the right way. */
   position?: "top" | "bottom";
+  /** "wide" (default) lays levels out in a 2/4-col grid for full-width panels; "compact" stacks them in one column for narrow containers like the sidebar. */
+  layout?: "wide" | "compact";
 }
 
 function deltaTextFor(
@@ -40,11 +44,15 @@ export function PanelLegend({
   showActivity = true,
   sessionHours,
   setupHours,
+  comments,
   position = "top",
+  layout = "wide",
 }: PanelLegendProps) {
   const bands = variant === "thirdParty" ? COMPLEXITY_LEGEND_THIRD_PARTY : COMPLEXITY_LEGEND;
-  const descriptions = COMPLEXITY_DESCRIPTIONS[variant];
+  const fallbackDescriptions = COMPLEXITY_DESCRIPTIONS[variant];
   const borderClass = position === "bottom" ? "border-t" : "border-b";
+  const gridClass =
+    layout === "compact" ? "flex flex-col gap-1.5" : "grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4";
 
   return (
     <div className={`${borderClass} border-slate-100 bg-slate-50/60 px-3 py-2 text-[11px] text-slate-500`}>
@@ -62,7 +70,7 @@ export function PanelLegend({
           })}
         </div>
       )}
-      <div className={`grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4 ${showActivity ? "mt-1.5" : ""}`}>
+      <div className={`${gridClass} ${showActivity ? "mt-1.5" : ""}`}>
         {bands.map((band) => {
           const style = COMPLEXITY_STYLES[band];
           const delta = deltaTextFor(band, sessionHours, setupHours);
@@ -74,7 +82,7 @@ export function PanelLegend({
                   {style.label}
                   {delta && <span className="font-normal text-slate-500"> ({delta})</span>}:
                 </span>{" "}
-                <span>{descriptions[band]}</span>
+                <span>{comments?.[band] ?? fallbackDescriptions[band]}</span>
               </span>
             </div>
           );

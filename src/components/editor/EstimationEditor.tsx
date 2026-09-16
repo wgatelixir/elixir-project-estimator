@@ -11,8 +11,9 @@ import type {
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
+import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { TopBar } from "./TopBar";
-import { SummarySidebar } from "./SummarySidebar";
+import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
 import { TabBar, type TabDef } from "./TabBar";
 import { CoverPage } from "./CoverPage";
 import { WorkstreamPanel } from "./WorkstreamPanel";
@@ -133,6 +134,28 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   const activeWorkstream = data.standardWorkstreams.find((ws) => ws.key === activeTab);
 
+  // Drives the "Complexity guide" block in the sticky sidebar, so it stays
+  // visible while scrolling a long workstream. Undefined on tabs with no
+  // complexity system of their own (Cover, ElixirSync).
+  let sidebarLegend: ActiveComplexityLegend | undefined;
+  if (activeWorkstream) {
+    sidebarLegend = {
+      label: activeWorkstream.label,
+      variant: "standard",
+      sessionHours: complexityHoursByBand(activeWorkstream.sessionComplexity),
+      setupHours: complexityHoursByBand(activeWorkstream.setupComplexity),
+      comments: complexityCommentsByBand(activeWorkstream.sessionComplexity),
+    };
+  } else if (activeTab === "third_party_integration") {
+    sidebarLegend = {
+      label: "Third Party Integration",
+      variant: "thirdParty",
+      sessionHours: complexityHoursByBand(data.thirdPartyIntegration.sessionComplexity),
+      setupHours: complexityHoursByBand(data.thirdPartyIntegration.setupComplexity),
+      comments: complexityCommentsByBand(data.thirdPartyIntegration.sessionComplexity),
+    };
+  }
+
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
       <TopBar
@@ -191,6 +214,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               pmPercent={data.pmPercent}
               onChangePm={updatePm}
               onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
+              legend={sidebarLegend}
             />
           </div>
         </div>
