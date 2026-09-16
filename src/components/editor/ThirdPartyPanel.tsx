@@ -5,7 +5,9 @@ import type { ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLine
 import { thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, COMPLEXITY_STYLES } from "@/lib/style";
+import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { PanelLegend } from "./Legend";
+import { RateHint } from "./RateHint";
 
 function slugId() {
   return `tp-${Math.random().toString(36).slice(2, 9)}`;
@@ -74,9 +76,10 @@ export function ThirdPartyPanel({
               min={0}
               value={state.hourlyRate}
               onChange={(e) => onChange({ ...state, hourlyRate: Number(e.target.value) })}
-              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
+              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
+          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.third_party_integration} />
           <label className="flex items-center gap-1.5">
             Subscription qty
             <input

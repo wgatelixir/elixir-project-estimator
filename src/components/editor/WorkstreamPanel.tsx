@@ -5,7 +5,9 @@ import type { ComplexityTable, LineActivityType, StandardLineItem, StandardWorks
 import { lineItemFinalEffort } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import { ACTIVITY_STYLES, classifyActivity, classifyComplexity, COMPLEXITY_STYLES } from "@/lib/style";
+import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { PanelLegend } from "./Legend";
+import { RateHint } from "./RateHint";
 
 function slugId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -88,9 +90,10 @@ export function WorkstreamPanel({
               min={0}
               value={workstream.hourlyRate}
               onChange={(e) => onChange({ ...workstream, hourlyRate: Number(e.target.value) })}
-              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
+              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
+          <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
           <span className="font-medium text-brand-ink">
             {formatHours(totalHours)} &middot; {formatCurrency(totalHours * workstream.hourlyRate)}
           </span>

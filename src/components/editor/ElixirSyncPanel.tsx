@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { ElixirSyncIntegrationState, ElixirSyncLineItem, ElixirSyncStream } from "@/lib/types";
 import { elixirSyncStreamHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
+import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { RateHint } from "./RateHint";
 
 function slugId() {
   return `es-${Math.random().toString(36).slice(2, 9)}`;
@@ -168,9 +170,10 @@ export function ElixirSyncPanel({
               min={0}
               value={state.hourlyRate}
               onChange={(e) => onChange({ ...state, hourlyRate: Number(e.target.value) })}
-              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
+              className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
+          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration} />
           <label className="flex items-center gap-1.5">
             Subscription qty
             <input

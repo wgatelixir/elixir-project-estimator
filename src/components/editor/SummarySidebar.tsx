@@ -2,6 +2,8 @@
 
 import type { EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
+import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { RateHint } from "./RateHint";
 
 interface SummarySidebarProps {
   totals: EstimationTotals;
@@ -81,6 +83,9 @@ export function SummarySidebar({ totals, pmRate, pmPercent, onChangePm, onOpenPr
               onChange={(e) => onChangePm({ pmRate: Number(e.target.value) })}
               className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
+          </div>
+          <div className="mt-1">
+            <RateHint rate={pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} />
           </div>
         </div>
 

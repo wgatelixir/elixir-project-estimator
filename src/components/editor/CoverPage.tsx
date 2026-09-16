@@ -7,6 +7,8 @@ import type {
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
+import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { RateHint } from "./RateHint";
 
 const FOUNDATION_KEYS = ["business_assessment", "technical_assessment", "data_migration", "deployment_golive"];
 const HUB_KEYS = [
@@ -37,7 +39,10 @@ function WorkstreamRow({
           {workstream.label}
         </span>
       </span>
-      <span className="text-xs text-slate-400">&euro;{workstream.hourlyRate}/h</span>
+      <span className="flex items-center gap-2 text-xs">
+        <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
+        <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
+      </span>
     </label>
   );
 }
@@ -45,11 +50,13 @@ function WorkstreamRow({
 function ToggleRow({
   label,
   rate,
+  defaultRate,
   enabled,
   onChange,
 }: {
   label: string;
   rate: number;
+  defaultRate: number;
   enabled: boolean;
   onChange: (enabled: boolean) => void;
 }) {
@@ -64,7 +71,10 @@ function ToggleRow({
         />
         <span className={`text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>{label}</span>
       </span>
-      <span className="text-xs text-slate-400">&euro;{rate}/h</span>
+      <span className="flex items-center gap-2 text-xs">
+        <span className="font-medium text-slate-600">&euro;{rate}/h</span>
+        <RateHint rate={rate} defaultRate={defaultRate} />
+      </span>
     </label>
   );
 }
@@ -119,20 +129,25 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
         <ToggleRow
           label="ElixirSync Integration"
           rate={data.elixirSyncIntegration.hourlyRate}
+          defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration}
           enabled={data.elixirSyncIntegration.enabled}
           onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
         />
         <ToggleRow
           label="Third Party Integration"
           rate={data.thirdPartyIntegration.hourlyRate}
+          defaultRate={DEFAULT_HOURLY_RATES.third_party_integration}
           enabled={data.thirdPartyIntegration.enabled}
           onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
         />
       </GroupCard>
 
       <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
-        <span className="text-slate-500">Default project management rate</span>
-        <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate)}/h</span>
+        <span className="text-slate-500">Project management rate</span>
+        <span className="flex items-center gap-2">
+          <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate)}/h</span>
+          <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} />
+        </span>
       </div>
     </div>
   );

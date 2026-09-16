@@ -1077,7 +1077,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
     key: "dealhub_implementation",
     label: "DealHub Implementation",
     enabled: true,
-    hourlyRate: 150,
+    hourlyRate: 135,
     items: [
       {
         id: "dealhub_implementation-1-cpq-kick-off-approach",
@@ -2295,3 +2295,16 @@ export function createDefaultEstimationState(): EstimationState {
     pmPercent: DEFAULT_PM_PERCENT,
   };
 }
+
+/**
+ * Standard rate-card prices, keyed by workstream key (plus the two
+ * integrations and "pm"). These stay fixed even when a specific
+ * estimation's hourlyRate is overridden, so the UI can show "this
+ * estimation deviates from the standard rate" next to the editable field.
+ */
+export const DEFAULT_HOURLY_RATES: Record<string, number> = {
+  ...Object.fromEntries(STANDARD_WORKSTREAM_TEMPLATES.map((ws) => [ws.key, ws.hourlyRate])),
+  third_party_integration: THIRD_PARTY_INTEGRATION_TEMPLATE.hourlyRate,
+  elixirsync_integration: ELIXIRSYNC_INTEGRATION_TEMPLATE.hourlyRate,
+  pm: DEFAULT_PM_RATE,
+};
