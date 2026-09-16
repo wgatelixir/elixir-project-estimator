@@ -72,7 +72,7 @@ export function PanelLegend({
               <span>
                 <span className="font-medium text-slate-600">
                   {style.label}
-                  {delta && <span className="font-normal text-slate-400"> ({delta})</span>}:
+                  {delta && <span className="font-normal text-slate-500"> ({delta})</span>}:
                 </span>{" "}
                 <span>{descriptions[band]}</span>
               </span>
