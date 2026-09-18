@@ -26,7 +26,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: null,
+        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
         enabled: true,
       },
       {
@@ -36,7 +36,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: null,
+        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
         enabled: true,
       },
       {
@@ -46,7 +46,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: null,
+        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
         enabled: true,
       },
       {
@@ -56,7 +56,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: null,
+        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
         enabled: true,
       },
       {
@@ -66,7 +66,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: null,
+        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
         enabled: true,
       },
       {

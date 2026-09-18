@@ -14,6 +14,7 @@ import {
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { PanelLegend } from "./Legend";
+import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
 
 function slugId(prefix: string) {
@@ -156,6 +157,7 @@ export function WorkstreamPanel({
                       onChange={(e) => updateItem(item.id, { topic: e.target.value })}
                       className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
+                    <LineItemNote comment={item.comment} />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input

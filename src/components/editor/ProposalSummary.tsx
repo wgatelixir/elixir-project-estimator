@@ -13,6 +13,7 @@ import {
   COMPLEXITY_STYLES,
 } from "@/lib/style";
 import { PanelLegend } from "./Legend";
+import { LineItemNote } from "./LineItemNote";
 
 interface Meta {
   clientName: string;
@@ -133,7 +134,10 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                       <td className="px-3 py-1">
                         <ActivityPill activity={item.activity} />
                       </td>
-                      <td className="truncate px-3 py-1 text-brand-ink">{item.topic}</td>
+                      <td className="px-3 py-1 text-brand-ink">
+                        <div className="truncate">{item.topic}</div>
+                        <LineItemNote comment={item.comment} />
+                      </td>
                       <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
                       <td className="px-3 py-1">
                         <ComplexityPill level={item.complexity} />
