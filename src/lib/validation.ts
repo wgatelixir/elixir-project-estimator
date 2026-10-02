@@ -1,8 +1,13 @@
 import { z } from "zod";
 
+const localizedStringSchema = z.object({
+  en: z.string(),
+  nl: z.string(),
+});
+
 const complexityTableEntrySchema = z.object({
   hours: z.number(),
-  comment: z.string().nullable().optional(),
+  comment: localizedStringSchema.nullable().optional(),
 });
 
 const complexityTableSchema = z.record(z.string(), complexityTableEntrySchema);
@@ -10,17 +15,17 @@ const complexityTableSchema = z.record(z.string(), complexityTableEntrySchema);
 const standardLineItemSchema = z.object({
   id: z.string(),
   activity: z.enum(["Session", "Setup", "Desk work"]),
-  topic: z.string(),
+  topic: localizedStringSchema,
   standardEffort: z.number(),
   complexityTable: z.enum(["session", "setup"]),
   complexity: z.string(),
-  comment: z.string().nullable().optional(),
+  comment: localizedStringSchema.nullable().optional(),
   enabled: z.boolean(),
 });
 
 const standardWorkstreamSchema = z.object({
   key: z.string(),
-  label: z.string(),
+  label: localizedStringSchema,
   enabled: z.boolean(),
   hourlyRate: z.number().nonnegative(),
   items: z.array(standardLineItemSchema),
@@ -31,7 +36,7 @@ const standardWorkstreamSchema = z.object({
 const thirdPartyLineItemSchema = z.object({
   id: z.string(),
   activity: z.enum(["Session", "Setup"]),
-  topic: z.string(),
+  topic: localizedStringSchema,
   from: z.string().nullable().optional(),
   to: z.string().nullable().optional(),
   complexity: z.string(),
@@ -92,6 +97,7 @@ const hubspotLicenseSchema = z.object({
 });
 
 export const estimationStateSchema = z.object({
+  locale: z.enum(["en", "nl"]),
   standardWorkstreams: z.array(standardWorkstreamSchema),
   thirdPartyIntegration: thirdPartyIntegrationSchema,
   elixirSyncIntegration: elixirSyncIntegrationSchema,

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { ElixirSyncIntegrationState, ElixirSyncLineItem, ElixirSyncStream } from "@/lib/types";
+import type { ElixirSyncIntegrationState, ElixirSyncLineItem, ElixirSyncStream, Locale } from "@/lib/types";
 import { elixirSyncStreamHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
 
 function slugId() {
@@ -14,10 +15,13 @@ function slugId() {
 function StreamRow({
   stream,
   onChange,
+  locale,
 }: {
   stream: ElixirSyncStream;
   onChange: (next: ElixirSyncStream) => void;
+  locale: Locale;
 }) {
+  const s = UI_STRINGS.elixirSyncPanel;
   const [open, setOpen] = useState(false);
   const [newLabel, setNewLabel] = useState("");
 
@@ -61,7 +65,7 @@ function StreamRow({
             {stream.label}
           </span>
           <span className="ml-3 flex items-center gap-2 text-slate-400">
-            <span className="tabular-nums">{formatHours(hours)}</span>
+            <span className="tabular-nums">{formatHours(hours, locale)}</span>
             <span>{open ? "−" : "+"}</span>
           </span>
         </button>
@@ -72,10 +76,10 @@ function StreamRow({
           <table className="w-full text-left text-xs">
             <thead className="text-slate-400">
               <tr>
-                <th className="py-1 pr-2 font-medium">Task</th>
-                <th className="py-1 px-2 text-right font-medium">Optimistic</th>
-                <th className="py-1 px-2 text-right font-medium">Pessimistic</th>
-                <th className="py-1 px-2 text-right font-medium">Realistic</th>
+                <th className="py-1 pr-2 font-medium">{t(s.columnTask, locale)}</th>
+                <th className="py-1 px-2 text-right font-medium">{t(s.columnOptimistic, locale)}</th>
+                <th className="py-1 px-2 text-right font-medium">{t(s.columnPessimistic, locale)}</th>
+                <th className="py-1 px-2 text-right font-medium">{t(s.columnRealistic, locale)}</th>
                 <th className="w-6" />
               </tr>
             </thead>
@@ -116,14 +120,14 @@ function StreamRow({
             <input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
-              placeholder="New task…"
+              placeholder={t(s.newTaskPlaceholder, locale)}
               className="flex-1 rounded border border-slate-300 px-2 py-1 text-xs"
             />
             <button
               onClick={addItem}
               className="rounded bg-brand-indigo px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-indigo-hover"
             >
-              + Add
+              {t(s.add, locale)}
             </button>
           </div>
         </div>
@@ -136,18 +140,21 @@ export function ElixirSyncPanel({
   state,
   onChange,
   hourlyRate,
+  locale = "en",
 }: {
   state: ElixirSyncIntegrationState;
   onChange: (next: ElixirSyncIntegrationState) => void;
   hourlyRate: number;
+  locale?: Locale;
 }) {
+  const s = UI_STRINGS.elixirSyncPanel;
   const includedHours = state.streams.reduce(
-    (sum, s) => (s.included ? sum + elixirSyncStreamHours(s) : sum),
+    (sum, stream) => (stream.included ? sum + elixirSyncStreamHours(stream) : sum),
     0
   );
 
   function updateStream(id: string, next: ElixirSyncStream) {
-    onChange({ ...state, streams: state.streams.map((s) => (s.id === id ? next : s)) });
+    onChange({ ...state, streams: state.streams.map((stream) => (stream.id === id ? next : stream)) });
   }
 
   return (
@@ -160,11 +167,11 @@ export function ElixirSyncPanel({
             onChange={(e) => onChange({ ...state, enabled: e.target.checked })}
             className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
-          Include ElixirSync integration
+          {t(s.includeElixirSync, locale)}
         </label>
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
           <label className="flex items-center gap-1.5">
-            Hourly rate &euro;
+            {t(s.hourlyRate, locale)}
             <input
               type="number"
               min={0}
@@ -173,9 +180,9 @@ export function ElixirSyncPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
-          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration} />
+          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration} locale={locale} />
           <label className="flex items-center gap-1.5">
-            Subscription qty
+            {t(s.subscriptionQty, locale)}
             <input
               type="number"
               min={0}
@@ -185,7 +192,7 @@ export function ElixirSyncPanel({
             />
           </label>
           <label className="flex items-center gap-1.5">
-            Unit price &euro;
+            {t(s.unitPrice, locale)}
             <input
               type="number"
               min={0}
@@ -195,19 +202,16 @@ export function ElixirSyncPanel({
             />
           </label>
           <span className="font-medium text-brand-ink">
-            {formatHours(includedHours)} &middot; {formatCurrency(includedHours * hourlyRate)}
+            {formatHours(includedHours, locale)} &middot; {formatCurrency(includedHours * hourlyRate, locale)}
           </span>
         </div>
       </div>
 
-      <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">
-        Check the streams this project needs. Each stream&apos;s hours use the &quot;Realistic&quot;
-        estimate; click a stream to see or edit its tasks.
-      </p>
+      <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">{t(s.instructions, locale)}</p>
 
       <div>
         {state.streams.map((stream) => (
-          <StreamRow key={stream.id} stream={stream} onChange={(next) => updateStream(stream.id, next)} />
+          <StreamRow key={stream.id} stream={stream} onChange={(next) => updateStream(stream.id, next)} locale={locale} />
         ))}
       </div>
     </div>

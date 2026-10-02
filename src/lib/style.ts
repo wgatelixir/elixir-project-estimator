@@ -3,7 +3,7 @@
 // read-only proposal summary (static pills) so the two stay visually
 // consistent.
 
-import type { ComplexityTable } from "./types";
+import type { ComplexityTable, LocalizedString } from "./types";
 
 export type ComplexityBand = "low" | "standard" | "medium" | "high" | "na";
 
@@ -21,7 +21,7 @@ interface ComplexityStyle {
   badge: string;
   select: string;
   dot: string;
-  label: string;
+  label: LocalizedString;
 }
 
 export const COMPLEXITY_STYLES: Record<ComplexityBand, ComplexityStyle> = {
@@ -29,31 +29,31 @@ export const COMPLEXITY_STYLES: Record<ComplexityBand, ComplexityStyle> = {
     badge: "bg-sky-50 text-sky-700 border border-sky-200",
     select: "bg-sky-50 text-sky-700 border-sky-200",
     dot: "bg-sky-400",
-    label: "Low",
+    label: { en: "Low", nl: "Laag" },
   },
   standard: {
     badge: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     select: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-400",
-    label: "Standard",
+    label: { en: "Standard", nl: "Standaard" },
   },
   medium: {
     badge: "bg-amber-50 text-amber-700 border border-amber-200",
     select: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-400",
-    label: "Medium",
+    label: { en: "Medium", nl: "Gemiddeld" },
   },
   high: {
     badge: "bg-brand-crimson/10 text-brand-crimson border border-brand-crimson/30",
     select: "bg-brand-crimson/10 text-brand-crimson border-brand-crimson/30",
     dot: "bg-brand-crimson",
-    label: "High",
+    label: { en: "High", nl: "Hoog" },
   },
   na: {
     badge: "bg-slate-100 text-slate-500 border border-slate-200",
     select: "bg-slate-100 text-slate-500 border-slate-200",
     dot: "bg-slate-300",
-    label: "N/A",
+    label: { en: "N/A", nl: "N.v.t." },
   },
 };
 
@@ -78,8 +78,8 @@ export function complexityHoursByBand(table: ComplexityTable): Partial<Record<Co
  * Setup rows too. Entries without a comment (nulls) are omitted so callers
  * can fall back to COMPLEXITY_DESCRIPTIONS.
  */
-export function complexityCommentsByBand(table: ComplexityTable): Partial<Record<ComplexityBand, string>> {
-  const result: Partial<Record<ComplexityBand, string>> = {};
+export function complexityCommentsByBand(table: ComplexityTable): Partial<Record<ComplexityBand, LocalizedString>> {
+  const result: Partial<Record<ComplexityBand, LocalizedString>> = {};
   for (const [level, entry] of Object.entries(table)) {
     if (entry.comment) result[classifyComplexity(level)] = entry.comment;
   }
@@ -93,18 +93,21 @@ export function complexityCommentsByBand(table: ComplexityTable): Partial<Record
  * describe session/setup prep time, while Third Party Integration describes
  * integration-flow risk (and has no "Standard" level, only N/A/Low/Medium/High).
  */
-export const COMPLEXITY_DESCRIPTIONS: Record<"standard" | "thirdParty", Partial<Record<ComplexityBand, string>>> = {
+export const COMPLEXITY_DESCRIPTIONS: Record<
+  "standard" | "thirdParty",
+  Partial<Record<ComplexityBand, LocalizedString>>
+> = {
   standard: {
-    low: "Less prep than usual — a quick, simple session or setup.",
-    standard: "The normal case — typical preparation and effort.",
-    medium: "More than standard — extra preparation and complexity.",
-    high: "Most complex — significant preparation, complexity and risk.",
+    low: { en: "Less prep than usual — a quick, simple session or setup.", nl: "Minder voorbereiding dan normaal — een korte, eenvoudige sessie of setup." },
+    standard: { en: "The normal case — typical preparation and effort.", nl: "Het normale geval — gebruikelijke voorbereiding en inspanning." },
+    medium: { en: "More than standard — extra preparation and complexity.", nl: "Meer dan standaard — extra voorbereiding en complexiteit." },
+    high: { en: "Most complex — significant preparation, complexity and risk.", nl: "Meest complex — aanzienlijke voorbereiding, complexiteit en risico." },
   },
   thirdParty: {
-    na: "Not needed for this integration.",
-    low: "Known integration flows and technical setup — small risk of issues.",
-    medium: "Partly known integration flows and setup — medium risk of issues.",
-    high: "Unknown integration flows and setup — high risk of issues.",
+    na: { en: "Not needed for this integration.", nl: "Niet nodig voor deze integratie." },
+    low: { en: "Known integration flows and technical setup — small risk of issues.", nl: "Bekende integratieflows en technische setup — klein risico op problemen." },
+    medium: { en: "Partly known integration flows and setup — medium risk of issues.", nl: "Deels bekende integratieflows en setup — gemiddeld risico op problemen." },
+    high: { en: "Unknown integration flows and setup — high risk of issues.", nl: "Onbekende integratieflows en setup — hoog risico op problemen." },
   },
 };
 
@@ -122,7 +125,7 @@ interface ActivityStyle {
   dot: string;
   /** Row background: light gray for Setup, white (transparent) for Session/Desk work. */
   rowBg: string;
-  label: string;
+  label: LocalizedString;
 }
 
 export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
@@ -130,19 +133,19 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     badge: "bg-brand-indigo/10 text-brand-indigo",
     dot: "bg-brand-indigo",
     rowBg: "bg-white",
-    label: "Session",
+    label: { en: "Session", nl: "Sessie" },
   },
   setup: {
     badge: "bg-slate-200 text-slate-700",
     dot: "bg-slate-500",
     rowBg: "bg-slate-100",
-    label: "Setup",
+    label: { en: "Setup", nl: "Setup" },
   },
   "desk-work": {
     badge: "bg-violet-100 text-violet-700",
     dot: "bg-violet-400",
     rowBg: "bg-white",
-    label: "Desk work",
+    label: { en: "Desk work", nl: "Deskwork" },
   },
 };
 

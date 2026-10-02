@@ -1,9 +1,17 @@
 // Shared shape for an estimation's editable state. Persisted as JSON on the
 // Estimation.data column (see prisma/schema.prisma) and used directly by the UI.
 
+export type Locale = "en" | "nl";
+
+/** English/Dutch pair for any piece of client-facing content (topic, label, comment). */
+export interface LocalizedString {
+  en: string;
+  nl: string;
+}
+
 export interface ComplexityTableEntry {
   hours: number;
-  comment?: string | null;
+  comment?: LocalizedString | null;
 }
 
 // Keyed by the complexity level's display label (e.g. "Standard", "High complexity").
@@ -14,20 +22,20 @@ export type LineActivityType = "Session" | "Setup" | "Desk work";
 export interface StandardLineItem {
   id: string;
   activity: LineActivityType;
-  topic: string;
+  topic: LocalizedString;
   standardEffort: number;
   /** Which of the workstream's two complexity tables this line's dropdown looks up. */
   complexityTable: "session" | "setup";
   /** Key into that table (e.g. "Standard", "High"). */
   complexity: string;
-  comment?: string | null;
+  comment?: LocalizedString | null;
   /** Unchecked lines are kept (for re-enabling) but excluded from totals. */
   enabled: boolean;
 }
 
 export interface StandardWorkstream {
   key: string;
-  label: string;
+  label: LocalizedString;
   /** A disabled workstream contributes 0 hours/price and is collapsed in the UI. */
   enabled: boolean;
   hourlyRate: number;
@@ -41,7 +49,7 @@ export type ThirdPartyActivityType = "Session" | "Setup";
 export interface ThirdPartyLineItem {
   id: string;
   activity: ThirdPartyActivityType;
-  topic: string;
+  topic: LocalizedString;
   from?: string | null;
   to?: string | null;
   complexity: string;
@@ -118,6 +126,8 @@ export interface HubSpotLicenseState {
 }
 
 export interface EstimationState {
+  /** Drives both the editor UI language and the Proposal Summary/PDF - a client-facing proposal should read in the client's language. */
+  locale: Locale;
   standardWorkstreams: StandardWorkstream[];
   thirdPartyIntegration: ThirdPartyIntegrationState;
   elixirSyncIntegration: ElixirSyncIntegrationState;

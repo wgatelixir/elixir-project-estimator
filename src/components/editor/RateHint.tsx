@@ -1,4 +1,6 @@
 import { formatCurrency } from "@/lib/format";
+import { t, UI_STRINGS } from "@/lib/i18n";
+import type { Locale } from "@/lib/types";
 
 /**
  * Always-visible reference to the standard rate-card price for a field,
@@ -6,11 +8,19 @@ import { formatCurrency } from "@/lib/format";
  * overrides it for a specific estimation. Highlighted when it no longer
  * matches the current value.
  */
-export function RateHint({ rate, defaultRate }: { rate: number; defaultRate: number }) {
+export function RateHint({
+  rate,
+  defaultRate,
+  locale = "en",
+}: {
+  rate: number;
+  defaultRate: number;
+  locale?: Locale;
+}) {
   const overridden = rate !== defaultRate;
   return (
     <span className={`whitespace-nowrap ${overridden ? "font-medium text-brand-crimson" : "text-slate-400"}`}>
-      standard {formatCurrency(defaultRate)}/h
+      {t(UI_STRINGS.rateHint.standard, locale)} {formatCurrency(defaultRate, locale)}/h
     </span>
   );
 }

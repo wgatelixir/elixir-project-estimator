@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { EstimationState, EstimationStatus } from "@/lib/types";
+import type { EstimationState, EstimationStatus, Locale } from "@/lib/types";
 import { computeEstimationTotals, lineItemFinalEffort, thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import {
@@ -12,6 +12,7 @@ import {
   complexityHoursByBand,
   COMPLEXITY_STYLES,
 } from "@/lib/style";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 
@@ -40,11 +41,11 @@ function ColGroup({ widths }: { widths: string[] }) {
   );
 }
 
-function ActivityPill({ activity }: { activity: string }) {
+function ActivityPill({ activity, locale }: { activity: string; locale: Locale }) {
   const style = ACTIVITY_STYLES[classifyActivity(activity)];
   return (
     <span className={`inline-flex items-center rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
-      {activity}
+      {t(style.label, locale)}
     </span>
   );
 }
@@ -79,8 +80,10 @@ function SectionCard({
 }
 
 export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationState }) {
+  const locale = data.locale;
+  const s = UI_STRINGS.proposalSummary;
   const totals = computeEstimationTotals(data);
-  const generatedOn = new Date().toLocaleDateString("en-GB", {
+  const generatedOn = new Date().toLocaleDateString(locale === "nl" ? "nl-NL" : "en-GB", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -89,20 +92,27 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   const enabledWorkstreams = data.standardWorkstreams.filter((ws) => ws.enabled);
   const thirdParty = data.thirdPartyIntegration;
   const elixirSync = data.elixirSyncIntegration;
-  const includedStreams = elixirSync.streams.filter((s) => s.included);
+  const includedStreams = elixirSync.streams.filter((stream) => stream.included);
+  const statusLabel = meta.status === "FINAL" ? t(s.statusFinal, locale) : t(s.statusDraft, locale);
 
   return (
     <div className="mx-auto max-w-[960px] space-y-2.5 text-xs">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm">
         <div>
           <Image src="/elixir-logo.png" alt="Elixir" width={72} height={24} className="mb-1.5" />
-          <h2 className="text-base font-semibold text-brand-ink">{meta.clientName || "Untitled client"}</h2>
+          <h2 className="text-base font-semibold text-brand-ink">{meta.clientName || t(s.untitledClient, locale)}</h2>
           {meta.projectName && <p className="text-[11px] text-slate-500">{meta.projectName}</p>}
         </div>
         <div className="text-right text-[11px] text-slate-400">
-          <div>Generated {generatedOn}</div>
-          {meta.ownerName && <div>Prepared by {meta.ownerName}</div>}
-          <div className="mt-0.5 font-medium uppercase tracking-wide text-brand-indigo">{meta.status}</div>
+          <div>
+            {t(s.generated, locale)} {generatedOn}
+          </div>
+          {meta.ownerName && (
+            <div>
+              {t(s.preparedBy, locale)} {meta.ownerName}
+            </div>
+          )}
+          <div className="mt-0.5 font-medium uppercase tracking-wide text-brand-indigo">{statusLabel}</div>
         </div>
       </div>
 
@@ -112,18 +122,18 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
         return (
           <SectionCard
             key={ws.key}
-            title={ws.label}
-            subtitle={`${formatHours(hours)} · ${formatCurrency(hours * ws.hourlyRate)}`}
+            title={t(ws.label, locale)}
+            subtitle={`${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
           >
             <table className="w-full table-fixed text-left">
               <ColGroup widths={WORKSTREAM_COLS} />
               <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
                 <tr>
-                  <th className="truncate px-3 py-1 font-medium">Activity</th>
-                  <th className="truncate px-3 py-1 font-medium">Topic</th>
-                  <th className="truncate px-3 py-1 text-right font-medium">Std</th>
-                  <th className="truncate px-3 py-1 font-medium">Complexity</th>
-                  <th className="truncate px-3 py-1 text-right font-medium">Final</th>
+                  <th className="truncate px-3 py-1 font-medium">{t(s.columnActivity, locale)}</th>
+                  <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
+                  <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
+                  <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
+                  <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnFinal, locale)}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -132,18 +142,18 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                   return (
                     <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
                       <td className="px-3 py-1">
-                        <ActivityPill activity={item.activity} />
+                        <ActivityPill activity={item.activity} locale={locale} />
                       </td>
                       <td className="px-3 py-1 text-brand-ink">
-                        <div className="truncate">{item.topic}</div>
-                        <LineItemNote comment={item.comment} />
+                        <div className="truncate">{t(item.topic, locale)}</div>
+                        <LineItemNote comment={item.comment} locale={locale} />
                       </td>
                       <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
                       <td className="px-3 py-1">
                         <ComplexityPill level={item.complexity} />
                       </td>
                       <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                        {formatHours(lineItemFinalEffort(item, ws))}
+                        {formatHours(lineItemFinalEffort(item, ws), locale)}
                       </td>
                     </tr>
                   );
@@ -151,7 +161,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 {items.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-3 py-2 text-center text-slate-400">
-                      No line items in this workstream.
+                      {t(s.noLineItems, locale)}
                     </td>
                   </tr>
                 )}
@@ -159,9 +169,9 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               <tfoot>
                 <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
                   <td className="px-3 py-1" colSpan={4}>
-                    Total
+                    {t(s.total, locale)}
                   </td>
-                  <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours)}</td>
+                  <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours, locale)}</td>
                 </tr>
               </tfoot>
             </table>
@@ -171,6 +181,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               sessionHours={complexityHoursByBand(ws.sessionComplexity)}
               setupHours={complexityHoursByBand(ws.setupComplexity)}
               comments={complexityCommentsByBand(ws.sessionComplexity)}
+              locale={locale}
             />
           </SectionCard>
         );
@@ -178,19 +189,19 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
 
       {thirdParty.enabled && (
         <SectionCard
-          title="Third Party Integration"
-          subtitle={`${formatHours(totals.thirdParty.hours)} · ${formatCurrency(totals.thirdParty.price)}`}
+          title={t(s.thirdPartyIntegration, locale)}
+          subtitle={`${formatHours(totals.thirdParty.hours, locale)} · ${formatCurrency(totals.thirdParty.price, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={THIRD_PARTY_COLS} />
             <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
               <tr>
-                <th className="truncate px-3 py-1 font-medium">Activity</th>
-                <th className="truncate px-3 py-1 font-medium">Topic</th>
-                <th className="truncate px-3 py-1 font-medium">From</th>
-                <th className="truncate px-3 py-1 font-medium">To</th>
-                <th className="truncate px-3 py-1 font-medium">Complexity</th>
-                <th className="truncate px-3 py-1 text-right font-medium">Hours</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnActivity, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnFrom, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnTo, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
+                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnHours, locale)}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -201,16 +212,16 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                   return (
                     <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
                       <td className="px-3 py-1">
-                        <ActivityPill activity={item.activity} />
+                        <ActivityPill activity={item.activity} locale={locale} />
                       </td>
-                      <td className="truncate px-3 py-1 text-brand-ink">{item.topic}</td>
+                      <td className="truncate px-3 py-1 text-brand-ink">{t(item.topic, locale)}</td>
                       <td className="truncate px-3 py-1 text-slate-600">{item.from || "—"}</td>
                       <td className="truncate px-3 py-1 text-slate-600">{item.to || "—"}</td>
                       <td className="px-3 py-1">
                         <ComplexityPill level={item.complexity} />
                       </td>
                       <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                        {formatHours(thirdPartyLineItemHours(item, thirdParty))}
+                        {formatHours(thirdPartyLineItemHours(item, thirdParty), locale)}
                       </td>
                     </tr>
                   );
@@ -219,9 +230,9 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             <tfoot>
               <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
                 <td className="px-3 py-1" colSpan={5}>
-                  Total
+                  {t(s.total, locale)}
                 </td>
-                <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.thirdParty.hours)}</td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.thirdParty.hours, locale)}</td>
               </tr>
             </tfoot>
           </table>
@@ -232,21 +243,22 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             sessionHours={complexityHoursByBand(thirdParty.sessionComplexity)}
             setupHours={complexityHoursByBand(thirdParty.setupComplexity)}
             comments={complexityCommentsByBand(thirdParty.sessionComplexity)}
+            locale={locale}
           />
         </SectionCard>
       )}
 
       {elixirSync.enabled && (
         <SectionCard
-          title="ElixirSync Integration"
-          subtitle={`${formatHours(totals.elixirSync.hours)} · ${formatCurrency(totals.elixirSync.price)}`}
+          title={t(s.elixirSyncIntegration, locale)}
+          subtitle={`${formatHours(totals.elixirSync.hours, locale)} · ${formatCurrency(totals.elixirSync.price, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={ELIXIRSYNC_COLS} />
             <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
               <tr>
-                <th className="truncate px-3 py-1 font-medium">Stream</th>
-                <th className="truncate px-3 py-1 text-right font-medium">Realistic effort</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnStream, locale)}</th>
+                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnRealisticEffort, locale)}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -256,7 +268,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                   <tr key={stream.id} className="print:break-inside-avoid">
                     <td className="truncate px-3 py-1 text-brand-ink">{stream.label}</td>
                     <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                      {formatHours(hours)}
+                      {formatHours(hours, locale)}
                     </td>
                   </tr>
                 );
@@ -264,33 +276,33 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               {includedStreams.length === 0 && (
                 <tr>
                   <td colSpan={2} className="px-3 py-2 text-center text-slate-400">
-                    No streams selected.
+                    {t(s.noStreamsSelected, locale)}
                   </td>
                 </tr>
               )}
             </tbody>
             <tfoot>
               <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-                <td className="px-3 py-1">Total</td>
-                <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.elixirSync.hours)}</td>
+                <td className="px-3 py-1">{t(s.total, locale)}</td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.elixirSync.hours, locale)}</td>
               </tr>
             </tfoot>
           </table>
           <p className="border-t border-slate-100 px-3 py-1 text-[10px] text-slate-400">
-            Technical task-level breakdown is available on the ElixirSync Integration tab.
+            {t(s.technicalBreakdownNote, locale)}
           </p>
         </SectionCard>
       )}
 
-      <SectionCard title="Overview">
+      <SectionCard title={t(s.overview, locale)}>
         <table className="w-full table-fixed text-left">
           <ColGroup widths={OVERVIEW_COLS} />
           <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
             <tr>
-              <th className="truncate px-3 py-1 font-medium">Workstream</th>
-              <th className="truncate px-3 py-1 text-right font-medium">Hours</th>
-              <th className="truncate px-3 py-1 text-right font-medium">Rate</th>
-              <th className="truncate px-3 py-1 text-right font-medium">Price</th>
+              <th className="truncate px-3 py-1 font-medium">{t(s.columnWorkstream, locale)}</th>
+              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnHours, locale)}</th>
+              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnRate, locale)}</th>
+              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnPrice, locale)}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
@@ -298,61 +310,61 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               .filter((w) => w.enabled)
               .map((w) => (
                 <tr key={w.key} className="print:break-inside-avoid">
-                  <td className="truncate px-3 py-1 text-brand-ink">{w.label}</td>
-                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours)}</td>
+                  <td className="truncate px-3 py-1 text-brand-ink">{t(w.label, locale)}</td>
+                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours, locale)}</td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                    {formatCurrency(w.hourlyRate)}
+                    {formatCurrency(w.hourlyRate, locale)}
                   </td>
                   <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                    {formatCurrency(w.price)}
+                    {formatCurrency(w.price, locale)}
                   </td>
                 </tr>
               ))}
             {totals.thirdParty.enabled && (
               <tr>
-                <td className="truncate px-3 py-1 text-brand-ink">{totals.thirdParty.label}</td>
+                <td className="truncate px-3 py-1 text-brand-ink">{t(totals.thirdParty.label, locale)}</td>
                 <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatHours(totals.thirdParty.hours)}
+                  {formatHours(totals.thirdParty.hours, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatCurrency(totals.thirdParty.hourlyRate)}
+                  {formatCurrency(totals.thirdParty.hourlyRate, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                  {formatCurrency(totals.thirdParty.price)}
+                  {formatCurrency(totals.thirdParty.price, locale)}
                 </td>
               </tr>
             )}
             {totals.elixirSync.enabled && (
               <tr>
-                <td className="truncate px-3 py-1 text-brand-ink">{totals.elixirSync.label}</td>
+                <td className="truncate px-3 py-1 text-brand-ink">{t(totals.elixirSync.label, locale)}</td>
                 <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatHours(totals.elixirSync.hours)}
+                  {formatHours(totals.elixirSync.hours, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatCurrency(totals.elixirSync.hourlyRate)}
+                  {formatCurrency(totals.elixirSync.hourlyRate, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                  {formatCurrency(totals.elixirSync.price)}
+                  {formatCurrency(totals.elixirSync.price, locale)}
                 </td>
               </tr>
             )}
             <tr>
-              <td className="truncate px-3 py-1 text-brand-ink">Project management</td>
-              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(totals.pmHours)}</td>
-              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatCurrency(totals.pmRate)}</td>
+              <td className="truncate px-3 py-1 text-brand-ink">{t(s.projectManagement, locale)}</td>
+              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(totals.pmHours, locale)}</td>
+              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatCurrency(totals.pmRate, locale)}</td>
               <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                {formatCurrency(totals.pmPrice)}
+                {formatCurrency(totals.pmPrice, locale)}
               </td>
             </tr>
             {totals.subscriptions
-              .filter((s) => s.qty > 0)
-              .map((s) => (
-                <tr key={s.label} className="print:break-inside-avoid">
+              .filter((sub) => sub.qty > 0)
+              .map((sub) => (
+                <tr key={sub.label.en} className="print:break-inside-avoid">
                   <td className="truncate px-3 py-1 text-brand-ink" colSpan={3}>
-                    {s.label} ({s.qty}&times;)
+                    {t(sub.label, locale)} ({sub.qty}&times;)
                   </td>
                   <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                    {formatCurrency(s.price)}
+                    {formatCurrency(sub.price, locale)}
                   </td>
                 </tr>
               ))}
@@ -360,10 +372,12 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
         </table>
         <div className="flex items-center justify-between bg-brand-indigo px-3 py-2 text-white">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-white/80">Grand total</div>
-            <div className="text-[10px] text-white/70">{formatHours(totals.totalEffortHours)} total effort</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-white/80">{t(s.grandTotal, locale)}</div>
+            <div className="text-[10px] text-white/70">
+              {formatHours(totals.totalEffortHours, locale)} {t(s.totalEffort, locale)}
+            </div>
           </div>
-          <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice)}</div>
+          <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
         </div>
       </SectionCard>
     </div>

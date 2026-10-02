@@ -10,7 +10,7 @@
 // itself says figures, packs and eligibility can change before full
 // rollout - every price shown in the UI must carry PRICING_SOURCE.note.
 
-import type { HubSpotEdition, HubSpotLicenseApplicability, HubSpotLicenseState } from "./types";
+import type { HubSpotEdition, HubSpotLicenseApplicability, HubSpotLicenseState, LocalizedString } from "./types";
 
 export const HUBSPOT_EDITIONS: HubSpotEdition[] = ["starter", "professional", "enterprise"];
 
@@ -82,10 +82,16 @@ export const STARTER_MAX_PAID_SEATS_UNVERIFIED = 10;
 export const PRICING_SOURCE = {
   asOf: "1 oktober 2026",
   readOn: "2 oktober 2026",
-  note:
-    'Bron: HubSpot partnercursus "Flexible Seats-and-Credits Pricing for EMEA". Indicatief - cijfers, ' +
-    "packs en eligibility kunnen wijzigen vóór volledige uitrol. Bevestig altijd bij PDM of HubSpot Sales " +
-    "vóór een offerte.",
+  note: {
+    en:
+      'Source: HubSpot partner course "Flexible Seats-and-Credits Pricing for EMEA". Indicative - figures, ' +
+      "packs and eligibility can change before full rollout. Always confirm with PDM or HubSpot Sales " +
+      "before quoting.",
+    nl:
+      'Bron: HubSpot partnercursus "Flexible Seats-and-Credits Pricing for EMEA". Indicatief - cijfers, ' +
+      "packs en eligibility kunnen wijzigen vóór volledige uitrol. Bevestig altijd bij PDM of HubSpot Sales " +
+      "vóór een offerte.",
+  } satisfies LocalizedString,
 };
 
 export function createDefaultHubSpotLicenseApplicability(): HubSpotLicenseApplicability {
@@ -135,7 +141,7 @@ export interface EmailPackChoice {
 
 export interface HubSpotLicenseWarning {
   level: "info" | "warning";
-  message: string;
+  message: LocalizedString;
 }
 
 export interface HubSpotLicenseResult {
@@ -198,37 +204,54 @@ export function computeHubSpotLicenseCost(state: HubSpotLicenseState): HubSpotLi
   if (state.gtmSeats < 1) {
     warnings.push({
       level: "warning",
-      message: "Minimaal 1 GTM Seat per portal nodig - standalone Ops Seats worden niet ondersteund.",
+      message: {
+        en: "At least 1 GTM Seat is required per portal - standalone Ops Seats are not supported.",
+        nl: "Minimaal 1 GTM Seat per portal nodig - standalone Ops Seats worden niet ondersteund.",
+      },
     });
   }
   if (state.edition === "starter" && state.gtmSeats + state.opsSeats > STARTER_MAX_PAID_SEATS_UNVERIFIED) {
     warnings.push({
       level: "warning",
-      message: `Starter heeft mogelijk een maximum van ${STARTER_MAX_PAID_SEATS_UNVERIFIED} betaalde seats (bron: extern, niet bevestigd in de HubSpot-cursus zelf - check bij PDM).`,
+      message: {
+        en: `Starter may have a maximum of ${STARTER_MAX_PAID_SEATS_UNVERIFIED} paid seats (source: external, not confirmed in the HubSpot course itself - check with PDM).`,
+        nl: `Starter heeft mogelijk een maximum van ${STARTER_MAX_PAID_SEATS_UNVERIFIED} betaalde seats (bron: extern, niet bevestigd in de HubSpot-cursus zelf - check bij PDM).`,
+      },
     });
   }
   if (state.expectedRecords > RECORD_LIMITS[state.edition]) {
     warnings.push({
       level: "warning",
-      message: `Verwachte ${state.expectedRecords.toLocaleString("nl-NL")} records overschrijdt de ${EDITION_LABELS[state.edition]}-limiet van ${RECORD_LIMITS[state.edition].toLocaleString("nl-NL")}. Een hogere editie is nodig.`,
+      message: {
+        en: `Expected ${state.expectedRecords.toLocaleString("en-US")} records exceeds the ${EDITION_LABELS[state.edition]} limit of ${RECORD_LIMITS[state.edition].toLocaleString("en-US")}. A higher edition is needed.`,
+        nl: `Verwachte ${state.expectedRecords.toLocaleString("nl-NL")} records overschrijdt de ${EDITION_LABELS[state.edition]}-limiet van ${RECORD_LIMITS[state.edition].toLocaleString("nl-NL")}. Een hogere editie is nodig.`,
+      },
     });
   }
   if (state.viewOnlySeats > 0) {
     warnings.push({
       level: "info",
-      message: "View-only Seat-prijs staat niet in de bron en is niet in dit totaal meegerekend.",
+      message: {
+        en: "View-only Seat price is not in the source material and is not included in this total.",
+        nl: "View-only Seat-prijs staat niet in de bron en is niet in dit totaal meegerekend.",
+      },
     });
   }
   if (creditOverage > 0) {
     warnings.push({
       level: "info",
-      message:
-        "Overschot boven inbegrepen credits is hier tegen PAYG list price gerekend. Committed credits geven korting, maar het kortingspercentage staat niet in de bron - vraag PDM.",
+      message: {
+        en: "Overage above included credits is priced here at PAYG list price. Committed credits get a discount, but the discount rate isn't in the source material - ask PDM.",
+        nl: "Overschot boven inbegrepen credits is hier tegen PAYG list price gerekend. Committed credits geven korting, maar het kortingspercentage staat niet in de bron - vraag PDM.",
+      },
     });
   }
   warnings.push({
     level: "info",
-    message: "Credits resetten elke maand en rollen niet door naar de volgende maand.",
+    message: {
+      en: "Credits reset every month and don't roll over to the next month.",
+      nl: "Credits resetten elke maand en rollen niet door naar de volgende maand.",
+    },
   });
 
   return {

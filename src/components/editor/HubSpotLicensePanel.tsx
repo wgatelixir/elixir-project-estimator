@@ -1,6 +1,6 @@
 "use client";
 
-import type { HubSpotLicenseApplicability, HubSpotLicenseState } from "@/lib/types";
+import type { HubSpotLicenseApplicability, HubSpotLicenseState, Locale, LocalizedString } from "@/lib/types";
 import {
   AGENT_PACKS,
   computeHubSpotLicenseCost,
@@ -14,10 +14,11 @@ import {
   WORKFLOW_ACTION_PACKS,
 } from "@/lib/hubspotPricing";
 import { formatCurrency } from "@/lib/format";
+import { t, UI_STRINGS } from "@/lib/i18n";
 
 interface ApplicabilityQuestionDef {
   key: keyof HubSpotLicenseApplicability;
-  label: string;
+  label: LocalizedString;
   /** Which answer keeps this deal on the new pricing model. */
   wantedAnswer: boolean;
 }
@@ -25,22 +26,31 @@ interface ApplicabilityQuestionDef {
 const APPLICABILITY_QUESTIONS: ApplicabilityQuestionDef[] = [
   {
     key: "newEmeaCustomerSinceOct2026",
-    label: "Nieuwe HubSpot-klant in EMEA, sinds 1 oktober 2026?",
+    label: {
+      en: "New HubSpot customer in EMEA, since 1 October 2026?",
+      nl: "Nieuwe HubSpot-klant in EMEA, sinds 1 oktober 2026?",
+    },
     wantedAnswer: true,
   },
   {
     key: "existingHubSpotCustomer",
-    label: "Al bestaande HubSpot-klant (ook EMEA)?",
+    label: { en: "Already an existing HubSpot customer (also EMEA)?", nl: "Al bestaande HubSpot-klant (ook EMEA)?" },
     wantedAnswer: false,
   },
   {
     key: "beneluxOrNordicsPilot",
-    label: "Benelux- of Nordics-pilotklant (Core Seat / Front Office Seat voorwaarden)?",
+    label: {
+      en: "Benelux or Nordics pilot customer (Core Seat / Front Office Seat terms)?",
+      nl: "Benelux- of Nordics-pilotklant (Core Seat / Front Office Seat voorwaarden)?",
+    },
     wantedAnswer: false,
   },
   {
     key: "newPortalUnderExistingMultiPortal",
-    label: "Nieuw portal onder een bestaand multi-portal bedrijf?",
+    label: {
+      en: "New portal under an existing multi-portal company?",
+      nl: "Nieuw portal onder een bestaand multi-portal bedrijf?",
+    },
     wantedAnswer: false,
   },
 ];
@@ -49,21 +59,24 @@ function TriStateButton({
   value,
   wantedAnswer,
   onChange,
+  locale,
 }: {
   value: boolean | null;
   wantedAnswer: boolean;
   onChange: (next: boolean | null) => void;
+  locale: Locale;
 }) {
+  const s = UI_STRINGS.hubspotLicense;
   const options: { label: string; next: boolean | null }[] = [
-    { label: "Ja", next: true },
-    { label: "Nee", next: false },
-    { label: "Onbekend", next: null },
+    { label: t(s.yes, locale), next: true },
+    { label: t(s.no, locale), next: false },
+    { label: t(s.unknown, locale), next: null },
   ];
   return (
     <div className="flex items-center gap-1">
       {options.map((opt) => {
         const active = value === opt.next;
-        // "Onbekend" (null) is never a confirmed good/bad answer, so it never
+        // "Unknown" (null) is never a confirmed good/bad answer, so it never
         // gets the green/red treatment - only a neutral "this is selected" look.
         let activeClass = "border border-slate-300 bg-slate-100 text-slate-600";
         if (active && opt.next !== null) {
@@ -124,10 +137,14 @@ function NumberField({
 export function HubSpotLicensePanel({
   state,
   onChange,
+  locale = "en",
 }: {
   state: HubSpotLicenseState;
   onChange: (next: HubSpotLicenseState) => void;
+  locale?: Locale;
 }) {
+  const s = UI_STRINGS.hubspotLicense;
+  const numberLocale = locale === "nl" ? "nl-NL" : "en-US";
   const result = computeHubSpotLicenseCost(state);
   const confirmed = isApplicabilityConfirmed(state.applicability);
   const anyAnswered = Object.values(state.applicability).some((v) => v !== null);
@@ -143,31 +160,28 @@ export function HubSpotLicensePanel({
             onChange={(e) => onChange({ ...state, enabled: e.target.checked })}
             className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
-          Include HubSpot license estimate in this estimation
+          {t(s.includeLicense, locale)}
         </label>
       </div>
 
       <div className="border-b border-amber-100 bg-amber-50/60 px-4 py-3 text-xs text-amber-800">
         <p>
-          <strong>Dit is HubSpot&apos;s eigen software-abonnement</strong> (Seats-and-Credits), niet Elixir&apos;s
-          implementatietarief hierboven. Deze twee totalen worden nooit samengevoegd.
+          <strong>{t(s.infoBoldPrefix, locale)}</strong> {t(s.infoRest, locale)}
         </p>
-        <p className="mt-1">{PRICING_SOURCE.note}</p>
+        <p className="mt-1">{t(PRICING_SOURCE.note, locale)}</p>
       </div>
 
       <div className="border-b border-slate-100 p-4">
-        <h3 className="text-sm font-semibold text-brand-ink">Toepasselijkheid</h3>
-        <p className="mt-0.5 text-xs text-slate-500">
-          Controleer dit eerst - de bron noemt dit de meest voorkomende fout. Legacy-klanten, pilotklanten en
-          nieuwe portals onder een bestaand bedrijf vallen niet onder dit model.
-        </p>
+        <h3 className="text-sm font-semibold text-brand-ink">{t(s.applicabilityTitle, locale)}</h3>
+        <p className="mt-0.5 text-xs text-slate-500">{t(s.applicabilityIntro, locale)}</p>
         <div className="mt-3 space-y-2">
           {APPLICABILITY_QUESTIONS.map((q) => (
             <div key={q.key} className="flex items-center justify-between gap-3 text-sm">
-              <span className="text-slate-700">{q.label}</span>
+              <span className="text-slate-700">{t(q.label, locale)}</span>
               <TriStateButton
                 value={state.applicability[q.key]}
                 wantedAnswer={q.wantedAnswer}
+                locale={locale}
                 onChange={(next) =>
                   onChange({ ...state, applicability: { ...state.applicability, [q.key]: next } })
                 }
@@ -177,15 +191,14 @@ export function HubSpotLicensePanel({
         </div>
         {anyAnswered && !confirmed && (
           <p className="mt-3 rounded border border-brand-crimson/30 bg-brand-crimson/10 px-3 py-2 text-xs text-brand-crimson">
-            Niet alle antwoorden wijzen op dit prijsmodel. De berekening hieronder is dan indicatief/hypothetisch -
-            controleer bij PDM welk model echt van toepassing is voordat je dit in een offerte gebruikt.
+            {t(s.notConfirmedWarning, locale)}
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 border-b border-slate-100 p-4 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-slate-500">Editie</span>
+          <span className="text-slate-500">{t(s.editionLabel, locale)}</span>
           <select
             value={state.edition}
             onChange={(e) => onChange({ ...state, edition: e.target.value as HubSpotLicenseState["edition"] })}
@@ -198,94 +211,97 @@ export function HubSpotLicensePanel({
             ))}
           </select>
           <span className="text-[11px] text-slate-400">
-            Recordlimiet: {RECORD_LIMITS[state.edition].toLocaleString("nl-NL")} · {INCLUDED_CREDITS[state.edition].toLocaleString("nl-NL")} credits/mnd inbegrepen
+            {locale === "nl"
+              ? `Recordlimiet: ${RECORD_LIMITS[state.edition].toLocaleString(numberLocale)} · ${INCLUDED_CREDITS[state.edition].toLocaleString(numberLocale)} credits/mnd inbegrepen`
+              : `Record limit: ${RECORD_LIMITS[state.edition].toLocaleString(numberLocale)} · ${INCLUDED_CREDITS[state.edition].toLocaleString(numberLocale)} credits/mo included`}
           </span>
         </label>
 
         <NumberField
-          label={`GTM Seats (€${seatPrices.gtm}/mnd elk)`}
+          label={locale === "nl" ? `GTM Seats (€${seatPrices.gtm}/mnd elk)` : `GTM Seats (€${seatPrices.gtm}/mo each)`}
           value={state.gtmSeats}
           onChange={(v) => onChange({ ...state, gtmSeats: v })}
         />
         <NumberField
-          label={`Ops Seats (€${seatPrices.ops}/mnd elk)`}
+          label={locale === "nl" ? `Ops Seats (€${seatPrices.ops}/mnd elk)` : `Ops Seats (€${seatPrices.ops}/mo each)`}
           value={state.opsSeats}
           onChange={(v) => onChange({ ...state, opsSeats: v })}
         />
         <NumberField
-          label="View-only Seats (prijs onbekend)"
+          label={t(s.viewOnlySeatsLabel, locale)}
           value={state.viewOnlySeats}
           onChange={(v) => onChange({ ...state, viewOnlySeats: v })}
         />
         <NumberField
-          label="Verwachte objectrecords"
+          label={t(s.expectedRecordsLabel, locale)}
           value={state.expectedRecords}
           onChange={(v) => onChange({ ...state, expectedRecords: v })}
           step={100}
         />
         <NumberField
-          label="Verwachte e-mails/maand"
+          label={t(s.expectedEmailsLabel, locale)}
           value={state.expectedEmailsPerMonth}
           onChange={(v) => onChange({ ...state, expectedEmailsPerMonth: v })}
           step={100}
         />
         <NumberField
-          label="Verwachte credits/maand"
+          label={t(s.expectedCreditsLabel, locale)}
           value={state.expectedCreditsPerMonth}
           onChange={(v) => onChange({ ...state, expectedCreditsPerMonth: v })}
           step={100}
-          suffix="workflow-acties, AI, quotes, e-mails tellen mee"
+          suffix={t(s.creditsSuffix, locale)}
         />
       </div>
 
       <div className="border-b border-slate-100 p-4">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-slate-500">Notities / PDM-bevestiging</span>
+          <span className="text-slate-500">{t(s.notesLabel, locale)}</span>
           <textarea
             value={state.notes}
             onChange={(e) => onChange({ ...state, notes: e.target.value })}
             rows={2}
-            placeholder="Bijv. bevestigd met PDM op [datum], committed-kortingstrap nog navragen..."
+            placeholder={t(s.notesPlaceholder, locale)}
             className="rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
           />
         </label>
       </div>
 
       <div className="p-4">
-        <h3 className="text-sm font-semibold text-brand-ink">Indicatieve maandkosten</h3>
+        <h3 className="text-sm font-semibold text-brand-ink">{t(s.monthlyCostsTitle, locale)}</h3>
         <dl className="mt-2 space-y-1.5 text-sm">
           <div className="flex items-center justify-between">
             <dt className="text-slate-500">
               Seats ({state.gtmSeats} GTM &times; &euro;{seatPrices.gtm} + {state.opsSeats} Ops &times; &euro;
               {seatPrices.ops})
             </dt>
-            <dd className="tabular-nums font-medium text-brand-ink">{formatCurrency(result.seatCost)}</dd>
+            <dd className="tabular-nums font-medium text-brand-ink">{formatCurrency(result.seatCost, locale)}</dd>
           </div>
           {result.emailPackChoices.length > 0 && (
             <div className="flex items-center justify-between">
               <dt className="text-slate-500">
-                E-mailpacks (
+                {locale === "nl" ? "E-mailpacks" : "Email packs"} (
                 {result.emailPackChoices
-                  .map((c) => `${c.count}× ${c.pack.sends.toLocaleString("nl-NL")}`)
+                  .map((c) => `${c.count}× ${c.pack.sends.toLocaleString(numberLocale)}`)
                   .join(" + ")}
                 )
               </dt>
-              <dd className="tabular-nums font-medium text-brand-ink">{formatCurrency(result.emailPacksCost)}</dd>
+              <dd className="tabular-nums font-medium text-brand-ink">{formatCurrency(result.emailPacksCost, locale)}</dd>
             </div>
           )}
           <div className="flex items-center justify-between border-t border-slate-100 pt-1.5">
-            <dt className="font-medium text-brand-ink">Maandtotaal (seats + e-mailpacks)</dt>
+            <dt className="font-medium text-brand-ink">{t(s.monthlyTotalLabel, locale)}</dt>
             <dd className="tabular-nums text-base font-semibold text-brand-ink">
-              {formatCurrency(result.monthlyTotal)}
+              {formatCurrency(result.monthlyTotal, locale)}
             </dd>
           </div>
           {result.creditOverage > 0 && (
             <div className="flex items-center justify-between text-xs">
               <dt className="text-slate-400">
-                + credit-overschot: {result.creditOverage.toLocaleString("nl-NL")} credits &times; &euro;0,01 (PAYG,
-                apart van bovenstaand totaal)
+                {locale === "nl"
+                  ? `+ credit-overschot: ${result.creditOverage.toLocaleString(numberLocale)} credits × €0,01 (PAYG, apart van bovenstaand totaal)`
+                  : `+ credit overage: ${result.creditOverage.toLocaleString(numberLocale)} credits × €0.01 (PAYG, separate from the total above)`}
               </dt>
-              <dd className="tabular-nums text-slate-500">{formatCurrency(result.creditOverageCost)}</dd>
+              <dd className="tabular-nums text-slate-500">{formatCurrency(result.creditOverageCost, locale)}</dd>
             </div>
           )}
         </dl>
@@ -301,28 +317,26 @@ export function HubSpotLicensePanel({
                     : "border border-slate-200 bg-slate-50 text-slate-500"
                 }`}
               >
-                {w.message}
+                {t(w.message, locale)}
               </li>
             ))}
           </ul>
         )}
 
         <details className="mt-4 text-xs text-slate-500">
-          <summary className="cursor-pointer font-medium text-slate-600">
-            Capacity packs &amp; Agents-packs (referentie)
-          </summary>
+          <summary className="cursor-pointer font-medium text-slate-600">{t(s.capacityPacksSummary, locale)}</summary>
           <div className="mt-2 space-y-1">
             <p>
-              Agents-pack ({EDITION_LABELS[state.edition]}): {AGENT_PACKS[state.edition].credits.toLocaleString("nl-NL")}{" "}
-              credits voor {formatCurrency(AGENT_PACKS[state.edition].price)}/mnd (zelfde prijs per credit als PAYG -
-              committed-kortingstrap staat niet in de bron).
+              {locale === "nl"
+                ? `Agents-pack (${EDITION_LABELS[state.edition]}): ${AGENT_PACKS[state.edition].credits.toLocaleString(numberLocale)} credits voor ${formatCurrency(AGENT_PACKS[state.edition].price, locale)}/mnd (zelfde prijs per credit als PAYG - committed-kortingstrap staat niet in de bron).`
+                : `Agents pack (${EDITION_LABELS[state.edition]}): ${AGENT_PACKS[state.edition].credits.toLocaleString(numberLocale)} credits for ${formatCurrency(AGENT_PACKS[state.edition].price, locale)}/mo (same price per credit as PAYG - committed discount tier not in the source material).`}
             </p>
             {WORKFLOW_ACTION_PACKS.filter((p) => p.edition === state.edition || state.edition === "enterprise").map(
               (p) => (
                 <p key={p.label}>
-                  Workflow-actionspack {p.label}: {p.actions.toLocaleString("nl-NL")} acties voor{" "}
-                  {formatCurrency(p.price)}/mnd. (PAYG-equivalent niet getoond - bron markeert dit cijfer als
-                  onbetrouwbaar.)
+                  {locale === "nl"
+                    ? `Workflow-actionspack ${p.label}: ${p.actions.toLocaleString(numberLocale)} acties voor ${formatCurrency(p.price, locale)}/mnd. (PAYG-equivalent niet getoond - bron markeert dit cijfer als onbetrouwbaar.)`
+                    : `Workflow action pack ${p.label}: ${p.actions.toLocaleString(numberLocale)} actions for ${formatCurrency(p.price, locale)}/mo. (PAYG equivalent not shown - source flags this figure as unreliable.)`}
                 </p>
               )
             )}

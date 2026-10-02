@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ComplexityTable, LineActivityType, StandardLineItem, StandardWorkstream } from "@/lib/types";
+import type { ComplexityTable, LineActivityType, Locale, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import {
@@ -13,6 +13,7 @@ import {
   COMPLEXITY_STYLES,
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
@@ -29,10 +30,13 @@ function complexityOptionsFor(item: StandardLineItem, ws: StandardWorkstream): s
 export function WorkstreamPanel({
   workstream,
   onChange,
+  locale = "en",
 }: {
   workstream: StandardWorkstream;
   onChange: (next: StandardWorkstream) => void;
+  locale?: Locale;
 }) {
+  const s = UI_STRINGS.workstreamPanel;
   const [showTables, setShowTables] = useState(false);
   const [newActivity, setNewActivity] = useState<LineActivityType>("Session");
   const [newTopic, setNewTopic] = useState("");
@@ -52,10 +56,11 @@ export function WorkstreamPanel({
 
   function addItem() {
     if (!newTopic.trim()) return;
+    const topicText = newTopic.trim();
     const item: StandardLineItem = {
       id: slugId(workstream.key),
       activity: newActivity,
-      topic: newTopic.trim(),
+      topic: { en: topicText, nl: topicText },
       standardEffort: newEffort,
       complexityTable: newTable,
       complexity: "Standard" in workstream.sessionComplexity ? "Standard" : Object.keys(workstream.sessionComplexity)[0],
@@ -88,11 +93,11 @@ export function WorkstreamPanel({
             onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
             className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
-          Include this workstream
+          {t(s.includeWorkstream, locale)}
         </label>
         <div className="flex items-center gap-4 text-sm text-slate-500">
           <label className="flex items-center gap-1.5">
-            Hourly rate &euro;
+            {t(s.hourlyRate, locale)}
             <input
               type="number"
               min={0}
@@ -101,9 +106,13 @@ export function WorkstreamPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
-          <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
+          <RateHint
+            rate={workstream.hourlyRate}
+            defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate}
+            locale={locale}
+          />
           <span className="font-medium text-brand-ink">
-            {formatHours(totalHours)} &middot; {formatCurrency(totalHours * workstream.hourlyRate)}
+            {formatHours(totalHours, locale)} &middot; {formatCurrency(totalHours * workstream.hourlyRate, locale)}
           </span>
         </div>
       </div>
@@ -112,6 +121,7 @@ export function WorkstreamPanel({
         sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
         setupHours={complexityHoursByBand(workstream.setupComplexity)}
         comments={complexityCommentsByBand(workstream.sessionComplexity)}
+        locale={locale}
       />
 
       <div className="overflow-x-auto">
@@ -119,11 +129,11 @@ export function WorkstreamPanel({
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
-              <th className="px-3 py-2 font-medium">Activity</th>
-              <th className="px-3 py-2 font-medium">Topic</th>
-              <th className="px-3 py-2 text-right font-medium">Standard</th>
-              <th className="px-3 py-2 font-medium">Complexity</th>
-              <th className="px-3 py-2 text-right font-medium">Final effort</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnTopic, locale)}</th>
+              <th className="px-3 py-2 text-right font-medium">{t(s.columnStandard, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
+              <th className="px-3 py-2 text-right font-medium">{t(s.columnFinalEffort, locale)}</th>
               <th className="w-8 px-3 py-2" />
             </tr>
           </thead>
@@ -148,16 +158,16 @@ export function WorkstreamPanel({
                     <span
                       className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
                     >
-                      {item.activity}
+                      {t(activityStyle.label, locale)}
                     </span>
                   </td>
                   <td className="px-3 py-2">
                     <input
-                      value={item.topic}
-                      onChange={(e) => updateItem(item.id, { topic: e.target.value })}
+                      value={item.topic[locale]}
+                      onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
                       className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
-                    <LineItemNote comment={item.comment} />
+                    <LineItemNote comment={item.comment} locale={locale} />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input
@@ -182,13 +192,13 @@ export function WorkstreamPanel({
                     </select>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
-                    {formatHours(lineItemFinalEffort(item, workstream))}
+                    {formatHours(lineItemFinalEffort(item, workstream), locale)}
                   </td>
                   <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => removeItem(item.id)}
                       className="text-slate-300 hover:text-brand-crimson"
-                      title="Remove line"
+                      title={t(s.removeLine, locale)}
                     >
                       &times;
                     </button>
@@ -200,17 +210,17 @@ export function WorkstreamPanel({
           <tfoot>
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
               <td className="px-3 py-2" colSpan={5}>
-                Total final effort
+                {t(s.totalFinalEffort, locale)}
               </td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours)}</td>
+              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-brand-ink">
               <td className="px-3 py-2" colSpan={5}>
-                Budget
+                {t(s.budget, locale)}
               </td>
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                {formatCurrency(totalHours * workstream.hourlyRate)}
+                {formatCurrency(totalHours * workstream.hourlyRate, locale)}
               </td>
               <td className="px-3 py-2" />
             </tr>
@@ -228,14 +238,14 @@ export function WorkstreamPanel({
           }}
           className="rounded border border-slate-300 px-2 py-1.5 text-sm"
         >
-          <option value="Session">Session</option>
-          <option value="Setup">Setup</option>
-          <option value="Desk work">Desk work</option>
+          <option value="Session">{t(s.activitySession, locale)}</option>
+          <option value="Setup">{t(s.activitySetup, locale)}</option>
+          <option value="Desk work">{t(s.activityDeskWork, locale)}</option>
         </select>
         <input
           value={newTopic}
           onChange={(e) => setNewTopic(e.target.value)}
-          placeholder="New line topic…"
+          placeholder={t(s.newLineTopicPlaceholder, locale)}
           className="min-w-[200px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
         <input
@@ -249,16 +259,16 @@ export function WorkstreamPanel({
           value={newTable}
           onChange={(e) => setNewTable(e.target.value as "session" | "setup")}
           className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-          title="Which complexity table this line uses"
+          title={t(s.whichComplexityTable, locale)}
         >
-          <option value="session">Session complexity</option>
-          <option value="setup">Setup complexity</option>
+          <option value="session">{t(s.sessionComplexityOption, locale)}</option>
+          <option value="setup">{t(s.setupComplexityOption, locale)}</option>
         </select>
         <button
           onClick={addItem}
           className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
         >
-          + Add line
+          {t(s.addLine, locale)}
         </button>
       </div>
 
@@ -267,14 +277,14 @@ export function WorkstreamPanel({
           onClick={() => setShowTables((v) => !v)}
           className="text-xs font-medium text-slate-500 hover:text-brand-indigo"
         >
-          {showTables ? "−" : "+"} Complexity tables (advanced)
+          {showTables ? "−" : "+"} {t(s.complexityTablesAdvanced, locale)}
         </button>
         {showTables && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(["sessionComplexity", "setupComplexity"] as const).map((which) => (
               <div key={which}>
                 <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  {which === "sessionComplexity" ? "Session complexity" : "Setup complexity"}
+                  {which === "sessionComplexity" ? t(s.sessionComplexityOption, locale) : t(s.setupComplexityOption, locale)}
                 </div>
                 <div className="mt-1 space-y-1">
                   {Object.entries(workstream[which]).map(([level, entry]) => (

@@ -3,12 +3,15 @@
 import type {
   ElixirSyncIntegrationState,
   EstimationState,
+  Locale,
+  LocalizedString,
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
 
 const FOUNDATION_KEYS = ["business_assessment", "technical_assessment", "data_migration", "deployment_golive"];
@@ -24,30 +27,31 @@ const HUB_KEYS = [
 // never drift out of alignment regardless of label length or whether a row has a result yet.
 const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_190px_90px_120px] items-center gap-3";
 
-function ColumnHeader() {
+function ColumnHeader({ locale }: { locale: Locale }) {
+  const s = UI_STRINGS.coverPage;
   return (
     <div className={`${ROW_GRID} px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400`}>
-      <span>Workstream</span>
-      <span className="text-right">Rate</span>
-      <span className="text-right">Hours</span>
-      <span className="text-right">Budget</span>
+      <span>{t(s.columnWorkstream, locale)}</span>
+      <span className="text-right">{t(s.columnRate, locale)}</span>
+      <span className="text-right">{t(s.columnHours, locale)}</span>
+      <span className="text-right">{t(s.columnBudget, locale)}</span>
     </div>
   );
 }
 
 /** Blank while a row is unchecked, so an all-zero result doesn't clutter the list. */
-function HoursCell({ enabled, hours }: { enabled: boolean; hours: number }) {
+function HoursCell({ enabled, hours, locale }: { enabled: boolean; hours: number; locale: Locale }) {
   return (
     <span className="text-right text-xs font-medium tabular-nums text-brand-ink">
-      {enabled ? formatHours(hours) : ""}
+      {enabled ? formatHours(hours, locale) : ""}
     </span>
   );
 }
 
-function BudgetCell({ enabled, price }: { enabled: boolean; price: number }) {
+function BudgetCell({ enabled, price, locale }: { enabled: boolean; price: number; locale: Locale }) {
   return (
     <span className="text-right text-xs font-medium tabular-nums text-brand-ink">
-      {enabled ? formatCurrency(price) : ""}
+      {enabled ? formatCurrency(price, locale) : ""}
     </span>
   );
 }
@@ -56,11 +60,13 @@ function WorkstreamRow({
   workstream,
   hours,
   price,
+  locale,
   onChange,
 }: {
   workstream: StandardWorkstream;
   hours: number;
   price: number;
+  locale: Locale;
   onChange: (next: StandardWorkstream) => void;
 }) {
   return (
@@ -73,15 +79,19 @@ function WorkstreamRow({
           className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
         />
         <span className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
-          {workstream.label}
+          {t(workstream.label, locale)}
         </span>
       </span>
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
-        <RateHint rate={workstream.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate} />
+        <RateHint
+          rate={workstream.hourlyRate}
+          defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate}
+          locale={locale}
+        />
       </span>
-      <HoursCell enabled={workstream.enabled} hours={hours} />
-      <BudgetCell enabled={workstream.enabled} price={price} />
+      <HoursCell enabled={workstream.enabled} hours={hours} locale={locale} />
+      <BudgetCell enabled={workstream.enabled} price={price} locale={locale} />
     </label>
   );
 }
@@ -93,14 +103,16 @@ function ToggleRow({
   enabled,
   hours,
   price,
+  locale,
   onChange,
 }: {
-  label: string;
+  label: LocalizedString;
   rate: number;
   defaultRate: number;
   enabled: boolean;
   hours: number;
   price: number;
+  locale: Locale;
   onChange: (enabled: boolean) => void;
 }) {
   return (
@@ -112,14 +124,16 @@ function ToggleRow({
           onChange={(e) => onChange(e.target.checked)}
           className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
         />
-        <span className={`truncate text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>{label}</span>
+        <span className={`truncate text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>
+          {t(label, locale)}
+        </span>
       </span>
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{rate}/h</span>
-        <RateHint rate={rate} defaultRate={defaultRate} />
+        <RateHint rate={rate} defaultRate={defaultRate} locale={locale} />
       </span>
-      <HoursCell enabled={enabled} hours={hours} />
-      <BudgetCell enabled={enabled} price={price} />
+      <HoursCell enabled={enabled} hours={hours} locale={locale} />
+      <BudgetCell enabled={enabled} price={price} locale={locale} />
     </label>
   );
 }
@@ -131,8 +145,7 @@ function GroupCard({ title, description, children }: { title: string; descriptio
         <h3 className="text-sm font-semibold text-brand-ink">{title}</h3>
         {description && <p className="mt-0.5 text-xs text-slate-500">{description}</p>}
       </div>
-      <ColumnHeader />
-      <div className="divide-y divide-slate-100 p-1.5 pt-0">{children}</div>
+      {children}
     </div>
   );
 }
@@ -142,9 +155,11 @@ interface CoverPageProps {
   onChangeWorkstream: (key: string, next: StandardWorkstream) => void;
   onChangeThirdParty: (next: ThirdPartyIntegrationState) => void;
   onChangeElixirSync: (next: ElixirSyncIntegrationState) => void;
+  locale: Locale;
 }
 
-export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChangeElixirSync }: CoverPageProps) {
+export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChangeElixirSync, locale }: CoverPageProps) {
+  const s = UI_STRINGS.coverPage;
   const byKey = (key: string) => data.standardWorkstreams.find((ws) => ws.key === key);
   const foundation = FOUNDATION_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
   const hubs = HUB_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
@@ -155,74 +170,86 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-semibold text-brand-ink">What are we offering?</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Choose which HubSpot hubs and workstreams are part of this estimation. Unchecked items are excluded from
-          the totals and hidden from the Proposal Summary, but stay saved here if you need them later.
-        </p>
+        <h2 className="text-base font-semibold text-brand-ink">{t(s.heading, locale)}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t(s.intro, locale)}</p>
       </div>
 
-      <GroupCard title="Foundation workstreams" description="Cross-cutting work that applies regardless of which hubs are in scope.">
-        {foundation.map((ws) => (
-          <WorkstreamRow
-            key={ws.key}
-            workstream={ws}
-            hours={resultFor(ws.key)?.hours ?? 0}
-            price={resultFor(ws.key)?.price ?? 0}
-            onChange={(next) => onChangeWorkstream(ws.key, next)}
-          />
-        ))}
+      <GroupCard title={t(s.foundationTitle, locale)} description={t(s.foundationDescription, locale)}>
+        <ColumnHeader locale={locale} />
+        <div className="divide-y divide-slate-100 p-1.5 pt-0">
+          {foundation.map((ws) => (
+            <WorkstreamRow
+              key={ws.key}
+              workstream={ws}
+              hours={resultFor(ws.key)?.hours ?? 0}
+              price={resultFor(ws.key)?.price ?? 0}
+              locale={locale}
+              onChange={(next) => onChangeWorkstream(ws.key, next)}
+            />
+          ))}
+        </div>
       </GroupCard>
 
-      <GroupCard title="HubSpot hub implementations" description="The hubs this project will implement.">
-        {hubs.map((ws) => (
-          <WorkstreamRow
-            key={ws.key}
-            workstream={ws}
-            hours={resultFor(ws.key)?.hours ?? 0}
-            price={resultFor(ws.key)?.price ?? 0}
-            onChange={(next) => onChangeWorkstream(ws.key, next)}
-          />
-        ))}
+      <GroupCard title={t(s.hubsTitle, locale)} description={t(s.hubsDescription, locale)}>
+        <ColumnHeader locale={locale} />
+        <div className="divide-y divide-slate-100 p-1.5 pt-0">
+          {hubs.map((ws) => (
+            <WorkstreamRow
+              key={ws.key}
+              workstream={ws}
+              hours={resultFor(ws.key)?.hours ?? 0}
+              price={resultFor(ws.key)?.price ?? 0}
+              locale={locale}
+              onChange={(next) => onChangeWorkstream(ws.key, next)}
+            />
+          ))}
+        </div>
       </GroupCard>
 
-      <GroupCard title="Integrations" description="Data sync and third-party connections, priced separately.">
-        <ToggleRow
-          label="ElixirSync Integration"
-          rate={data.elixirSyncIntegration.hourlyRate}
-          defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration}
-          enabled={data.elixirSyncIntegration.enabled}
-          hours={totals.elixirSync.hours}
-          price={totals.elixirSync.price}
-          onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
-        />
-        <ToggleRow
-          label="Third Party Integration"
-          rate={data.thirdPartyIntegration.hourlyRate}
-          defaultRate={DEFAULT_HOURLY_RATES.third_party_integration}
-          enabled={data.thirdPartyIntegration.enabled}
-          hours={totals.thirdParty.hours}
-          price={totals.thirdParty.price}
-          onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
-        />
+      <GroupCard title={t(s.integrationsTitle, locale)} description={t(s.integrationsDescription, locale)}>
+        <ColumnHeader locale={locale} />
+        <div className="divide-y divide-slate-100 p-1.5 pt-0">
+          <ToggleRow
+            label={UI_STRINGS.editor.tabElixirSync}
+            rate={data.elixirSyncIntegration.hourlyRate}
+            defaultRate={DEFAULT_HOURLY_RATES.elixirsync_integration}
+            enabled={data.elixirSyncIntegration.enabled}
+            hours={totals.elixirSync.hours}
+            price={totals.elixirSync.price}
+            locale={locale}
+            onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
+          />
+          <ToggleRow
+            label={UI_STRINGS.editor.tabThirdParty}
+            rate={data.thirdPartyIntegration.hourlyRate}
+            defaultRate={DEFAULT_HOURLY_RATES.third_party_integration}
+            enabled={data.thirdPartyIntegration.enabled}
+            hours={totals.thirdParty.hours}
+            price={totals.thirdParty.price}
+            locale={locale}
+            onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
+          />
+        </div>
       </GroupCard>
 
       <div className={`${ROW_GRID} rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm`}>
-        <span className="text-slate-500">Project management rate</span>
+        <span className="text-slate-500">{t(s.pmRateLabel, locale)}</span>
         <span className="flex items-center justify-end gap-2 text-xs">
-          <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate)}/h</span>
-          <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} />
+          <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate, locale)}/h</span>
+          <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} locale={locale} />
         </span>
-        <HoursCell enabled hours={totals.pmHours} />
-        <BudgetCell enabled price={totals.pmPrice} />
+        <HoursCell enabled hours={totals.pmHours} locale={locale} />
+        <BudgetCell enabled price={totals.pmPrice} locale={locale} />
       </div>
 
       <div className="flex items-center justify-between rounded-lg bg-brand-indigo px-4 py-3 text-white shadow-sm">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-white/80">Project total</div>
-          <div className="text-xs text-white/70">{formatHours(totals.totalEffortHours)} total effort</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-white/80">{t(s.projectTotal, locale)}</div>
+          <div className="text-xs text-white/70">
+            {formatHours(totals.totalEffortHours, locale)} {t(s.totalEffort, locale)}
+          </div>
         </div>
-        <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice)}</div>
+        <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
       </div>
     </div>
   );

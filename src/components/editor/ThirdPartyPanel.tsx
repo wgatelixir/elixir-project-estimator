@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
+import type { Locale, ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
 import { thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import {
@@ -13,6 +13,7 @@ import {
   COMPLEXITY_STYLES,
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { PanelLegend } from "./Legend";
 import { RateHint } from "./RateHint";
 
@@ -23,10 +24,13 @@ function slugId() {
 export function ThirdPartyPanel({
   state,
   onChange,
+  locale = "en",
 }: {
   state: ThirdPartyIntegrationState;
   onChange: (next: ThirdPartyIntegrationState) => void;
+  locale?: Locale;
 }) {
+  const s = UI_STRINGS.thirdPartyPanel;
   const [newActivity, setNewActivity] = useState<ThirdPartyActivityType>("Setup");
   const [newTopic, setNewTopic] = useState("");
   const [newFrom, setNewFrom] = useState("");
@@ -43,10 +47,11 @@ export function ThirdPartyPanel({
   function addItem() {
     if (!newTopic.trim()) return;
     const table = newActivity === "Session" ? state.sessionComplexity : state.setupComplexity;
+    const topicText = newTopic.trim();
     const item: ThirdPartyLineItem = {
       id: slugId(),
       activity: newActivity,
-      topic: newTopic.trim(),
+      topic: { en: topicText, nl: topicText },
       from: newFrom || null,
       to: newTo || null,
       complexity: Object.keys(table)[0] ?? "N/A",
@@ -73,11 +78,11 @@ export function ThirdPartyPanel({
             onChange={(e) => onChange({ ...state, enabled: e.target.checked })}
             className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
           />
-          Include third party integration
+          {t(s.includeThirdParty, locale)}
         </label>
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
           <label className="flex items-center gap-1.5">
-            Hourly rate &euro;
+            {t(s.hourlyRate, locale)}
             <input
               type="number"
               min={0}
@@ -86,9 +91,9 @@ export function ThirdPartyPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
             />
           </label>
-          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.third_party_integration} />
+          <RateHint rate={state.hourlyRate} defaultRate={DEFAULT_HOURLY_RATES.third_party_integration} locale={locale} />
           <label className="flex items-center gap-1.5">
-            Subscription qty
+            {t(s.subscriptionQty, locale)}
             <input
               type="number"
               min={0}
@@ -98,7 +103,7 @@ export function ThirdPartyPanel({
             />
           </label>
           <label className="flex items-center gap-1.5">
-            Unit price &euro;
+            {t(s.unitPrice, locale)}
             <input
               type="number"
               min={0}
@@ -108,7 +113,7 @@ export function ThirdPartyPanel({
             />
           </label>
           <span className="font-medium text-brand-ink">
-            {formatHours(totalHours)} &middot; {formatCurrency(totalHours * state.hourlyRate)}
+            {formatHours(totalHours, locale)} &middot; {formatCurrency(totalHours * state.hourlyRate, locale)}
           </span>
         </div>
       </div>
@@ -118,6 +123,7 @@ export function ThirdPartyPanel({
         sessionHours={complexityHoursByBand(state.sessionComplexity)}
         setupHours={complexityHoursByBand(state.setupComplexity)}
         comments={complexityCommentsByBand(state.sessionComplexity)}
+        locale={locale}
       />
 
       <div className="overflow-x-auto">
@@ -125,12 +131,12 @@ export function ThirdPartyPanel({
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
-              <th className="px-3 py-2 font-medium">Type</th>
-              <th className="px-3 py-2 font-medium">Activity</th>
-              <th className="px-3 py-2 font-medium">From</th>
-              <th className="px-3 py-2 font-medium">To</th>
-              <th className="px-3 py-2 font-medium">Complexity</th>
-              <th className="px-3 py-2 text-right font-medium">Hours</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnType, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnFrom, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnTo, locale)}</th>
+              <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
+              <th className="px-3 py-2 text-right font-medium">{t(s.columnHours, locale)}</th>
               <th className="w-8 px-3 py-2" />
             </tr>
           </thead>
@@ -156,13 +162,13 @@ export function ThirdPartyPanel({
                     <span
                       className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
                     >
-                      {item.activity}
+                      {t(activityStyle.label, locale)}
                     </span>
                   </td>
                   <td className="px-3 py-2">
                     <input
-                      value={item.topic}
-                      onChange={(e) => updateItem(item.id, { topic: e.target.value })}
+                      value={item.topic[locale]}
+                      onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
                       className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
@@ -194,7 +200,7 @@ export function ThirdPartyPanel({
                     </select>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
-                    {formatHours(thirdPartyLineItemHours(item, state))}
+                    {formatHours(thirdPartyLineItemHours(item, state), locale)}
                   </td>
                   <td className="px-3 py-2 text-right">
                     <button
@@ -211,17 +217,17 @@ export function ThirdPartyPanel({
           <tfoot>
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
               <td className="px-3 py-2" colSpan={6}>
-                Total hours
+                {t(s.totalHours, locale)}
               </td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours)}</td>
+              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-brand-ink">
               <td className="px-3 py-2" colSpan={6}>
-                Budget
+                {t(s.budget, locale)}
               </td>
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                {formatCurrency(totalHours * state.hourlyRate)}
+                {formatCurrency(totalHours * state.hourlyRate, locale)}
               </td>
               <td className="px-3 py-2" />
             </tr>
@@ -235,32 +241,32 @@ export function ThirdPartyPanel({
           onChange={(e) => setNewActivity(e.target.value as ThirdPartyActivityType)}
           className="rounded border border-slate-300 px-2 py-1.5 text-sm"
         >
-          <option value="Setup">Setup</option>
-          <option value="Session">Session</option>
+          <option value="Setup">{t(UI_STRINGS.workstreamPanel.activitySetup, locale)}</option>
+          <option value="Session">{t(UI_STRINGS.workstreamPanel.activitySession, locale)}</option>
         </select>
         <input
           value={newTopic}
           onChange={(e) => setNewTopic(e.target.value)}
-          placeholder="Topic (e.g. Custom Object)"
+          placeholder={t(s.topicPlaceholder, locale)}
           className="min-w-[160px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
         <input
           value={newFrom}
           onChange={(e) => setNewFrom(e.target.value)}
-          placeholder="From"
+          placeholder={t(s.fromPlaceholder, locale)}
           className="w-24 rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
         <input
           value={newTo}
           onChange={(e) => setNewTo(e.target.value)}
-          placeholder="To"
+          placeholder={t(s.toPlaceholder, locale)}
           className="w-24 rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
         <button
           onClick={addItem}
           className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
         >
-          + Add line
+          {t(s.addLine, locale)}
         </button>
       </div>
     </div>

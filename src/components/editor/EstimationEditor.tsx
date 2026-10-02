@@ -8,12 +8,14 @@ import type {
   EstimationState,
   EstimationStatus,
   HubSpotLicenseState,
+  Locale,
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
+import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
 import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
 import { TabBar, type TabDef } from "./TabBar";
@@ -28,13 +30,17 @@ const COVER_TAB_ID = "cover";
 const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
 const PROPOSAL_TAB_ID = "proposal_summary";
 
-// Estimations saved before the HubSpot License tab existed have no
-// `hubspotLicense` field in their stored data - fill it in client-side
-// rather than requiring another DB backfill for a field that defaults to
-// "not included" anyway.
+// Estimations saved before the HubSpot License tab / bilingual support
+// existed have no `hubspotLicense` / `locale` field in their stored data -
+// fill both in client-side rather than requiring another DB backfill for
+// fields that default to "not included" / "English" anyway.
 function normalizeEstimationState(data: EstimationState): EstimationState {
-  if (data.hubspotLicense) return data;
-  return { ...data, hubspotLicense: createDefaultHubSpotLicenseState() };
+  if (data.hubspotLicense && data.locale) return data;
+  return {
+    ...data,
+    hubspotLicense: data.hubspotLicense ?? createDefaultHubSpotLicenseState(),
+    locale: data.locale ?? "en",
+  };
 }
 
 interface Meta {
@@ -68,19 +74,20 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   // the sidebar, not through this tab bar - keeping it out of `tabs` keeps
   // the bar to workstreams only. Only workstreams/integrations checked on
   // the Cover page get a tab, so the bar always matches what's in scope.
+  const locale = data.locale;
   const tabs: TabDef[] = useMemo(
     () => [
-      { id: COVER_TAB_ID, label: "📃 Cover" },
-      { id: HUBSPOT_LICENSE_TAB_ID, label: "💶 HubSpot License" },
-      ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: ws.label })),
+      { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale) },
+      { id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) },
+      ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: t(ws.label, locale) })),
       ...(data.thirdPartyIntegration.enabled
-        ? [{ id: "third_party_integration", label: "Third Party Integration" }]
+        ? [{ id: "third_party_integration", label: t(UI_STRINGS.editor.tabThirdParty, locale) }]
         : []),
       ...(data.elixirSyncIntegration.enabled
-        ? [{ id: "elixirsync_integration", label: "ElixirSync Integration" }]
+        ? [{ id: "elixirsync_integration", label: t(UI_STRINGS.editor.tabElixirSync, locale) }]
         : []),
     ],
-    [data.standardWorkstreams, data.thirdPartyIntegration.enabled, data.elixirSyncIntegration.enabled]
+    [data.standardWorkstreams, data.thirdPartyIntegration.enabled, data.elixirSyncIntegration.enabled, locale]
   );
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "");
 
@@ -118,6 +125,11 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   function updateHubSpotLicense(next: HubSpotLicenseState) {
     setData((prev) => ({ ...prev, hubspotLicense: next }));
+    markDirty();
+  }
+
+  function updateLocale(next: Locale) {
+    setData((prev) => ({ ...prev, locale: next }));
     markDirty();
   }
 
@@ -167,7 +179,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
     };
   } else if (activeTab === "third_party_integration") {
     sidebarLegend = {
-      label: "Third Party Integration",
+      label: UI_STRINGS.editor.tabThirdParty,
       variant: "thirdParty",
       sessionHours: complexityHoursByBand(data.thirdPartyIntegration.sessionComplexity),
       setupHours: complexityHoursByBand(data.thirdPartyIntegration.setupComplexity),
@@ -185,6 +197,8 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
         lastSavedAt={lastSavedAt}
         onSave={handleSave}
         error={error}
+        locale={locale}
+        onChangeLocale={updateLocale}
       />
 
       {activeTab === PROPOSAL_TAB_ID ? (
@@ -197,7 +211,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               onClick={() => window.print()}
               className="flex-shrink-0 rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
             >
-              🖨️ Download PDF
+              {t(UI_STRINGS.editor.downloadPdf, locale)}
             </button>
           </div>
           <div className="mt-4">
@@ -215,25 +229,28 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                   onChangeWorkstream={updateWorkstream}
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}
+                  locale={locale}
                 />
               )}
               {activeTab === HUBSPOT_LICENSE_TAB_ID && (
-                <HubSpotLicensePanel state={data.hubspotLicense} onChange={updateHubSpotLicense} />
+                <HubSpotLicensePanel state={data.hubspotLicense} onChange={updateHubSpotLicense} locale={locale} />
               )}
               {activeWorkstream && (
                 <WorkstreamPanel
                   workstream={activeWorkstream}
                   onChange={(next) => updateWorkstream(activeWorkstream.key, next)}
+                  locale={locale}
                 />
               )}
               {activeTab === "third_party_integration" && (
-                <ThirdPartyPanel state={data.thirdPartyIntegration} onChange={updateThirdParty} />
+                <ThirdPartyPanel state={data.thirdPartyIntegration} onChange={updateThirdParty} locale={locale} />
               )}
               {activeTab === "elixirsync_integration" && (
                 <ElixirSyncPanel
                   state={data.elixirSyncIntegration}
                   onChange={updateElixirSync}
                   hourlyRate={data.elixirSyncIntegration.hourlyRate}
+                  locale={locale}
                 />
               )}
             </div>
@@ -247,6 +264,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               onChangePm={updatePm}
               onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
               legend={sidebarLegend}
+              locale={locale}
             />
           </div>
         </div>

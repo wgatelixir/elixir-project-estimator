@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { EstimationState } from "@/lib/types";
+import type { EstimationState, LocalizedString } from "@/lib/types";
 import { prisma } from "@/lib/prisma";
 import { STANDARD_WORKSTREAM_TEMPLATES } from "@/lib/templates";
 
@@ -14,7 +14,9 @@ import { STANDARD_WORKSTREAM_TEMPLATES } from "@/lib/templates";
 
 const businessAssessment = STANDARD_WORKSTREAM_TEMPLATES.find((ws) => ws.key === "business_assessment");
 const canonicalComments = new Map(
-  (businessAssessment?.items ?? []).filter((item) => item.comment).map((item) => [item.id, item.comment as string])
+  (businessAssessment?.items ?? [])
+    .filter((item) => item.comment)
+    .map((item) => [item.id, item.comment as LocalizedString])
 );
 
 export async function POST() {

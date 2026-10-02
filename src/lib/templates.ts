@@ -16,106 +16,106 @@ import { createDefaultHubSpotLicenseState } from './hubspotPricing';
 export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "business_assessment",
-    label: "Business Assessment",
+    label: { en: "Business Assessment", nl: "Business Assessment" },
     enabled: true,
     hourlyRate: 150,
     items: [
       {
         id: "business_assessment-1-strategy-interview",
         activity: "Session",
-        topic: "Strategy Interview",
+        topic: { en: "Strategy Interview", nl: "Strategie-interview" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
+        comment: { en: "Interview + write-up; input is translated into recommendations for the solution design.", nl: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design." },
         enabled: true,
       },
       {
         id: "business_assessment-2-marketing-interview",
         activity: "Session",
-        topic: "Marketing Interview",
+        topic: { en: "Marketing Interview", nl: "Marketing-interview" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
+        comment: { en: "Interview + write-up; input is translated into recommendations for the solution design.", nl: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design." },
         enabled: true,
       },
       {
         id: "business_assessment-3-sales-interview",
         activity: "Session",
-        topic: "Sales Interview",
+        topic: { en: "Sales Interview", nl: "Sales-interview" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
+        comment: { en: "Interview + write-up; input is translated into recommendations for the solution design.", nl: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design." },
         enabled: true,
       },
       {
         id: "business_assessment-4-service-interview",
         activity: "Session",
-        topic: "Service Interview",
+        topic: { en: "Service Interview", nl: "Service-interview" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
+        comment: { en: "Interview + write-up; input is translated into recommendations for the solution design.", nl: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design." },
         enabled: true,
       },
       {
         id: "business_assessment-5-datait-interview-reverse-demo",
         activity: "Session",
-        topic: "Data/IT Interview - Reverse demo",
+        topic: { en: "Data/IT Interview - Reverse demo", nl: "Data/IT-interview - Reverse demo" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design.",
+        comment: { en: "Interview + write-up; input is translated into recommendations for the solution design.", nl: "Interview + uitwerking; input wordt vertaald naar aanbevelingen voor het solution design." },
         enabled: true,
       },
       {
         id: "business_assessment-6-solution-design-workshop",
         activity: "Session",
-        topic: "Solution design workshop",
+        topic: { en: "Solution design workshop", nl: "Solution design-workshop" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Only for uni-dimensional projects",
+        comment: { en: "Only for uni-dimensional projects", nl: "Alleen voor uni-dimensionale projecten" },
         enabled: true,
       },
       {
         id: "business_assessment-7-assessment-presentation",
         activity: "Session",
-        topic: "Assessment presentation",
+        topic: { en: "Assessment presentation", nl: "Assessment-presentatie" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: "Only for multi dimensional projects",
+        comment: { en: "Only for multi dimensional projects", nl: "Alleen voor multidimensionale projecten" },
         enabled: true,
       },
       {
         id: "business_assessment-8-create-solution-design-user-stories",
         activity: "Desk work",
-        topic: "Create solution design & user stories",
+        topic: { en: "Create solution design & user stories", nl: "Solution design & user stories opstellen" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: "Only for uni-dimensional projects",
+        comment: { en: "Only for uni-dimensional projects", nl: "Alleen voor uni-dimensionale projecten" },
         enabled: true,
       },
       {
         id: "business_assessment-9-prepare-assessment-presentation",
         activity: "Desk work",
-        topic: "Prepare assessment presentation",
+        topic: { en: "Prepare assessment presentation", nl: "Assessment-presentatie voorbereiden" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: "Only for multi dimensional projects",
+        comment: { en: "Only for multi dimensional projects", nl: "Alleen voor multidimensionale projecten" },
         enabled: true,
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -1.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "1,5 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 1.0, comment: "2 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 2.0, comment: "2 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -1.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1,5 hr Session with 2 people, normal preparation time", nl: "1,5 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 1.0, comment: { en: "2 hr Session with 2 people, medium complexity and medium preparation time", nl: "2 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 2.0, comment: { en: "2 hr Session with 2 people, high complexity and high preparation time", nl: "2 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -1.0, comment: null },
@@ -126,14 +126,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "technical_assessment",
-    label: "Technical Assessment",
+    label: { en: "Technical Assessment", nl: "Technical Assessment" },
     enabled: true,
     hourlyRate: 150,
     items: [
       {
         id: "technical_assessment-1-understanding-situation-processes",
         activity: "Session",
-        topic: "Understanding situation & processes",
+        topic: { en: "Understanding situation & processes", nl: "Situatie & processen in kaart brengen" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -143,7 +143,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-2-best-practice-integration-flow",
         activity: "Session",
-        topic: "Best-practice integration flow",
+        topic: { en: "Best-practice integration flow", nl: "Best-practice integratieflow" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -153,7 +153,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-3-adapted-integration-flow",
         activity: "Session",
-        topic: "Adapted integration flow",
+        topic: { en: "Adapted integration flow", nl: "Aangepaste integratieflow" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -163,7 +163,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-4-data-mapping-i",
         activity: "Session",
-        topic: "Data mapping I",
+        topic: { en: "Data mapping I", nl: "Datamapping I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -173,7 +173,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-5-functional-requirements",
         activity: "Session",
-        topic: "Functional Requirements",
+        topic: { en: "Functional Requirements", nl: "Functionele requirements" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -183,7 +183,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-6-integration-flow-definition",
         activity: "Setup",
-        topic: "Integration Flow Definition",
+        topic: { en: "Integration Flow Definition", nl: "Integratieflow definiëren" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -193,7 +193,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-7-mapping-file",
         activity: "Setup",
-        topic: "Mapping File",
+        topic: { en: "Mapping File", nl: "Mappingbestand" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -203,7 +203,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "technical_assessment-8-functional-requirements-document",
         activity: "Setup",
-        topic: "Functional Requirements Document",
+        topic: { en: "Functional Requirements Document", nl: "Functioneel requirements-document" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -212,10 +212,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "1,5 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "2 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "2 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1,5 hr Session with 2 people, normal preparation time", nl: "1,5 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "2 hr Session with 2 people, medium complexity and medium preparation time", nl: "2 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "2 hr Session with 2 people, high complexity and high preparation time", nl: "2 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -226,14 +226,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "data_migration",
-    label: "Data Migration",
+    label: { en: "Data Migration", nl: "Datamigratie" },
     enabled: true,
     hourlyRate: 150,
     items: [
       {
         id: "data_migration-1-kick-off-hs-best-practices-customer-inpu",
         activity: "Session",
-        topic: "Kick-off - HS Best Practices & Customer Input",
+        topic: { en: "Kick-off - HS Best Practices & Customer Input", nl: "Kick-off - HubSpot best practices & klantinput" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -243,7 +243,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-2-data-mapping-i",
         activity: "Session",
-        topic: "Data Mapping I",
+        topic: { en: "Data Mapping I", nl: "Datamapping I" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -253,7 +253,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-3-data-mapping-ii",
         activity: "Session",
-        topic: "Data Mapping II",
+        topic: { en: "Data Mapping II", nl: "Datamapping II" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -263,7 +263,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-4-alignment-before-loading-in-test",
         activity: "Session",
-        topic: "Alignment before loading in Test",
+        topic: { en: "Alignment before loading in Test", nl: "Afstemming vóór laden in Test" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -273,7 +273,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-5-data-validation-in-test",
         activity: "Session",
-        topic: "Data Validation in Test",
+        topic: { en: "Data Validation in Test", nl: "Datavalidatie in Test" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -283,7 +283,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-6-alignment-before-loading-in-production",
         activity: "Session",
-        topic: "Alignment before loading in Production",
+        topic: { en: "Alignment before loading in Production", nl: "Afstemming vóór laden in Productie" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -293,7 +293,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-7-data-validation-in-prod",
         activity: "Session",
-        topic: "Data Validation in Prod",
+        topic: { en: "Data Validation in Prod", nl: "Datavalidatie in Productie" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -303,7 +303,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-8-data-transformation",
         activity: "Setup",
-        topic: "Data Transformation",
+        topic: { en: "Data Transformation", nl: "Datatransformatie" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -313,7 +313,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-9-data-loading-in-test",
         activity: "Setup",
-        topic: "Data Loading in Test",
+        topic: { en: "Data Loading in Test", nl: "Data laden in Test" },
         standardEffort: 6.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -323,7 +323,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "data_migration-10-data-loading-in-prod",
         activity: "Setup",
-        topic: "Data Loading in Prod",
+        topic: { en: "Data Loading in Prod", nl: "Data laden in Productie" },
         standardEffort: 6.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -332,10 +332,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "1,5 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "1,5 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "1,5 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1,5 hr Session with 2 people, normal preparation time", nl: "1,5 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "1,5 hr Session with 2 people, medium complexity and medium preparation time", nl: "1,5 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "1,5 hr Session with 2 people, high complexity and high preparation time", nl: "1,5 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -346,14 +346,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "sales_implementation",
-    label: "Sales Implementation",
+    label: { en: "Sales Implementation", nl: "Sales-implementatie" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "sales_implementation-1-sales-kick-off-workshop",
         activity: "Session",
-        topic: "Sales Kick-off Workshop",
+        topic: { en: "Sales Kick-off Workshop", nl: "Sales kick-off workshop" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -363,7 +363,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-2-company-contact-lead-activity-mgmt",
         activity: "Session",
-        topic: "Company & Contact, lead & activity Mgmt",
+        topic: { en: "Company & Contact, lead & activity Mgmt", nl: "Bedrijven & contacten, lead- en activiteitenbeheer" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -373,7 +373,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-3-deal-pipeline-management",
         activity: "Session",
-        topic: "Deal & Pipeline management",
+        topic: { en: "Deal & Pipeline management", nl: "Deal- en pipelinebeheer" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -383,7 +383,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-4-quote-management",
         activity: "Session",
-        topic: "Quote management",
+        topic: { en: "Quote management", nl: "Offertebeheer" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -393,7 +393,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-5-sales-reporting-authorizations",
         activity: "Session",
-        topic: "Sales Reporting & Authorizations",
+        topic: { en: "Sales Reporting & Authorizations", nl: "Sales-rapportage & autorisaties" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -403,7 +403,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-6-setup-checkin-session-i",
         activity: "Session",
-        topic: "Setup Checkin Session I",
+        topic: { en: "Setup Checkin Session I", nl: "Setup check-in sessie I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -413,7 +413,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-7-setup-checkin-session-ii",
         activity: "Session",
-        topic: "Setup Checkin Session II",
+        topic: { en: "Setup Checkin Session II", nl: "Setup check-in sessie II" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -423,7 +423,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-8-final-checkin-session-before-go-live",
         activity: "Session",
-        topic: "Final Checkin Session (before Go-Live)",
+        topic: { en: "Final Checkin Session (before Go-Live)", nl: "Laatste check-in sessie (vóór Go-Live)" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -433,7 +433,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-9-sales-marketing-alignment",
         activity: "Session",
-        topic: "Sales & marketing alignment",
+        topic: { en: "Sales & marketing alignment", nl: "Sales- en marketingafstemming" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -443,7 +443,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-10-companies",
         activity: "Setup",
-        topic: "Companies",
+        topic: { en: "Companies", nl: "Bedrijven" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -453,7 +453,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-11-contacts",
         activity: "Setup",
-        topic: "Contacts",
+        topic: { en: "Contacts", nl: "Contacten" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -463,7 +463,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-12-lead-management",
         activity: "Setup",
-        topic: "Lead management",
+        topic: { en: "Lead management", nl: "Leadbeheer" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -473,7 +473,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-13-deals",
         activity: "Setup",
-        topic: "Deals",
+        topic: { en: "Deals", nl: "Deals" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -483,7 +483,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-14-quoting",
         activity: "Setup",
-        topic: "Quoting",
+        topic: { en: "Quoting", nl: "Offertes" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -493,7 +493,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-15-dashboards-reports",
         activity: "Setup",
-        topic: "Dashboards & reports",
+        topic: { en: "Dashboards & reports", nl: "Dashboards & rapportages" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -503,7 +503,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-16-users-teams-permission-sets",
         activity: "Setup",
-        topic: "Users, Teams & Permission sets",
+        topic: { en: "Users, Teams & Permission sets", nl: "Gebruikers, teams & permissiesets" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -512,10 +512,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "3 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "3 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "3 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "3 hr Session with 2 people, normal preparation time", nl: "3 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "3 hr Session with 2 people, medium complexity and medium preparation time", nl: "3 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "3 hr Session with 2 people, high complexity and high preparation time", nl: "3 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -526,14 +526,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "service_implementation",
-    label: "Service Implementation",
+    label: { en: "Service Implementation", nl: "Service-implementatie" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "service_implementation-1-service-kick-off-workshop",
         activity: "Session",
-        topic: "Service kick-off Workshop",
+        topic: { en: "Service kick-off Workshop", nl: "Service kick-off workshop" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -543,7 +543,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-2-company-contact-management",
         activity: "Session",
-        topic: "Company & contact management",
+        topic: { en: "Company & contact management", nl: "Bedrijven- & contactenbeheer" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -553,7 +553,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-3-ticket-management",
         activity: "Session",
-        topic: "Ticket management",
+        topic: { en: "Ticket management", nl: "Ticketbeheer" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -563,7 +563,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-4-knowledge-base-feedback-surveys",
         activity: "Session",
-        topic: "Knowledge base & feedback surveys",
+        topic: { en: "Knowledge base & feedback surveys", nl: "Kennisbank & feedback-enquêtes" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -573,7 +573,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-5-service-reporting-authorizations",
         activity: "Session",
-        topic: "Service reporting & Authorizations",
+        topic: { en: "Service reporting & Authorizations", nl: "Service-rapportage & autorisaties" },
         standardEffort: 8.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -583,7 +583,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-6-setup-checkin-session-i",
         activity: "Session",
-        topic: "Setup Checkin Session I",
+        topic: { en: "Setup Checkin Session I", nl: "Setup check-in sessie I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -593,7 +593,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-7-setup-checkin-session-ii",
         activity: "Session",
-        topic: "Setup Checkin Session II",
+        topic: { en: "Setup Checkin Session II", nl: "Setup check-in sessie II" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -603,7 +603,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-8-final-wrap-up-before-training",
         activity: "Session",
-        topic: "Final wrap-up (before training)",
+        topic: { en: "Final wrap-up (before training)", nl: "Laatste afronding (vóór training)" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -613,7 +613,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-9-companies",
         activity: "Setup",
-        topic: "Companies",
+        topic: { en: "Companies", nl: "Bedrijven" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -623,7 +623,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-10-contacts",
         activity: "Setup",
-        topic: "Contacts",
+        topic: { en: "Contacts", nl: "Contacten" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -633,7 +633,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-11-tickets",
         activity: "Setup",
-        topic: "Tickets",
+        topic: { en: "Tickets", nl: "Tickets" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -643,7 +643,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-12-customer-portal",
         activity: "Setup",
-        topic: "Customer portal",
+        topic: { en: "Customer portal", nl: "Klantportaal" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -653,7 +653,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-13-knowledge-base",
         activity: "Setup",
-        topic: "Knowledge base",
+        topic: { en: "Knowledge base", nl: "Kennisbank" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -663,7 +663,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-14-surveys",
         activity: "Setup",
-        topic: "Surveys",
+        topic: { en: "Surveys", nl: "Enquêtes" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -673,7 +673,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-15-dashboards-reports",
         activity: "Setup",
-        topic: "Dashboards & reports",
+        topic: { en: "Dashboards & reports", nl: "Dashboards & rapportages" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -683,7 +683,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "service_implementation-16-users-teams-permission-sets",
         activity: "Setup",
-        topic: "Users, Teams & Permission sets",
+        topic: { en: "Users, Teams & Permission sets", nl: "Gebruikers, teams & permissiesets" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -692,10 +692,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "3 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "3 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "3 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "3 hr Session with 2 people, normal preparation time", nl: "3 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "3 hr Session with 2 people, medium complexity and medium preparation time", nl: "3 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "3 hr Session with 2 people, high complexity and high preparation time", nl: "3 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -706,14 +706,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "marketing_implementation",
-    label: "Marketing Implementation",
+    label: { en: "Marketing Implementation", nl: "Marketing-implementatie" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "marketing_implementation-1-marketing-kick-off-tech-questionnaire",
         activity: "Session",
-        topic: "Marketing Kick-off (Tech Questionnaire)",
+        topic: { en: "Marketing Kick-off (Tech Questionnaire)", nl: "Marketing kick-off (technische vragenlijst)" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -723,7 +723,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-2-gdpr-marketing-contacts",
         activity: "Session",
-        topic: "GDPR & marketing contacts",
+        topic: { en: "GDPR & marketing contacts", nl: "AVG & marketingcontacten" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -733,7 +733,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-3-campaign-definition-technical-set-up",
         activity: "Session",
-        topic: "Campaign Definition, Technical set-up",
+        topic: { en: "Campaign Definition, Technical set-up", nl: "Campagnedefinitie, technische set-up" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -743,7 +743,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-4-buyer-personas-buyers-journey",
         activity: "Session",
-        topic: "Buyer Personas & Buyers Journey",
+        topic: { en: "Buyer Personas & Buyers Journey", nl: "Buyer persona's & buyer journey" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -753,7 +753,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-5-lead-qualification-scoring-campaign-flow",
         activity: "Session",
-        topic: "Lead qualification / scoring & Campaign Flow",
+        topic: { en: "Lead qualification / scoring & Campaign Flow", nl: "Leadkwalificatie / scoring & campagneflow" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -763,7 +763,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-6-assets-training-i",
         activity: "Session",
-        topic: "Assets Training I",
+        topic: { en: "Assets Training I", nl: "Training materialen I" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -773,7 +773,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-7-assets-training-ii",
         activity: "Session",
-        topic: "Assets Training II",
+        topic: { en: "Assets Training II", nl: "Training materialen II" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -783,7 +783,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-8-campaign-go-live",
         activity: "Session",
-        topic: "Campaign go-live",
+        topic: { en: "Campaign go-live", nl: "Campagne go-live" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -793,7 +793,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-9-marketing-reporting-analytics",
         activity: "Session",
-        topic: "Marketing reporting & analytics",
+        topic: { en: "Marketing reporting & analytics", nl: "Marketingrapportage & analyse" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -803,7 +803,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-10-setup-checkin-session-i",
         activity: "Session",
-        topic: "Setup Checkin Session I",
+        topic: { en: "Setup Checkin Session I", nl: "Setup check-in sessie I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -813,7 +813,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-11-setup-checkin-session-ii",
         activity: "Session",
-        topic: "Setup Checkin Session II",
+        topic: { en: "Setup Checkin Session II", nl: "Setup check-in sessie II" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -823,7 +823,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-12-campaign-follow-up",
         activity: "Session",
-        topic: "Campaign Follow-up ",
+        topic: { en: "Campaign Follow-up ", nl: "Campagne follow-up" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -833,7 +833,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-13-general-set-up-tracking-link-domains-sub",
         activity: "Setup",
-        topic: "General set-up: Tracking link, Domains, Subdomains, Compliance, Plug&Play Integrations",
+        topic: { en: "General set-up: Tracking link, Domains, Subdomains, Compliance, Plug&Play Integrations", nl: "Algemene set-up: tracking link, domeinen, subdomeinen, compliance, plug&play-integraties" },
         standardEffort: 6.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -843,7 +843,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-14-gdpr-set-up-consent-subscription-types-c",
         activity: "Setup",
-        topic: "GDPR set-up: Consent, subscription types, cookie banner, DOI, marketing contacts",
+        topic: { en: "GDPR set-up: Consent, subscription types, cookie banner, DOI, marketing contacts", nl: "AVG-set-up: toestemming, abonnementstypen, cookiebanner, DOI, marketingcontacten" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -853,7 +853,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-15-lead-qualification-scoring",
         activity: "Setup",
-        topic: "Lead Qualification / Scoring",
+        topic: { en: "Lead Qualification / Scoring", nl: "Leadkwalificatie / scoring" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -863,7 +863,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-16-campaign-assets-ads-social-landing-pages",
         activity: "Setup",
-        topic: "Campaign assets: Ads, Social, Landing pages, Forms, Mails, Workflows",
+        topic: { en: "Campaign assets: Ads, Social, Landing pages, Forms, Mails, Workflows", nl: "Campagnemateriaal: advertenties, social, landingspagina's, formulieren, mails, workflows" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -873,7 +873,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-17-dashboards-reports",
         activity: "Setup",
-        topic: "Dashboards & reports",
+        topic: { en: "Dashboards & reports", nl: "Dashboards & rapportages" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -883,7 +883,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-18-users-teams-permission-sets",
         activity: "Setup",
-        topic: "Users, Teams & Permission sets",
+        topic: { en: "Users, Teams & Permission sets", nl: "Gebruikers, teams & permissiesets" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -892,10 +892,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "1,5 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "1,5 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "1,5 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1,5 hr Session with 2 people, normal preparation time", nl: "1,5 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "1,5 hr Session with 2 people, medium complexity and medium preparation time", nl: "1,5 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "1,5 hr Session with 2 people, high complexity and high preparation time", nl: "1,5 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -906,14 +906,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "cms_implementation",
-    label: "CMS Implementation",
+    label: { en: "CMS Implementation", nl: "CMS-implementatie" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "cms_implementation-1-cms-kick-off-approach",
         activity: "Session",
-        topic: "CMS Kick-off / Approach",
+        topic: { en: "CMS Kick-off / Approach", nl: "CMS kick-off / aanpak" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -923,7 +923,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-2-setup-future-branding",
         activity: "Session",
-        topic: "Setup & future Branding",
+        topic: { en: "Setup & future Branding", nl: "Setup & toekomstige branding" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -933,7 +933,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-3-page-template-review",
         activity: "Session",
-        topic: "Page Template Review",
+        topic: { en: "Page Template Review", nl: "Review paginatemplates" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -943,7 +943,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-4-cms-training-i",
         activity: "Session",
-        topic: "CMS Training I",
+        topic: { en: "CMS Training I", nl: "CMS-training I" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -953,7 +953,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-5-cms-training-ii",
         activity: "Session",
-        topic: "CMS Training II",
+        topic: { en: "CMS Training II", nl: "CMS-training II" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -963,7 +963,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-6-migration-session-i",
         activity: "Session",
-        topic: "Migration Session I",
+        topic: { en: "Migration Session I", nl: "Migratiesessie I" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -973,7 +973,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-7-migration-session-ii",
         activity: "Session",
-        topic: "Migration Session II",
+        topic: { en: "Migration Session II", nl: "Migratiesessie II" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -983,7 +983,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-8-setup-checkin-fine-tuning-alignment-i",
         activity: "Session",
-        topic: "Setup Checkin & Fine Tuning Alignment I",
+        topic: { en: "Setup Checkin & Fine Tuning Alignment I", nl: "Setup check-in & fine-tuning afstemming I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -993,7 +993,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-9-setup-checkin-fine-tuning-alignment-ii",
         activity: "Session",
-        topic: "Setup Checkin & Fine Tuning Alignment II",
+        topic: { en: "Setup Checkin & Fine Tuning Alignment II", nl: "Setup check-in & fine-tuning afstemming II" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1003,7 +1003,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-10-setup-branding",
         activity: "Setup",
-        topic: "Setup & Branding",
+        topic: { en: "Setup & Branding", nl: "Setup & branding" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1013,7 +1013,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-11-page-templates-modules",
         activity: "Setup",
-        topic: "Page Templates & Modules",
+        topic: { en: "Page Templates & Modules", nl: "Paginatemplates & modules" },
         standardEffort: 12.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1023,7 +1023,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-12-fine-tuning-after-feedback",
         activity: "Setup",
-        topic: "Fine Tuning after Feedback",
+        topic: { en: "Fine Tuning after Feedback", nl: "Fine-tuning na feedback" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1033,7 +1033,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-13-redirect-setup",
         activity: "Setup",
-        topic: "Redirect Setup",
+        topic: { en: "Redirect Setup", nl: "Redirect-setup" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1043,7 +1043,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-14-migration-support",
         activity: "Setup",
-        topic: "Migration Support",
+        topic: { en: "Migration Support", nl: "Migratieondersteuning" },
         standardEffort: 16.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1053,7 +1053,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "cms_implementation-15-users-teams-permission-sets",
         activity: "Setup",
-        topic: "Users, Teams & Permission sets",
+        topic: { en: "Users, Teams & Permission sets", nl: "Gebruikers, teams & permissiesets" },
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1062,10 +1062,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "1,5 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "1,5 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "1,5 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1,5 hr Session with 2 people, normal preparation time", nl: "1,5 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "1,5 hr Session with 2 people, medium complexity and medium preparation time", nl: "1,5 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "1,5 hr Session with 2 people, high complexity and high preparation time", nl: "1,5 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -1076,14 +1076,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "dealhub_implementation",
-    label: "DealHub Implementation",
+    label: { en: "DealHub Implementation", nl: "DealHub-implementatie" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "dealhub_implementation-1-cpq-kick-off-approach",
         activity: "Session",
-        topic: "CPQ Kick-off / Approach",
+        topic: { en: "CPQ Kick-off / Approach", nl: "CPQ kick-off / aanpak" },
         standardEffort: 6.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1093,7 +1093,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-2-setup-analysis-reverse-demo",
         activity: "Session",
-        topic: "Setup Analysis, Reverse Demo",
+        topic: { en: "Setup Analysis, Reverse Demo", nl: "Setupanalyse, reverse demo" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1103,7 +1103,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-3-playbook-setup",
         activity: "Session",
-        topic: "Playbook Setup",
+        topic: { en: "Playbook Setup", nl: "Playbook-setup" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1113,7 +1113,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-4-product-setup",
         activity: "Session",
-        topic: "Product Setup",
+        topic: { en: "Product Setup", nl: "Productsetup" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1123,7 +1123,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-5-pricing-discount-setup",
         activity: "Session",
-        topic: "Pricing & Discount Setup",
+        topic: { en: "Pricing & Discount Setup", nl: "Prijs- & kortingsetup" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1133,7 +1133,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-6-pricing-discount-rule-setup",
         activity: "Session",
-        topic: "Pricing & Discount Rule Setup",
+        topic: { en: "Pricing & Discount Rule Setup", nl: "Prijs- & kortingsregel-setup" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1143,7 +1143,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-7-data-migration-alignment",
         activity: "Session",
-        topic: "Data Migration Alignment",
+        topic: { en: "Data Migration Alignment", nl: "Afstemming datamigratie" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1153,7 +1153,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-8-dealroom-setup",
         activity: "Session",
-        topic: "DealRoom Setup",
+        topic: { en: "DealRoom Setup", nl: "DealRoom-setup" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1163,7 +1163,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-9-setup-checkin-session-i",
         activity: "Session",
-        topic: "Setup Checkin Session I",
+        topic: { en: "Setup Checkin Session I", nl: "Setup check-in sessie I" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1173,7 +1173,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-10-setup-checkin-session-ii",
         activity: "Session",
-        topic: "Setup Checkin Session II",
+        topic: { en: "Setup Checkin Session II", nl: "Setup check-in sessie II" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1183,7 +1183,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-11-final-wrap-up-before-training",
         activity: "Session",
-        topic: "Final wrap-up (before training)",
+        topic: { en: "Final wrap-up (before training)", nl: "Laatste afronding (vóór training)" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1193,7 +1193,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-12-playbook-setup",
         activity: "Setup",
-        topic: "Playbook Setup",
+        topic: { en: "Playbook Setup", nl: "Playbook-setup" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1203,7 +1203,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-13-product-setup",
         activity: "Setup",
-        topic: "Product Setup",
+        topic: { en: "Product Setup", nl: "Productsetup" },
         standardEffort: 12.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1213,7 +1213,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-14-pricing-discount-setup",
         activity: "Setup",
-        topic: "Pricing & Discount Setup",
+        topic: { en: "Pricing & Discount Setup", nl: "Prijs- & kortingsetup" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1223,7 +1223,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-15-pricing-discount-rule-setup",
         activity: "Setup",
-        topic: "Pricing & Discount Rule Setup",
+        topic: { en: "Pricing & Discount Rule Setup", nl: "Prijs- & kortingsregel-setup" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1233,7 +1233,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-16-data-migration-alignment",
         activity: "Setup",
-        topic: "Data Migration Alignment",
+        topic: { en: "Data Migration Alignment", nl: "Afstemming datamigratie" },
         standardEffort: 16.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1243,7 +1243,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-17-dealroom",
         activity: "Setup",
-        topic: "DealRoom",
+        topic: { en: "DealRoom", nl: "DealRoom" },
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1253,7 +1253,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "dealhub_implementation-18-fine-tuning-rework",
         activity: "Setup",
-        topic: "Fine Tuning, Rework",
+        topic: { en: "Fine Tuning, Rework", nl: "Fine-tuning, revisie" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1262,10 +1262,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1,5 hr Session with 2 people, no preparation time" },
-    "Standard": { hours: 0.0, comment: "3 hr Session with 2 people, normal preparation time" },
-    "Medium": { hours: 2.0, comment: "3 hr Session with 2 people, medium complexity and medium preparation time" },
-    "High": { hours: 4.0, comment: "3 hr Session with 2 people, high complexity and high preparation time" },
+    "Low": { hours: -2.0, comment: { en: "1,5 hr Session with 2 people, no preparation time", nl: "1,5 uur sessie met 2 personen, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "3 hr Session with 2 people, normal preparation time", nl: "3 uur sessie met 2 personen, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "3 hr Session with 2 people, medium complexity and medium preparation time", nl: "3 uur sessie met 2 personen, gemiddelde complexiteit en gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "3 hr Session with 2 people, high complexity and high preparation time", nl: "3 uur sessie met 2 personen, hoge complexiteit en hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -1276,14 +1276,14 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   },
   {
     key: "deployment_golive",
-    label: "HubSpot Deployment & Go-Live",
+    label: { en: "HubSpot Deployment & Go-Live", nl: "HubSpot Deployment & Go-Live" },
     enabled: true,
     hourlyRate: 135,
     items: [
       {
         id: "deployment_golive-1-sales-key-user-training",
         activity: "Session",
-        topic: "Sales key user training",
+        topic: { en: "Sales key user training", nl: "Sales key-user training" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1293,7 +1293,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-2-service-key-user-training",
         activity: "Session",
-        topic: "Service key user training",
+        topic: { en: "Service key user training", nl: "Service key-user training" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1303,7 +1303,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-3-marketing-key-user-training",
         activity: "Session",
-        topic: "Marketing key user training",
+        topic: { en: "Marketing key user training", nl: "Marketing key-user training" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1313,7 +1313,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-4-super-admin-training",
         activity: "Session",
-        topic: "Super Admin training",
+        topic: { en: "Super Admin training", nl: "Super Admin-training" },
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1323,7 +1323,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-5-sales-end-user-training-6-8-users-sessio",
         activity: "Session",
-        topic: "Sales end user training (6-8 users / session)",
+        topic: { en: "Sales end user training (6-8 users / session)", nl: "Sales eindgebruikerstraining (6-8 gebruikers / sessie)" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1333,7 +1333,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-6-service-end-user-training-6-8-users-sess",
         activity: "Session",
-        topic: "Service end user training (6-8 users / session)",
+        topic: { en: "Service end user training (6-8 users / session)", nl: "Service eindgebruikerstraining (6-8 gebruikers / sessie)" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1343,7 +1343,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-7-marketing-end-user-training-6-8-users-se",
         activity: "Session",
-        topic: "Marketing end user training (6-8 users / session)",
+        topic: { en: "Marketing end user training (6-8 users / session)", nl: "Marketing eindgebruikerstraining (6-8 gebruikers / sessie)" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1353,7 +1353,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-8-hypercare-support",
         activity: "Session",
-        topic: "Hypercare Support",
+        topic: { en: "Hypercare Support", nl: "Hypercare-ondersteuning" },
         standardEffort: 4.0,
         complexityTable: "session",
         complexity: "Standard",
@@ -1363,7 +1363,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-9-deployment-sales-prod",
         activity: "Setup",
-        topic: "Deployment Sales Prod",
+        topic: { en: "Deployment Sales Prod", nl: "Deployment Sales Productie" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1373,7 +1373,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-10-deployment-service-prod",
         activity: "Setup",
-        topic: "Deployment Service Prod",
+        topic: { en: "Deployment Service Prod", nl: "Deployment Service Productie" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1383,7 +1383,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-11-deployment-marketing-prod",
         activity: "Setup",
-        topic: "Deployment Marketing Prod",
+        topic: { en: "Deployment Marketing Prod", nl: "Deployment Marketing Productie" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1393,7 +1393,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "deployment_golive-12-setup-hypercare",
         activity: "Setup",
-        topic: "Setup Hypercare",
+        topic: { en: "Setup Hypercare", nl: "Setup hypercare" },
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
@@ -1402,10 +1402,10 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
     ],
     sessionComplexity: {
-    "Low": { hours: -2.0, comment: "1 Session, one consultant, no preperation time" },
-    "Standard": { hours: 0.0, comment: "1 Session, one consultant, normal preperation time" },
-    "Medium": { hours: 2.0, comment: "1 Session, one consultant, medium preperation time" },
-    "High": { hours: 4.0, comment: "1 Session, one consultant, high preperation time" },
+    "Low": { hours: -2.0, comment: { en: "1 Session, one consultant, no preperation time", nl: "1 sessie, één consultant, geen voorbereidingstijd" } },
+    "Standard": { hours: 0.0, comment: { en: "1 Session, one consultant, normal preperation time", nl: "1 sessie, één consultant, normale voorbereidingstijd" } },
+    "Medium": { hours: 2.0, comment: { en: "1 Session, one consultant, medium preperation time", nl: "1 sessie, één consultant, gemiddelde voorbereidingstijd" } },
+    "High": { hours: 4.0, comment: { en: "1 Session, one consultant, high preperation time", nl: "1 sessie, één consultant, hoge voorbereidingstijd" } },
   },
     setupComplexity: {
     "Low": { hours: -2.0, comment: null },
@@ -1423,7 +1423,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-1-lead",
       activity: "Setup",
-      topic: "Lead",
+      topic: { en: "Lead", nl: "Lead" },
       from: "Hubspot",
       to: "ERP",
       complexity: "N/A",
@@ -1432,7 +1432,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-2-lead",
       activity: "Setup",
-      topic: "Lead",
+      topic: { en: "Lead", nl: "Lead" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1441,7 +1441,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-3-contact",
       activity: "Setup",
-      topic: "Contact",
+      topic: { en: "Contact", nl: "Contact" },
       from: "Hubspot",
       to: "ERP",
       complexity: "N/A",
@@ -1450,7 +1450,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-4-contact",
       activity: "Setup",
-      topic: "Contact",
+      topic: { en: "Contact", nl: "Contact" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1459,7 +1459,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-5-company",
       activity: "Setup",
-      topic: "Company",
+      topic: { en: "Company", nl: "Bedrijf" },
       from: "Hubspot",
       to: "ERP",
       complexity: "N/A",
@@ -1468,7 +1468,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-6-company",
       activity: "Setup",
-      topic: "Company",
+      topic: { en: "Company", nl: "Bedrijf" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1477,7 +1477,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-7-deal",
       activity: "Setup",
-      topic: "Deal",
+      topic: { en: "Deal", nl: "Deal" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1486,7 +1486,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-8-deal-line-item",
       activity: "Setup",
-      topic: "Deal Line Item",
+      topic: { en: "Deal Line Item", nl: "Deal line item" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1495,7 +1495,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-9-order",
       activity: "Setup",
-      topic: "Order ",
+      topic: { en: "Order ", nl: "Order" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1504,7 +1504,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-10-order-line-item",
       activity: "Setup",
-      topic: "Order Line Item",
+      topic: { en: "Order Line Item", nl: "Order line item" },
       from: "ERP",
       to: "Hubspot",
       complexity: "N/A",
@@ -1513,7 +1513,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-11-custom-object",
       activity: "Setup",
-      topic: "Custom Object",
+      topic: { en: "Custom Object", nl: "Custom object" },
       from: "Hubspot",
       to: "ERP",
       complexity: "N/A",
@@ -1522,7 +1522,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-12-prod-deployment",
       activity: "Setup",
-      topic: "Prod Deployment",
+      topic: { en: "Prod Deployment", nl: "Productie-deployment" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1531,7 +1531,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-13-hypercare",
       activity: "Setup",
-      topic: "Hypercare",
+      topic: { en: "Hypercare", nl: "Hypercare" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1540,7 +1540,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-14-kick-off-session",
       activity: "Session",
-      topic: "Kick-Off Session",
+      topic: { en: "Kick-Off Session", nl: "Kick-off sessie" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1549,7 +1549,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-15-setup-checkin-session-i",
       activity: "Session",
-      topic: "Setup Checkin Session I",
+      topic: { en: "Setup Checkin Session I", nl: "Setup check-in sessie I" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1558,7 +1558,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-16-setup-checkin-session-ii",
       activity: "Session",
-      topic: "Setup Checkin Session II",
+      topic: { en: "Setup Checkin Session II", nl: "Setup check-in sessie II" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1567,7 +1567,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-17-setup-checkin-session-iii",
       activity: "Session",
-      topic: "Setup Checkin Session III",
+      topic: { en: "Setup Checkin Session III", nl: "Setup check-in sessie III" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1576,7 +1576,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-18-pm-checkins",
       activity: "Session",
-      topic: "PM Checkins",
+      topic: { en: "PM Checkins", nl: "PM check-ins" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1585,7 +1585,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-19-external-testing-uat",
       activity: "Session",
-      topic: "External Testing (UAT)",
+      topic: { en: "External Testing (UAT)", nl: "Externe testen (UAT)" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1594,7 +1594,7 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     {
       id: "tp-20-internal-testing-uat",
       activity: "Session",
-      topic: "Internal Testing (UAT)",
+      topic: { en: "Internal Testing (UAT)", nl: "Interne testen (UAT)" },
       from: null,
       to: null,
       complexity: "N/A",
@@ -1602,16 +1602,16 @@ export const THIRD_PARTY_INTEGRATION_TEMPLATE: ThirdPartyIntegrationState = {
     },
   ],
   sessionComplexity: {
-    "High complexity": { hours: 12.0, comment: "High requirements, unknown integration flows, unknown technical setup, high risk of issues" },
-    "Medium complexity": { hours: 8.0, comment: "Medium requirements, partly known integration flows and partly technical setup, medium risk of issues" },
-    "Low complexity": { hours: 4.0, comment: "Simple requirements, known integration flows and known technical setup, small risk of issues" },
-    "N/A": { hours: 0.0, comment: "If session or task is not needed at all, don't just delete or keep as N/A" },
+    "High complexity": { hours: 12.0, comment: { en: "High requirements, unknown integration flows, unknown technical setup, high risk of issues", nl: "Hoge eisen, onbekende integratieflows, onbekende technische setup, hoog risico op problemen" } },
+    "Medium complexity": { hours: 8.0, comment: { en: "Medium requirements, partly known integration flows and partly technical setup, medium risk of issues", nl: "Gemiddelde eisen, deels bekende integratieflows en deels bekende technische setup, gemiddeld risico op problemen" } },
+    "Low complexity": { hours: 4.0, comment: { en: "Simple requirements, known integration flows and known technical setup, small risk of issues", nl: "Eenvoudige eisen, bekende integratieflows en bekende technische setup, klein risico op problemen" } },
+    "N/A": { hours: 0.0, comment: { en: "If session or task is not needed at all, don't just delete or keep as N/A", nl: "Als een sessie of taak helemaal niet nodig is, verwijder de regel niet zomaar en laat 'm niet op N/A staan" } },
   },
   setupComplexity: {
-    "High complexity": { hours: 16.0, comment: "High requirements, unknown integration flows, unknown technical setup, high risk of issues" },
-    "Medium complexity": { hours: 12.0, comment: "Medium requirements, partly known integration flows and partly technical setup, medium risk of issues" },
-    "Low complexity": { hours: 8.0, comment: "Simple requirements, known integration flows and known technical setup, small risk of issues" },
-    "N/A": { hours: 0.0, comment: "If session or task is not needed at all, don't just delete or keep as N/A" },
+    "High complexity": { hours: 16.0, comment: { en: "High requirements, unknown integration flows, unknown technical setup, high risk of issues", nl: "Hoge eisen, onbekende integratieflows, onbekende technische setup, hoog risico op problemen" } },
+    "Medium complexity": { hours: 12.0, comment: { en: "Medium requirements, partly known integration flows and partly technical setup, medium risk of issues", nl: "Gemiddelde eisen, deels bekende integratieflows en deels bekende technische setup, gemiddeld risico op problemen" } },
+    "Low complexity": { hours: 8.0, comment: { en: "Simple requirements, known integration flows and known technical setup, small risk of issues", nl: "Eenvoudige eisen, bekende integratieflows en bekende technische setup, klein risico op problemen" } },
+    "N/A": { hours: 0.0, comment: { en: "If session or task is not needed at all, don't just delete or keep as N/A", nl: "Als een sessie of taak helemaal niet nodig is, verwijder de regel niet zomaar en laat 'm niet op N/A staan" } },
   },
   subscriptionQty: 0,
   subscriptionUnitPrice: 2000,
@@ -2289,6 +2289,7 @@ export const DEFAULT_PM_PERCENT = 0.15;
 
 export function createDefaultEstimationState(): EstimationState {
   return {
+    locale: "en",
     standardWorkstreams: structuredClone(STANDARD_WORKSTREAM_TEMPLATES),
     thirdPartyIntegration: structuredClone(THIRD_PARTY_INTEGRATION_TEMPLATE),
     elixirSyncIntegration: structuredClone(ELIXIRSYNC_INTEGRATION_TEMPLATE),

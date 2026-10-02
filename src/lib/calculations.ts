@@ -3,11 +3,21 @@ import type {
   ElixirSyncIntegrationState,
   ElixirSyncStream,
   EstimationState,
+  LocalizedString,
   StandardLineItem,
   StandardWorkstream,
   ThirdPartyIntegrationState,
   ThirdPartyLineItem,
 } from "./types";
+
+const THIRD_PARTY_INTEGRATION_LABEL: LocalizedString = {
+  en: "Third Party Integration",
+  nl: "Third Party Integration",
+};
+const ELIXIRSYNC_INTEGRATION_LABEL: LocalizedString = {
+  en: "ElixirSync Integration",
+  nl: "ElixirSync Integration",
+};
 
 function complexityHours(table: ComplexityTable, level: string): number {
   return table[level]?.hours ?? 0;
@@ -27,7 +37,7 @@ export function lineItemFinalEffort(
 
 export interface WorkstreamTotals {
   key: string;
-  label: string;
+  label: LocalizedString;
   enabled: boolean;
   hours: number;
   hourlyRate: number;
@@ -69,7 +79,7 @@ export function computeThirdPartyTotals(state: ThirdPartyIntegrationState): Work
     : 0;
   return {
     key: "third_party_integration",
-    label: "Third Party Integration",
+    label: THIRD_PARTY_INTEGRATION_LABEL,
     enabled: state.enabled,
     hours,
     hourlyRate: state.hourlyRate,
@@ -100,7 +110,7 @@ export function computeElixirSyncTotals(state: ElixirSyncIntegrationState): Elix
     : 0;
   return {
     key: "elixirsync_integration",
-    label: "ElixirSync Integration",
+    label: ELIXIRSYNC_INTEGRATION_LABEL,
     enabled: state.enabled,
     hours,
     hourlyRate: state.hourlyRate,
@@ -110,7 +120,7 @@ export function computeElixirSyncTotals(state: ElixirSyncIntegrationState): Elix
 }
 
 export interface SubscriptionTotals {
-  label: string;
+  label: LocalizedString;
   qty: number;
   unitPrice: number;
   price: number;
@@ -153,7 +163,7 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
 
   const subscriptions: SubscriptionTotals[] = [
     {
-      label: "ElixirSync Integration Subscription",
+      label: { en: "ElixirSync Integration Subscription", nl: "ElixirSync Integration abonnement" },
       qty: state.elixirSyncIntegration.subscriptionQty,
       unitPrice: state.elixirSyncIntegration.subscriptionUnitPrice,
       price:
@@ -161,7 +171,7 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
         state.elixirSyncIntegration.subscriptionUnitPrice,
     },
     {
-      label: "Third Party Integration Subscription",
+      label: { en: "Third Party Integration Subscription", nl: "Third Party Integration abonnement" },
       qty: state.thirdPartyIntegration.subscriptionQty,
       unitPrice: state.thirdPartyIntegration.subscriptionUnitPrice,
       price:
