@@ -3,14 +3,18 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
+  ComplexityTable,
   ElixirSyncIntegrationState,
   EstimationRecord,
   EstimationState,
   EstimationStatus,
   HubSpotLicenseState,
   Locale,
+  LocalizedString,
+  StandardLineItem,
   StandardWorkstream,
   ThirdPartyIntegrationState,
+  ThirdPartyLineItem,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
@@ -30,14 +34,66 @@ const COVER_TAB_ID = "cover";
 const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
 const PROPOSAL_TAB_ID = "proposal_summary";
 
-// Estimations saved before the HubSpot License tab / bilingual support
-// existed have no `hubspotLicense` / `locale` field in their stored data -
-// fill both in client-side rather than requiring another DB backfill for
+// Estimations saved before bilingual support existed have `topic`/`label`/
+// `comment` stored as plain strings rather than { en, nl } pairs. Reading a
+// plain string as LocalizedString (e.g. `item.topic[locale]`) silently
+// returns undefined - which is why old records showed blank text in BOTH
+// languages after that change shipped, not just the untranslated one.
+// Wrapping the existing string into both slots preserves whatever was saved
+// (even a since-edited topic we have no translation for) instead of losing
+// it. Safe to run unconditionally since it's a no-op on already-bilingual data.
+function toLocalizedRequired(value: LocalizedString | string): LocalizedString {
+  return typeof value === "string" ? { en: value, nl: value } : value;
+}
+
+function toLocalizedNullable(value: LocalizedString | string | null | undefined): LocalizedString | null {
+  if (value == null) return null;
+  return toLocalizedRequired(value);
+}
+
+function migrateComplexityTable(table: ComplexityTable): ComplexityTable {
+  const result: ComplexityTable = {};
+  for (const [level, entry] of Object.entries(table)) {
+    result[level] = { ...entry, comment: toLocalizedNullable(entry.comment) };
+  }
+  return result;
+}
+
+function migrateStandardItem(item: StandardLineItem): StandardLineItem {
+  return { ...item, topic: toLocalizedRequired(item.topic), comment: toLocalizedNullable(item.comment) };
+}
+
+function migrateWorkstream(ws: StandardWorkstream): StandardWorkstream {
+  return {
+    ...ws,
+    label: toLocalizedRequired(ws.label),
+    items: ws.items.map(migrateStandardItem),
+    sessionComplexity: migrateComplexityTable(ws.sessionComplexity),
+    setupComplexity: migrateComplexityTable(ws.setupComplexity),
+  };
+}
+
+function migrateThirdPartyItem(item: ThirdPartyLineItem): ThirdPartyLineItem {
+  return { ...item, topic: toLocalizedRequired(item.topic) };
+}
+
+function migrateThirdParty(tp: ThirdPartyIntegrationState): ThirdPartyIntegrationState {
+  return {
+    ...tp,
+    items: tp.items.map(migrateThirdPartyItem),
+    sessionComplexity: migrateComplexityTable(tp.sessionComplexity),
+    setupComplexity: migrateComplexityTable(tp.setupComplexity),
+  };
+}
+
+// Also backfills `hubspotLicense` / `locale` for estimations saved before
+// those fields existed, rather than requiring another DB migration for
 // fields that default to "not included" / "English" anyway.
 function normalizeEstimationState(data: EstimationState): EstimationState {
-  if (data.hubspotLicense && data.locale) return data;
   return {
     ...data,
+    standardWorkstreams: data.standardWorkstreams.map(migrateWorkstream),
+    thirdPartyIntegration: migrateThirdParty(data.thirdPartyIntegration),
     hubspotLicense: data.hubspotLicense ?? createDefaultHubSpotLicenseState(),
     locale: data.locale ?? "en",
   };
