@@ -175,6 +175,10 @@ export const UI_STRINGS = {
     preparedBy: { en: "Prepared by", nl: "Opgesteld door" },
     statusDraft: { en: "DRAFT", nl: "CONCEPT" },
     statusFinal: { en: "FINAL", nl: "DEFINITIEF" },
+    draftDisclaimer: {
+      en: "Draft — no rights can be derived from this document. This is not an official proposal, only a budget indication.",
+      nl: "Concept — hieraan kunnen geen rechten worden ontleend. Dit is geen officieel voorstel, maar een budgetindicatie.",
+    },
     columnActivity: { en: "Activity", nl: "Activiteit" },
     columnTopic: { en: "Topic", nl: "Onderwerp" },
     columnStd: { en: "Std", nl: "Std" },

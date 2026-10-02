@@ -79,24 +79,20 @@ function SectionCard({
   );
 }
 
-export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationState }) {
-  const locale = data.locale;
+function ProposalHeader({
+  meta,
+  locale,
+  generatedOn,
+  statusLabel,
+}: {
+  meta: Meta;
+  locale: Locale;
+  generatedOn: string;
+  statusLabel: string;
+}) {
   const s = UI_STRINGS.proposalSummary;
-  const totals = computeEstimationTotals(data);
-  const generatedOn = new Date().toLocaleDateString(locale === "nl" ? "nl-NL" : "en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-
-  const enabledWorkstreams = data.standardWorkstreams.filter((ws) => ws.enabled);
-  const thirdParty = data.thirdPartyIntegration;
-  const elixirSync = data.elixirSyncIntegration;
-  const includedStreams = elixirSync.streams.filter((stream) => stream.included);
-  const statusLabel = meta.status === "FINAL" ? t(s.statusFinal, locale) : t(s.statusDraft, locale);
-
   return (
-    <div className="mx-auto max-w-[960px] space-y-2.5 text-xs">
+    <div className="space-y-1.5">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm">
         <div>
           <Image src="/elixir-logo.png" alt="Elixir" width={72} height={24} className="mb-1.5" />
@@ -115,79 +111,120 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
           <div className="mt-0.5 font-medium uppercase tracking-wide text-brand-indigo">{statusLabel}</div>
         </div>
       </div>
+      {meta.status !== "FINAL" && (
+        <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-[10px] font-medium text-amber-800">
+          {t(s.draftDisclaimer, locale)}
+        </p>
+      )}
+    </div>
+  );
+}
 
-      {enabledWorkstreams.map((ws) => {
-        const items = ws.items.filter((item) => item.enabled);
-        const hours = items.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
-        return (
-          <SectionCard
-            key={ws.key}
-            title={t(ws.label, locale)}
-            subtitle={`${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
-          >
-            <table className="w-full table-fixed text-left">
-              <ColGroup widths={WORKSTREAM_COLS} />
-              <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="truncate px-3 py-1 font-medium">{t(s.columnActivity, locale)}</th>
-                  <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
-                  <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
-                  <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
-                  <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnFinal, locale)}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {items.map((item) => {
-                  const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
-                  return (
-                    <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
-                      <td className="px-3 py-1">
-                        <ActivityPill activity={item.activity} locale={locale} />
-                      </td>
-                      <td className="px-3 py-1 text-brand-ink">
-                        <div className="truncate">{t(item.topic, locale)}</div>
-                        <LineItemNote comment={item.comment} locale={locale} />
-                      </td>
-                      <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
-                      <td className="px-3 py-1">
-                        <ComplexityPill level={item.complexity} />
-                      </td>
-                      <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                        {formatHours(lineItemFinalEffort(item, ws), locale)}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {items.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-3 py-2 text-center text-slate-400">
-                      {t(s.noLineItems, locale)}
+/**
+ * One printed page per onderdeel: the client header repeats at the top of
+ * every page (so a single printed sheet still identifies itself), and every
+ * page but the first forces a page break before it so each section starts
+ * clean rather than splitting mid-table across a page boundary.
+ */
+function Page({ children, first }: { children: React.ReactNode; first: boolean }) {
+  return <div className={`space-y-2.5 ${first ? "" : "print:break-before-page"}`}>{children}</div>;
+}
+
+export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationState }) {
+  const locale = data.locale;
+  const s = UI_STRINGS.proposalSummary;
+  const totals = computeEstimationTotals(data);
+  const generatedOn = new Date().toLocaleDateString(locale === "nl" ? "nl-NL" : "en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const enabledWorkstreams = data.standardWorkstreams.filter((ws) => ws.enabled);
+  const thirdParty = data.thirdPartyIntegration;
+  const elixirSync = data.elixirSyncIntegration;
+  const includedStreams = elixirSync.streams.filter((stream) => stream.included);
+  const statusLabel = meta.status === "FINAL" ? t(s.statusFinal, locale) : t(s.statusDraft, locale);
+
+  const pages: { key: string; content: React.ReactNode }[] = [];
+
+  enabledWorkstreams.forEach((ws) => {
+    const items = ws.items.filter((item) => item.enabled);
+    const hours = items.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+    pages.push({
+      key: ws.key,
+      content: (
+        <SectionCard
+          title={t(ws.label, locale)}
+          subtitle={`${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
+        >
+          <table className="w-full table-fixed text-left">
+            <ColGroup widths={WORKSTREAM_COLS} />
+            <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
+              <tr>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnActivity, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
+                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
+                <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
+                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnFinal, locale)}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {items.map((item) => {
+                const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
+                return (
+                  <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
+                    <td className="px-3 py-1">
+                      <ActivityPill activity={item.activity} locale={locale} />
+                    </td>
+                    <td className="px-3 py-1 text-brand-ink">
+                      <div className="truncate">{t(item.topic, locale)}</div>
+                      <LineItemNote comment={item.comment} locale={locale} />
+                    </td>
+                    <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
+                    <td className="px-3 py-1">
+                      <ComplexityPill level={item.complexity} />
+                    </td>
+                    <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                      {formatHours(lineItemFinalEffort(item, ws), locale)}
                     </td>
                   </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-                  <td className="px-3 py-1" colSpan={4}>
-                    {t(s.total, locale)}
+                );
+              })}
+              {items.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-3 py-2 text-center text-slate-400">
+                    {t(s.noLineItems, locale)}
                   </td>
-                  <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours, locale)}</td>
                 </tr>
-              </tfoot>
-            </table>
-            <PanelLegend
-              variant="standard"
-              position="bottom"
-              sessionHours={complexityHoursByBand(ws.sessionComplexity)}
-              setupHours={complexityHoursByBand(ws.setupComplexity)}
-              comments={complexityCommentsByBand(ws.sessionComplexity)}
-              locale={locale}
-            />
-          </SectionCard>
-        );
-      })}
+              )}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+                <td className="px-3 py-1" colSpan={4}>
+                  {t(s.total, locale)}
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours, locale)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <PanelLegend
+            variant="standard"
+            position="bottom"
+            sessionHours={complexityHoursByBand(ws.sessionComplexity)}
+            setupHours={complexityHoursByBand(ws.setupComplexity)}
+            comments={complexityCommentsByBand(ws.sessionComplexity)}
+            locale={locale}
+          />
+        </SectionCard>
+      ),
+    });
+  });
 
-      {thirdParty.enabled && (
+  if (thirdParty.enabled) {
+    pages.push({
+      key: "third_party_integration",
+      content: (
         <SectionCard
           title={t(s.thirdPartyIntegration, locale)}
           subtitle={`${formatHours(totals.thirdParty.hours, locale)} · ${formatCurrency(totals.thirdParty.price, locale)}`}
@@ -246,9 +283,14 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             locale={locale}
           />
         </SectionCard>
-      )}
+      ),
+    });
+  }
 
-      {elixirSync.enabled && (
+  if (elixirSync.enabled) {
+    pages.push({
+      key: "elixirsync_integration",
+      content: (
         <SectionCard
           title={t(s.elixirSyncIntegration, locale)}
           subtitle={`${formatHours(totals.elixirSync.hours, locale)} · ${formatCurrency(totals.elixirSync.price, locale)}`}
@@ -292,8 +334,13 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             {t(s.technicalBreakdownNote, locale)}
           </p>
         </SectionCard>
-      )}
+      ),
+    });
+  }
 
+  pages.push({
+    key: "overview",
+    content: (
       <SectionCard title={t(s.overview, locale)}>
         <table className="w-full table-fixed text-left">
           <ColGroup widths={OVERVIEW_COLS} />
@@ -380,6 +427,17 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
           <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
         </div>
       </SectionCard>
+    ),
+  });
+
+  return (
+    <div className="mx-auto max-w-[960px] space-y-6 text-xs print:space-y-0">
+      {pages.map((page, i) => (
+        <Page key={page.key} first={i === 0}>
+          <ProposalHeader meta={meta} locale={locale} generatedOn={generatedOn} statusLabel={statusLabel} />
+          {page.content}
+        </Page>
+      ))}
     </div>
   );
 }
