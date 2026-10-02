@@ -11,6 +11,7 @@ import type {
   ElixirSyncIntegrationState,
   EstimationState,
 } from './types';
+import { createDefaultHubSpotLicenseState } from './hubspotPricing';
 
 export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
@@ -2293,6 +2294,7 @@ export function createDefaultEstimationState(): EstimationState {
     elixirSyncIntegration: structuredClone(ELIXIRSYNC_INTEGRATION_TEMPLATE),
     pmRate: DEFAULT_PM_RATE,
     pmPercent: DEFAULT_PM_PERCENT,
+    hubspotLicense: createDefaultHubSpotLicenseState(),
   };
 }
 

@@ -71,12 +71,33 @@ const elixirSyncIntegrationSchema = z.object({
   subscriptionUnitPrice: z.number().nonnegative(),
 });
 
+const hubspotLicenseApplicabilitySchema = z.object({
+  newEmeaCustomerSinceOct2026: z.boolean().nullable(),
+  existingHubSpotCustomer: z.boolean().nullable(),
+  beneluxOrNordicsPilot: z.boolean().nullable(),
+  newPortalUnderExistingMultiPortal: z.boolean().nullable(),
+});
+
+const hubspotLicenseSchema = z.object({
+  enabled: z.boolean(),
+  applicability: hubspotLicenseApplicabilitySchema,
+  edition: z.enum(["starter", "professional", "enterprise"]),
+  gtmSeats: z.number().nonnegative(),
+  opsSeats: z.number().nonnegative(),
+  viewOnlySeats: z.number().nonnegative(),
+  expectedRecords: z.number().nonnegative(),
+  expectedEmailsPerMonth: z.number().nonnegative(),
+  expectedCreditsPerMonth: z.number().nonnegative(),
+  notes: z.string(),
+});
+
 export const estimationStateSchema = z.object({
   standardWorkstreams: z.array(standardWorkstreamSchema),
   thirdPartyIntegration: thirdPartyIntegrationSchema,
   elixirSyncIntegration: elixirSyncIntegrationSchema,
   pmRate: z.number().nonnegative(),
   pmPercent: z.number().min(0).max(1),
+  hubspotLicense: hubspotLicenseSchema,
 });
 
 export const estimationMetaSchema = z.object({

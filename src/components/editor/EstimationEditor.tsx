@@ -7,10 +7,12 @@ import type {
   EstimationRecord,
   EstimationState,
   EstimationStatus,
+  HubSpotLicenseState,
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
+import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { TopBar } from "./TopBar";
 import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
@@ -19,10 +21,21 @@ import { CoverPage } from "./CoverPage";
 import { WorkstreamPanel } from "./WorkstreamPanel";
 import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
+import { HubSpotLicensePanel } from "./HubSpotLicensePanel";
 import { ProposalSummary } from "./ProposalSummary";
 
 const COVER_TAB_ID = "cover";
+const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
 const PROPOSAL_TAB_ID = "proposal_summary";
+
+// Estimations saved before the HubSpot License tab existed have no
+// `hubspotLicense` field in their stored data - fill it in client-side
+// rather than requiring another DB backfill for a field that defaults to
+// "not included" anyway.
+function normalizeEstimationState(data: EstimationState): EstimationState {
+  if (data.hubspotLicense) return data;
+  return { ...data, hubspotLicense: createDefaultHubSpotLicenseState() };
+}
 
 interface Meta {
   clientName: string;
@@ -43,7 +56,7 @@ function metaFromRecord(r: EstimationRecord): Meta {
 export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const router = useRouter();
   const [meta, setMeta] = useState<Meta>(metaFromRecord(initial));
-  const [data, setData] = useState<EstimationState>(initial.data);
+  const [data, setData] = useState<EstimationState>(() => normalizeEstimationState(initial.data));
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string>(initial.updatedAt);
@@ -58,6 +71,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const tabs: TabDef[] = useMemo(
     () => [
       { id: COVER_TAB_ID, label: "📃 Cover" },
+      { id: HUBSPOT_LICENSE_TAB_ID, label: "💶 HubSpot License" },
       ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: ws.label })),
       ...(data.thirdPartyIntegration.enabled
         ? [{ id: "third_party_integration", label: "Third Party Integration" }]
@@ -99,6 +113,11 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   function updatePm(next: Partial<Pick<EstimationState, "pmRate" | "pmPercent">>) {
     setData((prev) => ({ ...prev, ...next }));
+    markDirty();
+  }
+
+  function updateHubSpotLicense(next: HubSpotLicenseState) {
+    setData((prev) => ({ ...prev, hubspotLicense: next }));
     markDirty();
   }
 
@@ -187,6 +206,9 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}
                 />
+              )}
+              {activeTab === HUBSPOT_LICENSE_TAB_ID && (
+                <HubSpotLicensePanel state={data.hubspotLicense} onChange={updateHubSpotLicense} />
               )}
               {activeWorkstream && (
                 <WorkstreamPanel
