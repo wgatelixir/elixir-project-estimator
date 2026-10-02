@@ -189,7 +189,17 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
       {activeTab === PROPOSAL_TAB_ID ? (
         <div className="mt-6">
-          <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
+          <div className="flex items-center justify-between gap-3 print:hidden">
+            <div className="min-w-0 flex-1">
+              <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
+            </div>
+            <button
+              onClick={() => window.print()}
+              className="flex-shrink-0 rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+            >
+              🖨️ Download PDF
+            </button>
+          </div>
           <div className="mt-4">
             <ProposalSummary meta={meta} data={data} />
           </div>

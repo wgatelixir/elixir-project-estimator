@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-brand-mist text-brand-ink">
-        <header className="border-b border-black/5 bg-white">
+        <header className="border-b border-black/5 bg-white print:hidden">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
             <Link href="/" className="flex items-center gap-3">
               <Image src="/elixir-logo.png" alt="Elixir" width={95} height={32} priority />

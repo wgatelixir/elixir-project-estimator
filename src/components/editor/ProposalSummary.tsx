@@ -130,7 +130,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 {items.map((item) => {
                   const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
                   return (
-                    <tr key={item.id} className={activityStyle.rowBg}>
+                    <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
                       <td className="px-3 py-1">
                         <ActivityPill activity={item.activity} />
                       </td>
@@ -199,7 +199,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 .map((item) => {
                   const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
                   return (
-                    <tr key={item.id} className={activityStyle.rowBg}>
+                    <tr key={item.id} className={`${activityStyle.rowBg} print:break-inside-avoid`}>
                       <td className="px-3 py-1">
                         <ActivityPill activity={item.activity} />
                       </td>
@@ -253,7 +253,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               {includedStreams.map((stream) => {
                 const hours = stream.items.reduce((sum, item) => sum + item.realistic, 0);
                 return (
-                  <tr key={stream.id}>
+                  <tr key={stream.id} className="print:break-inside-avoid">
                     <td className="truncate px-3 py-1 text-brand-ink">{stream.label}</td>
                     <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
                       {formatHours(hours)}
@@ -297,7 +297,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             {totals.workstreams
               .filter((w) => w.enabled)
               .map((w) => (
-                <tr key={w.key}>
+                <tr key={w.key} className="print:break-inside-avoid">
                   <td className="truncate px-3 py-1 text-brand-ink">{w.label}</td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours)}</td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">
@@ -347,7 +347,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             {totals.subscriptions
               .filter((s) => s.qty > 0)
               .map((s) => (
-                <tr key={s.label}>
+                <tr key={s.label} className="print:break-inside-avoid">
                   <td className="truncate px-3 py-1 text-brand-ink" colSpan={3}>
                     {s.label} ({s.qty}&times;)
                   </td>

@@ -37,3 +37,26 @@ body {
      (common on Windows/Office machines); Poppins is the web-safe fallback. */
   font-family: "Century Gothic", var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/*
+ * Proposal Summary "Download PDF" (window.print()). Chrome/Edge/Safari skip
+ * background colors in print by default unless the user enables "background
+ * graphics" in the print dialog - the SectionCard header bars are colored,
+ * so without this they'd print as blank white bars. Forcing it here means
+ * the PDF looks right without the user having to find that checkbox.
+ */
+@media print {
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: white;
+  }
+}

@@ -23,7 +23,7 @@ interface TopBarProps {
 
 export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, error }: TopBarProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm print:hidden">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-1 flex-wrap gap-3">
           <input
