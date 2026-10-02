@@ -430,6 +430,13 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     ),
   });
 
+  // Grand total leads instead of trailing - both on screen and as the PDF's first page.
+  const overviewIndex = pages.findIndex((page) => page.key === "overview");
+  if (overviewIndex > 0) {
+    const [overviewPage] = pages.splice(overviewIndex, 1);
+    pages.unshift(overviewPage);
+  }
+
   return (
     <div className="mx-auto max-w-[960px] space-y-6 text-xs print:space-y-0">
       {pages.map((page, i) => (
