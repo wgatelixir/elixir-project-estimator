@@ -53,6 +53,11 @@ export const UI_STRINGS = {
       en: "Data sync and third-party connections, priced separately.",
       nl: "Datasynchronisatie en koppelingen met derden, apart geprijsd.",
     },
+    hubspotLicenseTitle: { en: "HubSpot license", nl: "HubSpot-licentie" },
+    hubspotLicenseDescription: {
+      en: "HubSpot's own software subscription cost - priced separately, tracked on its own tab, never part of the totals above.",
+      nl: "HubSpot's eigen software-abonnementskosten - apart geprijsd, bijgehouden op een eigen tabblad, nooit onderdeel van de totalen hierboven.",
+    },
     pmRateLabel: { en: "Project management rate", nl: "Projectmanagement-tarief" },
     projectTotal: { en: "Project total", nl: "Projecttotaal" },
     totalEffort: { en: "total effort", nl: "totale inspanning" },

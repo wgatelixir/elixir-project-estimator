@@ -3,6 +3,7 @@
 import type {
   ElixirSyncIntegrationState,
   EstimationState,
+  HubSpotLicenseState,
   Locale,
   LocalizedString,
   StandardWorkstream,
@@ -138,6 +139,33 @@ function ToggleRow({
   );
 }
 
+/**
+ * A checkbox-only row for toggles that have no rate/hours/budget of their
+ * own (the HubSpot license subscription isn't priced in hours x rate, so
+ * ROW_GRID's Rate/Hours/Budget columns don't apply to it).
+ */
+function SimpleToggleRow({
+  label,
+  enabled,
+  onChange,
+}: {
+  label: string;
+  enabled: boolean;
+  onChange: (enabled: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 hover:bg-slate-50">
+      <input
+        type="checkbox"
+        checked={enabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
+      />
+      <span className={`truncate text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>{label}</span>
+    </label>
+  );
+}
+
 function GroupCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -155,10 +183,18 @@ interface CoverPageProps {
   onChangeWorkstream: (key: string, next: StandardWorkstream) => void;
   onChangeThirdParty: (next: ThirdPartyIntegrationState) => void;
   onChangeElixirSync: (next: ElixirSyncIntegrationState) => void;
+  onChangeHubSpotLicense: (next: HubSpotLicenseState) => void;
   locale: Locale;
 }
 
-export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChangeElixirSync, locale }: CoverPageProps) {
+export function CoverPage({
+  data,
+  onChangeWorkstream,
+  onChangeThirdParty,
+  onChangeElixirSync,
+  onChangeHubSpotLicense,
+  locale,
+}: CoverPageProps) {
   const s = UI_STRINGS.coverPage;
   const byKey = (key: string) => data.standardWorkstreams.find((ws) => ws.key === key);
   const foundation = FOUNDATION_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
@@ -228,6 +264,16 @@ export function CoverPage({ data, onChangeWorkstream, onChangeThirdParty, onChan
             price={totals.thirdParty.price}
             locale={locale}
             onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
+          />
+        </div>
+      </GroupCard>
+
+      <GroupCard title={t(s.hubspotLicenseTitle, locale)} description={t(s.hubspotLicenseDescription, locale)}>
+        <div className="p-1.5">
+          <SimpleToggleRow
+            label={t(UI_STRINGS.editor.tabHubspotLicense, locale)}
+            enabled={data.hubspotLicense.enabled}
+            onChange={(enabled) => onChangeHubSpotLicense({ ...data.hubspotLicense, enabled })}
           />
         </div>
       </GroupCard>

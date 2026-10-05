@@ -80,7 +80,9 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const tabs: TabDef[] = useMemo(
     () => [
       { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale) },
-      { id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) },
+      ...(data.hubspotLicense.enabled
+        ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) }]
+        : []),
       ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: t(ws.label, locale) })),
       ...(data.thirdPartyIntegration.enabled
         ? [{ id: "third_party_integration", label: t(UI_STRINGS.editor.tabThirdParty, locale) }]
@@ -89,7 +91,13 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
         ? [{ id: "elixirsync_integration", label: t(UI_STRINGS.editor.tabElixirSync, locale) }]
         : []),
     ],
-    [data.standardWorkstreams, data.thirdPartyIntegration.enabled, data.elixirSyncIntegration.enabled, locale]
+    [
+      data.standardWorkstreams,
+      data.thirdPartyIntegration.enabled,
+      data.elixirSyncIntegration.enabled,
+      data.hubspotLicense.enabled,
+      locale,
+    ]
   );
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "");
 
@@ -231,6 +239,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                   onChangeWorkstream={updateWorkstream}
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}
+                  onChangeHubSpotLicense={updateHubSpotLicense}
                   locale={locale}
                 />
               )}
