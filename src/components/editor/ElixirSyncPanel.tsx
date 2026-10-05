@@ -219,6 +219,10 @@ export function ElixirSyncPanel({
         </span>
         <span className="font-medium tabular-nums">{formatCurrency(pmPrice, locale)}</span>
       </div>
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-xs font-semibold text-brand-ink">
+        <span>{t(UI_STRINGS.workstreamPanel.total, locale)}</span>
+        <span className="tabular-nums">{formatCurrency(includedHours * hourlyRate + pmPrice, locale)}</span>
+      </div>
 
       <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">{t(s.instructions, locale)}</p>
 

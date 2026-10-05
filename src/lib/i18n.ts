@@ -83,6 +83,7 @@ export const UI_STRINGS = {
     activitySetup: { en: "Setup", nl: "Setup" },
     activityDeskWork: { en: "Desk work", nl: "Deskwork" },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
+    total: { en: "Total (incl. PM)", nl: "Totaal (incl. PM)" },
   },
   thirdPartyPanel: {
     includeThirdParty: { en: "Include third party integration", nl: "Third party integration opnemen" },

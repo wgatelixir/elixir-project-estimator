@@ -244,6 +244,15 @@ export function ThirdPartyPanel({
               <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
+            <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+              <td className="px-3 py-2" colSpan={6}>
+                {t(UI_STRINGS.workstreamPanel.total, locale)}
+              </td>
+              <td className="px-3 py-2 text-right tabular-nums">
+                {formatCurrency(totalHours * state.hourlyRate + pmPrice, locale)}
+              </td>
+              <td className="px-3 py-2" />
+            </tr>
           </tfoot>
         </table>
       </div>

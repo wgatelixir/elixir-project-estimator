@@ -179,6 +179,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   enabledWorkstreams.forEach((ws) => {
     const items = ws.items.filter((item) => item.enabled);
     const hours = items.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+    const wTotals = totals.workstreams.find((w) => w.key === ws.key)!;
     pages.push({
       key: ws.key,
       content: (
@@ -233,6 +234,26 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                   {t(s.total, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours, locale)}</td>
+              </tr>
+              <tr className="bg-slate-50 text-brand-ink">
+                <td className="px-3 py-1" colSpan={4}>
+                  {t(UI_STRINGS.workstreamPanel.budget, locale)}
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(wTotals.price, locale)}</td>
+              </tr>
+              <tr className="bg-slate-50 text-slate-600">
+                <td className="px-3 py-1" colSpan={4}>
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(wTotals.pmPrice, locale)}</td>
+              </tr>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+                <td className="px-3 py-1" colSpan={4}>
+                  {t(UI_STRINGS.workstreamPanel.total, locale)}
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">
+                  {formatCurrency(wTotals.price + wTotals.pmPrice, locale)}
+                </td>
               </tr>
             </tfoot>
           </table>
@@ -299,6 +320,26 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.thirdParty.hours, locale)}</td>
               </tr>
+              <tr className="bg-slate-50 text-brand-ink">
+                <td className="px-3 py-1" colSpan={5}>
+                  {t(UI_STRINGS.workstreamPanel.budget, locale)}
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.thirdParty.price, locale)}</td>
+              </tr>
+              <tr className="bg-slate-50 text-slate-600">
+                <td className="px-3 py-1" colSpan={5}>
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.thirdParty.pmPrice, locale)}</td>
+              </tr>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+                <td className="px-3 py-1" colSpan={5}>
+                  {t(UI_STRINGS.workstreamPanel.total, locale)}
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">
+                  {formatCurrency(totals.thirdParty.price + totals.thirdParty.pmPrice, locale)}
+                </td>
+              </tr>
             </tfoot>
           </table>
           <PanelLegend
@@ -355,6 +396,22 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
                 <td className="px-3 py-1">{t(s.total, locale)}</td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatHours(totals.elixirSync.hours, locale)}</td>
+              </tr>
+              <tr className="bg-slate-50 text-brand-ink">
+                <td className="px-3 py-1">{t(UI_STRINGS.workstreamPanel.budget, locale)}</td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.elixirSync.price, locale)}</td>
+              </tr>
+              <tr className="bg-slate-50 text-slate-600">
+                <td className="px-3 py-1">
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                </td>
+                <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.elixirSync.pmPrice, locale)}</td>
+              </tr>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+                <td className="px-3 py-1">{t(UI_STRINGS.workstreamPanel.total, locale)}</td>
+                <td className="px-3 py-1 text-right tabular-nums">
+                  {formatCurrency(totals.elixirSync.price + totals.elixirSync.pmPrice, locale)}
+                </td>
               </tr>
             </tfoot>
           </table>
