@@ -82,6 +82,7 @@ export const UI_STRINGS = {
     activitySession: { en: "Session", nl: "Sessie" },
     activitySetup: { en: "Setup", nl: "Setup" },
     activityDeskWork: { en: "Desk work", nl: "Deskwork" },
+    projectManagement: { en: "Project management", nl: "Projectmanagement" },
   },
   thirdPartyPanel: {
     includeThirdParty: { en: "Include third party integration", nl: "Third party integration opnemen" },

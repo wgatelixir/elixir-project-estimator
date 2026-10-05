@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort } from "@/lib/calculations";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_STYLES,
   classifyActivity,
@@ -30,10 +30,14 @@ function complexityOptionsFor(item: StandardLineItem, ws: StandardWorkstream): s
 export function WorkstreamPanel({
   workstream,
   onChange,
+  pmPercent,
+  pmRate,
   locale = "en",
 }: {
   workstream: StandardWorkstream;
   onChange: (next: StandardWorkstream) => void;
+  pmPercent: number;
+  pmRate: number;
   locale?: Locale;
 }) {
   const s = UI_STRINGS.workstreamPanel;
@@ -82,6 +86,8 @@ export function WorkstreamPanel({
     (sum, it) => (it.enabled ? sum + lineItemFinalEffort(it, workstream) : sum),
     0
   );
+  const pmHours = totalHours * pmPercent;
+  const pmPrice = pmHours * pmRate;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -222,6 +228,13 @@ export function WorkstreamPanel({
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
                 {formatCurrency(totalHours * workstream.hourlyRate, locale)}
               </td>
+              <td className="px-3 py-2" />
+            </tr>
+            <tr className="bg-slate-50 text-slate-600">
+              <td className="px-3 py-2" colSpan={5}>
+                {t(s.projectManagement, locale)} ({formatPercent(pmPercent)})
+              </td>
+              <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
           </tfoot>

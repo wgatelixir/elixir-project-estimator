@@ -34,6 +34,11 @@ export function formatHoursDelta(value: number, locale: Locale = "en"): string {
   return value > 0 ? `+${formatted}h` : `${formatted}h`;
 }
 
+/** e.g. 0.15 -> "15%". Used for the PM % shown next to each onderdeel's own PM row. */
+export function formatPercent(value: number): string {
+  return `${Math.round(value * 100)}%`;
+}
+
 export function formatDate(iso: string, locale: Locale = "en"): string {
   return new Date(iso).toLocaleDateString(locale === "nl" ? "nl-NL" : "en-GB", {
     day: "2-digit",

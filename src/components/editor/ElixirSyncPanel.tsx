@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ElixirSyncIntegrationState, ElixirSyncLineItem, ElixirSyncStream, Locale } from "@/lib/types";
 import { elixirSyncStreamHours } from "@/lib/calculations";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
@@ -140,11 +140,15 @@ export function ElixirSyncPanel({
   state,
   onChange,
   hourlyRate,
+  pmPercent,
+  pmRate,
   locale = "en",
 }: {
   state: ElixirSyncIntegrationState;
   onChange: (next: ElixirSyncIntegrationState) => void;
   hourlyRate: number;
+  pmPercent: number;
+  pmRate: number;
   locale?: Locale;
 }) {
   const s = UI_STRINGS.elixirSyncPanel;
@@ -152,6 +156,8 @@ export function ElixirSyncPanel({
     (sum, stream) => (stream.included ? sum + elixirSyncStreamHours(stream) : sum),
     0
   );
+  const pmHours = includedHours * pmPercent;
+  const pmPrice = pmHours * pmRate;
 
   function updateStream(id: string, next: ElixirSyncStream) {
     onChange({ ...state, streams: state.streams.map((stream) => (stream.id === id ? next : stream)) });
@@ -205,6 +211,13 @@ export function ElixirSyncPanel({
             {formatHours(includedHours, locale)} &middot; {formatCurrency(includedHours * hourlyRate, locale)}
           </span>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-xs text-slate-600">
+        <span>
+          {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(pmPercent)})
+        </span>
+        <span className="font-medium tabular-nums">{formatCurrency(pmPrice, locale)}</span>
       </div>
 
       <p className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">{t(s.instructions, locale)}</p>

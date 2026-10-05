@@ -3,7 +3,7 @@
 import Image from "next/image";
 import type { EstimationState, EstimationStatus, Locale } from "@/lib/types";
 import { computeEstimationTotals, lineItemFinalEffort, thirdPartyLineItemHours } from "@/lib/calculations";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_STYLES,
   classifyActivity,
@@ -56,6 +56,34 @@ function ComplexityPill({ level }: { level: string }) {
     <span className={`inline-flex items-center rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
       {level}
     </span>
+  );
+}
+
+/** A single onderdeel's own PM contribution, nested under its row in the Overview table. */
+function OverviewPmRow({
+  label,
+  pmPercent,
+  pmHours,
+  pmRate,
+  pmPrice,
+  locale,
+}: {
+  label: string;
+  pmPercent: number;
+  pmHours: number;
+  pmRate: number;
+  pmPrice: number;
+  locale: Locale;
+}) {
+  return (
+    <tr className="print:break-inside-avoid">
+      <td className="truncate py-1 pl-6 pr-3 text-slate-400">
+        {label} ({formatPercent(pmPercent)})
+      </td>
+      <td className="px-3 py-1 text-right tabular-nums text-slate-400">{formatHours(pmHours, locale)}</td>
+      <td className="px-3 py-1 text-right tabular-nums text-slate-400">{formatCurrency(pmRate, locale)}</td>
+      <td className="px-3 py-1 text-right tabular-nums text-slate-500">{formatCurrency(pmPrice, locale)}</td>
+    </tr>
   );
 }
 
@@ -355,7 +383,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
           <tbody className="divide-y divide-slate-200">
             {totals.workstreams
               .filter((w) => w.enabled)
-              .map((w) => (
+              .flatMap((w) => [
                 <tr key={w.key} className="print:break-inside-avoid">
                   <td className="truncate px-3 py-1 text-brand-ink">{t(w.label, locale)}</td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours, locale)}</td>
@@ -365,44 +393,65 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                   <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
                     {formatCurrency(w.price, locale)}
                   </td>
-                </tr>
-              ))}
+                </tr>,
+                <OverviewPmRow
+                  key={`${w.key}-pm`}
+                  label={t(s.projectManagement, locale)}
+                  pmPercent={totals.pmPercent}
+                  pmHours={w.pmHours}
+                  pmRate={totals.pmRate}
+                  pmPrice={w.pmPrice}
+                  locale={locale}
+                />,
+              ])}
             {totals.thirdParty.enabled && (
-              <tr>
-                <td className="truncate px-3 py-1 text-brand-ink">{t(totals.thirdParty.label, locale)}</td>
-                <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatHours(totals.thirdParty.hours, locale)}
-                </td>
-                <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatCurrency(totals.thirdParty.hourlyRate, locale)}
-                </td>
-                <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                  {formatCurrency(totals.thirdParty.price, locale)}
-                </td>
-              </tr>
+              <>
+                <tr>
+                  <td className="truncate px-3 py-1 text-brand-ink">{t(totals.thirdParty.label, locale)}</td>
+                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                    {formatHours(totals.thirdParty.hours, locale)}
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                    {formatCurrency(totals.thirdParty.hourlyRate, locale)}
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                    {formatCurrency(totals.thirdParty.price, locale)}
+                  </td>
+                </tr>
+                <OverviewPmRow
+                  label={t(s.projectManagement, locale)}
+                  pmPercent={totals.pmPercent}
+                  pmHours={totals.thirdParty.pmHours}
+                  pmRate={totals.pmRate}
+                  pmPrice={totals.thirdParty.pmPrice}
+                  locale={locale}
+                />
+              </>
             )}
             {totals.elixirSync.enabled && (
-              <tr>
-                <td className="truncate px-3 py-1 text-brand-ink">{t(totals.elixirSync.label, locale)}</td>
-                <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatHours(totals.elixirSync.hours, locale)}
-                </td>
-                <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                  {formatCurrency(totals.elixirSync.hourlyRate, locale)}
-                </td>
-                <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                  {formatCurrency(totals.elixirSync.price, locale)}
-                </td>
-              </tr>
+              <>
+                <tr>
+                  <td className="truncate px-3 py-1 text-brand-ink">{t(totals.elixirSync.label, locale)}</td>
+                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                    {formatHours(totals.elixirSync.hours, locale)}
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                    {formatCurrency(totals.elixirSync.hourlyRate, locale)}
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                    {formatCurrency(totals.elixirSync.price, locale)}
+                  </td>
+                </tr>
+                <OverviewPmRow
+                  label={t(s.projectManagement, locale)}
+                  pmPercent={totals.pmPercent}
+                  pmHours={totals.elixirSync.pmHours}
+                  pmRate={totals.pmRate}
+                  pmPrice={totals.elixirSync.pmPrice}
+                  locale={locale}
+                />
+              </>
             )}
-            <tr>
-              <td className="truncate px-3 py-1 text-brand-ink">{t(s.projectManagement, locale)}</td>
-              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(totals.pmHours, locale)}</td>
-              <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatCurrency(totals.pmRate, locale)}</td>
-              <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                {formatCurrency(totals.pmPrice, locale)}
-              </td>
-            </tr>
             {totals.subscriptions
               .filter((sub) => sub.qty > 0)
               .map((sub) => (

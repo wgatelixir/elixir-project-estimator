@@ -250,17 +250,27 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                 <WorkstreamPanel
                   workstream={activeWorkstream}
                   onChange={(next) => updateWorkstream(activeWorkstream.key, next)}
+                  pmPercent={data.pmPercent}
+                  pmRate={data.pmRate}
                   locale={locale}
                 />
               )}
               {activeTab === "third_party_integration" && (
-                <ThirdPartyPanel state={data.thirdPartyIntegration} onChange={updateThirdParty} locale={locale} />
+                <ThirdPartyPanel
+                  state={data.thirdPartyIntegration}
+                  onChange={updateThirdParty}
+                  pmPercent={data.pmPercent}
+                  pmRate={data.pmRate}
+                  locale={locale}
+                />
               )}
               {activeTab === "elixirsync_integration" && (
                 <ElixirSyncPanel
                   state={data.elixirSyncIntegration}
                   onChange={updateElixirSync}
                   hourlyRate={data.elixirSyncIntegration.hourlyRate}
+                  pmPercent={data.pmPercent}
+                  pmRate={data.pmRate}
                   locale={locale}
                 />
               )}

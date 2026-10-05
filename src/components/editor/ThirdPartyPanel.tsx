@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Locale, ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
 import { thirdPartyLineItemHours } from "@/lib/calculations";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_STYLES,
   classifyActivity,
@@ -24,10 +24,14 @@ function slugId() {
 export function ThirdPartyPanel({
   state,
   onChange,
+  pmPercent,
+  pmRate,
   locale = "en",
 }: {
   state: ThirdPartyIntegrationState;
   onChange: (next: ThirdPartyIntegrationState) => void;
+  pmPercent: number;
+  pmRate: number;
   locale?: Locale;
 }) {
   const s = UI_STRINGS.thirdPartyPanel;
@@ -67,6 +71,8 @@ export function ThirdPartyPanel({
     (sum, it) => (it.enabled ? sum + thirdPartyLineItemHours(it, state) : sum),
     0
   );
+  const pmHours = totalHours * pmPercent;
+  const pmPrice = pmHours * pmRate;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -229,6 +235,13 @@ export function ThirdPartyPanel({
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
                 {formatCurrency(totalHours * state.hourlyRate, locale)}
               </td>
+              <td className="px-3 py-2" />
+            </tr>
+            <tr className="bg-slate-50 text-slate-600">
+              <td className="px-3 py-2" colSpan={6}>
+                {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(pmPercent)})
+              </td>
+              <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
           </tfoot>
