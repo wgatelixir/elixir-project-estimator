@@ -1,9 +1,10 @@
 # Elixir Project Estimator
 
-A web version of Elixir Solutions' project estimation workbook (Business
-Assessment through HubSpot Deployment & Go-Live, plus ElixirSync and Third
-Party integrations), with a shared dashboard so estimations live in one
-place instead of scattered spreadsheet copies.
+A web version of Elixir Solutions' project estimation workbook (V3: Business
+Assessment, Technical Assessment and Data Migration, the Sales / Service /
+Marketing / CMS / DealHub implementations, plus ElixirSync and Third Party
+integrations), with a shared dashboard so estimations live in one place
+instead of scattered spreadsheet copies.
 
 - **Estimator** (`/estimations/[id]`) &mdash; edit standard effort, complexity
   factors, and per-line items for every workstream, live totals, PM % and
@@ -19,21 +20,38 @@ No authentication (open-link, by request &mdash; see **Security note** below).
 
 ## Differences from the source spreadsheet
 
-The original `.xlsx` had a few real bugs, fixed here rather than replicated:
+The templates follow the **V3** workbook (2026-03-11). Hourly rates and the
+PM rate are deliberately lower than the workbook's (150/135 vs. 175/150) -
+an app-side decision, not an import error. The workbook has a few real bugs,
+fixed here rather than replicated:
 
-1. **Setup-row complexity lookups were off by one** in the Sales, CMS,
-   DealHub, and HS Deployment & Go-Live tabs (a copy-paste error meant each
-   Setup line used the complexity dropdown of the row *above* it). Every
-   line here always uses its own dropdown.
-2. **Truncated complexity ranges** in Marketing and CMS meant the "Medium"
-   and "High" session-complexity options couldn't actually be looked up in
-   Excel (the VLOOKUP range didn't reach that far after rows were inserted).
-   Fixed by giving every workstream its complete 4-level table.
-3. **Overview total-price formula bug**: the spreadsheet's Third Party
-   Integration price multiplied the *ElixirSync* workstream's hours by the
-   Third Party rate. Fixed so each row multiplies its own hours.
+1. **Off-by-one complexity lookups** in the CMS and DealHub tabs: each Setup
+   line after the first looks up the complexity dropdown of the row *above*
+   it. Every line here always uses its own dropdown.
+2. **Truncated complexity ranges**: Marketing's session lookups only reach
+   Low/Standard, and its setup lookups miss Low, because the VLOOKUP ranges
+   weren't moved when rows were inserted. Every workstream here has its
+   complete 4-level table.
+3. **Marketing TOTAL skips its first two rows** (`=SUM(G6:G30)`, missing the
+   Kick-off Session and Workshop 1, 12h): the sheet shows 104h, the real sum
+   (and the app) is 116h.
+4. **Overview total-price formula bug**: the Third Party Integration price
+   multiplies the *ElixirSync* hours by the Third Party rate. Fixed so each
+   row multiplies its own hours.
+5. **ElixirSync "Testing, Deployment & Go-Live"** optimistic/pessimistic
+   subtotals skip two of its four tasks. The app only uses the Realistic
+   column, which the sheet sums correctly.
+6. **Copy-paste text errors**: the third workshop in Sales, Service and
+   Marketing (session prep) is labelled "Workshop 2" twice - renamed to
+   "Workshop 3" (its content clearly differs from workshop 2); Data Migration's
+   "Data Load in Prod" reused the Test line's description and now describes
+   the production load; a few typos ("Campaing", "Orden") are corrected.
 
-If you need numbers that reconcile with an old Excel estimate line-for-line,
+The V3 workbook dropped the separate HubSpot Deployment & Go-Live tab (its
+trainings and go-live now sit inside each hub implementation tab), so it's
+no longer in the template; estimations created before V3 keep it.
+
+If you need numbers that reconcile with an Excel estimate line-for-line,
 they may be off by these amounts for the affected tabs.
 
 ## Local development

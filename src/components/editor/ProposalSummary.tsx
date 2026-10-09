@@ -44,7 +44,7 @@ function ColGroup({ widths }: { widths: string[] }) {
 function ActivityPill({ activity, locale }: { activity: string; locale: Locale }) {
   const style = ACTIVITY_STYLES[classifyActivity(activity)];
   return (
-    <span className={`inline-flex items-center rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
       {t(style.label, locale)}
     </span>
   );
@@ -53,7 +53,7 @@ function ActivityPill({ activity, locale }: { activity: string; locale: Locale }
 function ComplexityPill({ level }: { level: string }) {
   const style = COMPLEXITY_STYLES[classifyComplexity(level)];
   return (
-    <span className={`inline-flex items-center rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
       {level}
     </span>
   );

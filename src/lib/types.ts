@@ -17,12 +17,16 @@ export interface ComplexityTableEntry {
 // Keyed by the complexity level's display label (e.g. "Standard", "High complexity").
 export type ComplexityTable = Record<string, ComplexityTableEntry>;
 
-export type LineActivityType = "Session" | "Setup" | "Desk work";
+// "Desk work" only exists on estimations created from the V2 template; V3 uses
+// "Session Prep" for session preparation and "Risk Buffer" for contingency lines.
+export type LineActivityType = "Session" | "Session Prep" | "Setup" | "Risk Buffer" | "Desk work";
 
 export interface StandardLineItem {
   id: string;
   activity: LineActivityType;
   topic: LocalizedString;
+  /** Session length in hours (the sheet's "Duration" column) - informational, not used in totals. */
+  duration?: number | null;
   standardEffort: number;
   /** Which of the workstream's two complexity tables this line's dropdown looks up. */
   complexityTable: "session" | "setup";

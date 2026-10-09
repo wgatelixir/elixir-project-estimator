@@ -111,19 +111,21 @@ export const COMPLEXITY_DESCRIPTIONS: Record<
   },
 };
 
-export type ActivityBand = "session" | "setup" | "desk-work";
+export type ActivityBand = "session" | "session-prep" | "setup" | "risk-buffer" | "desk-work";
 
 export function classifyActivity(activity: string): ActivityBand {
   const a = activity.toLowerCase();
   if (a === "session") return "session";
+  if (a === "session prep") return "session-prep";
   if (a === "setup") return "setup";
+  if (a === "risk buffer") return "risk-buffer";
   return "desk-work";
 }
 
 interface ActivityStyle {
   badge: string;
   dot: string;
-  /** Row background: light gray for Setup, white (transparent) for Session/Desk work. */
+  /** Row background: light gray for Setup, white for the other activity types. */
   rowBg: string;
   label: LocalizedString;
 }
@@ -135,11 +137,23 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     rowBg: "bg-white",
     label: { en: "Session", nl: "Sessie" },
   },
+  "session-prep": {
+    badge: "bg-sky-100 text-sky-700",
+    dot: "bg-sky-400",
+    rowBg: "bg-white",
+    label: { en: "Session Prep", nl: "Sessievoorbereiding" },
+  },
   setup: {
     badge: "bg-slate-200 text-slate-700",
     dot: "bg-slate-500",
     rowBg: "bg-slate-100",
     label: { en: "Setup", nl: "Setup" },
+  },
+  "risk-buffer": {
+    badge: "bg-amber-100 text-amber-800",
+    dot: "bg-amber-500",
+    rowBg: "bg-white",
+    label: { en: "Risk Buffer", nl: "Risicobuffer" },
   },
   "desk-work": {
     badge: "bg-violet-100 text-violet-700",
@@ -149,4 +163,6 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
   },
 };
 
-export const ACTIVITY_LEGEND: ActivityBand[] = ["session", "setup", "desk-work"];
+// "desk-work" is left out: only legacy (V2-template) estimations still use it, and its
+// badge on those rows is self-explanatory.
+export const ACTIVITY_LEGEND: ActivityBand[] = ["session", "session-prep", "setup", "risk-buffer"];

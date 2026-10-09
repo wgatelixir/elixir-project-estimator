@@ -10,7 +10,10 @@ per estimation.
 This file itself is a repo document, referenced from `CLAUDE.md` — it's
 visible to anyone working in the codebase (and to Claude Code as a standing
 instruction), but it is **not** shown anywhere inside the deployed web app.
-End users making an estimation never see this markdown file.
+End users making an estimation never see this markdown file. (The
+workbook's own "ESTIMATION RULEBOOK" tab — how to use the template — is a
+different thing; it is shown in the app as a collapsible card on the Cover
+page, `src/components/editor/Rulebook.tsx`.)
 
 The wording decisions recorded here only reach the app when they're also
 applied to the actual data: the `comment` field on a `StandardLineItem` in
@@ -57,6 +60,21 @@ Applied: the short version is now set as the `comment` on
 in the app next to the Topic column (WorkstreamPanel and Proposal Summary) —
 same place the source spreadsheet's own Comment column sat.
 
+Since the V3 workbook (applied 2026-10-09) each interview is two lines: a
+2h **Session** and a 1h **Setup** line of the same name for the write-up.
+The wording above sits on the Session line only, since it describes the
+pair; it replaces V3's Content text for those rows ("C Level decision makers
+for that area"). The Setup lines carry no comment, as in V3.
+
+### Content column (V3)
+
+The V3 workbook adds a **Content** column describing each line (e.g.
+"Prep Miro & Deck", "Check on imports the client did, clarify issues"). It
+is stored in the same `comment` field and shown in the same place, with a
+Dutch translation. Its **Duration** column (session length in hours) is
+stored as `duration` and shown in the editor only — informational, not
+used in any total.
+
 ## Uni-dimensional vs. multi-dimensional projects
 
 A **dimension** = one HubSpot hub in scope (Sales, Service, Marketing, CMS,
@@ -75,14 +93,20 @@ next to the relevant line item or rule:
 
 Untagged items apply regardless of how many hubs are in scope.
 
-### Confirmed tags
+### Confirmed tags (V2 workbook — no longer in the template)
 
-Verified directly against the source spreadsheet's Comment column (not
-inferred) — these are the *only* four "Only for..." tags that exist
-anywhere in the original workbook, all in Business Assessment. Already set
-as the `comment` field on their line items in `src/lib/templates.ts`, and
-rendered as a small badge next to the Topic in the app (WorkstreamPanel and
-Proposal Summary):
+**V3 update (2026-10-09):** the V3 workbook removed all four tagged items
+below and replaced the workshop-vs-presentation split with a single
+"Fit Gap Analysis & Solution Design" session (3h) + setup (4h), untagged.
+V3 contains no "Only for..." tags at all, so the current template has none.
+Estimations created from the V2 template still carry these tags, and the app
+still renders them as a badge. Whether dropping the uni/multi-dimensional
+distinction was intended has not been confirmed with the Elixir team.
+
+Verified directly against the V2 spreadsheet's Comment column (not
+inferred) — these were the *only* four "Only for..." tags in that
+workbook, all in Business Assessment, rendered as a small badge next to the
+Topic in the app (WorkstreamPanel and Proposal Summary):
 
 | Line item | id | Tag |
 |---|---|---|
@@ -109,11 +133,11 @@ Retracted (2026-09-18); that item remains untagged below.
 
 ### Not yet reviewed
 
-No other line item across the nine standard workstreams carries an "Only
-for..." tag in the source spreadsheet. That doesn't mean none of them are
-dimension-specific in practice (e.g. "Sales & marketing alignment" in Sales
-Implementation clearly only means something with both Sales and Marketing
-Hub in scope) — it means the original spreadsheet never tagged it. Treat
+No line item in the V3 workbook carries an "Only for..." tag (and none
+outside Business Assessment did in V2). That doesn't mean none of them are
+dimension-specific in practice (e.g. V2's "Sales & marketing alignment"
+session, dropped in V3, clearly only meant something with both Sales and
+Marketing Hub in scope) — it means the spreadsheet never tagged it. Treat
 any such item as untagged/applies-regardless until someone makes an
 explicit business decision to tag it, and documents that decision here with
 a one-line justification the same way the confirmed entries above are
