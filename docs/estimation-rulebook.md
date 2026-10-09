@@ -75,6 +75,17 @@ Dutch translation. Its **Duration** column (session length in hours) is
 stored as `duration` and shown in the editor only — informational, not
 used in any total.
 
+### Session Prep vs. Setup
+
+Preparation lines use the activity **Session Prep** (light-blue row), not
+Setup, so they stay visibly separate from the actual sessions and from the
+HubSpot setup work. V3 labels five preparation lines as "Setup" even though
+their Content says "Prep…"; those are reclassified as Session Prep here:
+Technical Assessment "Best-practice integration flow" and "Adapted
+integration flow", Data Migration "Best Practices & Customer Input", and
+Marketing "Key User Training" / "Admin User Training". Hours are unchanged
+(both use the setup complexity table).
+
 ## Uni-dimensional vs. multi-dimensional projects
 
 A **dimension** = one HubSpot hub in scope (Sales, Service, Marketing, CMS,

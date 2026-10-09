@@ -125,7 +125,7 @@ export function classifyActivity(activity: string): ActivityBand {
 interface ActivityStyle {
   badge: string;
   dot: string;
-  /** Row background: light gray for Setup, white for the other activity types. */
+  /** Row background: light gray for Setup, light blue for Session Prep, white for the rest. */
   rowBg: string;
   label: LocalizedString;
 }
@@ -140,7 +140,7 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
   "session-prep": {
     badge: "bg-sky-100 text-sky-700",
     dot: "bg-sky-400",
-    rowBg: "bg-white",
+    rowBg: "bg-sky-50",
     label: { en: "Session Prep", nl: "Sessievoorbereiding" },
   },
   setup: {

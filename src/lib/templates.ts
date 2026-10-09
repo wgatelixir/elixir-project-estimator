@@ -252,7 +252,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
       {
         id: "technical_assessment-8-best-practice-integration-flow",
-        activity: "Setup",
+        activity: "Session Prep",
         topic: { en: "Best-practice integration flow", nl: "Best-practice integratieflow" },
         duration: null,
         standardEffort: 1.0,
@@ -263,7 +263,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
       {
         id: "technical_assessment-9-adapted-integration-flow",
-        activity: "Setup",
+        activity: "Session Prep",
         topic: { en: "Adapted integration flow", nl: "Aangepaste integratieflow" },
         duration: null,
         standardEffort: 2.0,
@@ -382,7 +382,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
       {
         id: "data_migration-7-best-practices-customer-input",
-        activity: "Setup",
+        activity: "Session Prep",
         topic: { en: "Best Practices & Customer Input", nl: "Best practices & klantinput" },
         duration: null,
         standardEffort: 1.0,
@@ -1311,7 +1311,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
       {
         id: "marketing_implementation-19-key-user-training",
-        activity: "Setup",
+        activity: "Session Prep",
         topic: { en: "Key User Training", nl: "Key-usertraining" },
         duration: null,
         standardEffort: 4.0,
@@ -1322,7 +1322,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       },
       {
         id: "marketing_implementation-20-admin-user-training",
-        activity: "Setup",
+        activity: "Session Prep",
         topic: { en: "Admin User Training", nl: "Admin-gebruikerstraining" },
         duration: null,
         standardEffort: 4.0,
