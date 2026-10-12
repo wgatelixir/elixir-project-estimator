@@ -1,6 +1,6 @@
 "use client";
 
-import type { EstimationTotals } from "@/lib/calculations";
+import { groupByPhase, type EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import type { ComplexityBand } from "@/lib/style";
 import { PanelLegend } from "./Legend";
@@ -36,38 +36,41 @@ export function SummarySidebar({
   locale = "en",
 }: SummarySidebarProps) {
   const s = UI_STRINGS.summarySidebar;
+  const { groups: phaseGroups, showPhases } = groupByPhase(totals);
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-brand-ink">{t(s.summary, locale)}</h2>
-        <dl className="mt-3 space-y-1.5 text-sm">
-          {totals.workstreams
-            .filter((w) => w.enabled)
-            .map((w) => (
-              <div key={w.key} className="flex items-center justify-between gap-2">
-                <dt className="truncate text-slate-500">{t(w.label, locale)}</dt>
-                <dd className="whitespace-nowrap tabular-nums text-slate-700">
-                  {formatHours(w.hours, locale)}
-                </dd>
-              </div>
-            ))}
-          {totals.thirdParty.enabled && (
-            <div className="flex items-center justify-between gap-2">
-              <dt className="truncate text-slate-500">{t(totals.thirdParty.label, locale)}</dt>
-              <dd className="whitespace-nowrap tabular-nums text-slate-700">
-                {formatHours(totals.thirdParty.hours, locale)}
-              </dd>
+        <div className="mt-3 space-y-3 text-sm">
+          {phaseGroups.map((group) => (
+            <div key={group.phase}>
+              {showPhases && (
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo">
+                  {t(UI_STRINGS.proposalSummary.phase, locale)} {group.phase}
+                </div>
+              )}
+              <dl className="space-y-1.5">
+                {group.rows.map((w) => (
+                  <div key={w.key} className="flex items-center justify-between gap-2">
+                    <dt className="truncate text-slate-500">{t(w.label, locale)}</dt>
+                    <dd className="whitespace-nowrap tabular-nums text-slate-700">{formatHours(w.hours, locale)}</dd>
+                  </div>
+                ))}
+              </dl>
+              {showPhases && (
+                <div className="mt-1 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-1 text-xs font-medium text-brand-ink">
+                  <span>
+                    {t(UI_STRINGS.proposalSummary.phaseSubtotal, locale)} {group.phase}
+                    <span className="font-normal text-slate-400"> {t(s.inclPm, locale)}</span>
+                  </span>
+                  <span className="whitespace-nowrap tabular-nums">
+                    {formatHours(group.hours, locale)} · {formatCurrency(group.price, locale)}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-          {totals.elixirSync.enabled && (
-            <div className="flex items-center justify-between gap-2">
-              <dt className="truncate text-slate-500">{t(totals.elixirSync.label, locale)}</dt>
-              <dd className="whitespace-nowrap tabular-nums text-slate-700">
-                {formatHours(totals.elixirSync.hours, locale)}
-              </dd>
-            </div>
-          )}
-        </dl>
+          ))}
+        </div>
 
         <div className="mt-3 border-t border-slate-100 pt-3">
           <div className="flex items-center justify-between text-sm">

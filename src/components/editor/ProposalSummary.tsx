@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import type { EstimationState, EstimationStatus, Locale } from "@/lib/types";
-import { computeEstimationTotals, lineItemFinalEffort, thirdPartyLineItemHours } from "@/lib/calculations";
+import type { EstimationState, EstimationStatus, Locale, ProjectPhase } from "@/lib/types";
+import { computeEstimationTotals, groupByPhase, lineItemFinalEffort, thirdPartyLineItemHours } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_STYLES,
@@ -174,7 +174,11 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   const includedStreams = elixirSync.streams.filter((stream) => stream.included);
   const statusLabel = meta.status === "FINAL" ? t(s.statusFinal, locale) : t(s.statusDraft, locale);
 
-  const pages: { key: string; content: React.ReactNode }[] = [];
+  const { groups: phaseGroups, showPhases } = groupByPhase(totals);
+  // Phase label in each onderdeel's page header - only once more than one phase is in use.
+  const phasePrefix = (phase: ProjectPhase | undefined) => (showPhases ? `${t(s.phase, locale)} ${phase ?? 1} · ` : "");
+
+  const pages: { key: string; phase?: ProjectPhase; content: React.ReactNode }[] = [];
 
   enabledWorkstreams.forEach((ws) => {
     const items = ws.items.filter((item) => item.enabled);
@@ -182,10 +186,11 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     const wTotals = totals.workstreams.find((w) => w.key === ws.key)!;
     pages.push({
       key: ws.key,
+      phase: ws.phase ?? 1,
       content: (
         <SectionCard
           title={t(ws.label, locale)}
-          subtitle={`${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
+          subtitle={`${phasePrefix(ws.phase)}${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={WORKSTREAM_COLS} />
@@ -273,10 +278,11 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   if (thirdParty.enabled) {
     pages.push({
       key: "third_party_integration",
+      phase: thirdParty.phase ?? 1,
       content: (
         <SectionCard
           title={t(s.thirdPartyIntegration, locale)}
-          subtitle={`${formatHours(totals.thirdParty.hours, locale)} · ${formatCurrency(totals.thirdParty.price, locale)}`}
+          subtitle={`${phasePrefix(thirdParty.phase)}${formatHours(totals.thirdParty.hours, locale)} · ${formatCurrency(totals.thirdParty.price, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={THIRD_PARTY_COLS} />
@@ -359,10 +365,11 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   if (elixirSync.enabled) {
     pages.push({
       key: "elixirsync_integration",
+      phase: elixirSync.phase ?? 1,
       content: (
         <SectionCard
           title={t(s.elixirSyncIntegration, locale)}
-          subtitle={`${formatHours(totals.elixirSync.hours, locale)} · ${formatCurrency(totals.elixirSync.price, locale)}`}
+          subtitle={`${phasePrefix(elixirSync.phase)}${formatHours(totals.elixirSync.hours, locale)} · ${formatCurrency(totals.elixirSync.price, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={ELIXIRSYNC_COLS} />
@@ -423,18 +430,6 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     });
   }
 
-  // Every included onderdeel, grouped by delivery phase. Phase headings and
-  // subtotals only appear once more than one phase is actually in use.
-  const onderdelen = [
-    ...totals.workstreams.filter((w) => w.enabled),
-    ...(totals.thirdParty.enabled ? [totals.thirdParty] : []),
-    ...(totals.elixirSync.enabled ? [totals.elixirSync] : []),
-  ];
-  const phaseGroups = ([1, 2, 3] as const)
-    .map((phase) => ({ phase, rows: onderdelen.filter((w) => w.phase === phase) }))
-    .filter((group) => group.rows.length > 0);
-  const showPhases = phaseGroups.length > 1;
-
   pages.push({
     key: "overview",
     content: (
@@ -488,11 +483,11 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                         {t(s.phaseSubtotal, locale)} {group.phase}
                       </td>
                       <td className="px-3 py-1 text-right tabular-nums">
-                        {formatHours(group.rows.reduce((sum, w) => sum + w.hours + w.pmHours, 0), locale)}
+                        {formatHours(group.hours, locale)}
                       </td>
                       <td />
                       <td className="px-3 py-1 text-right tabular-nums">
-                        {formatCurrency(group.rows.reduce((sum, w) => sum + w.price + w.pmPrice, 0), locale)}
+                        {formatCurrency(group.price, locale)}
                       </td>
                     </tr>,
                   ]
@@ -524,6 +519,9 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
       </SectionCard>
     ),
   });
+
+  // Onderdeel pages follow delivery order (stable within a phase).
+  pages.sort((a, b) => (a.phase ?? 0) - (b.phase ?? 0));
 
   // Grand total leads instead of trailing - both on screen and as the PDF's first page.
   const overviewIndex = pages.findIndex((page) => page.key === "overview");

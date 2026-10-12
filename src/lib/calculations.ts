@@ -232,3 +232,37 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
     grandTotalPrice: totalEffortPrice + subscriptionsPrice,
   };
 }
+
+export interface PhaseGroup {
+  phase: ProjectPhase;
+  rows: WorkstreamTotals[];
+  /** Implementation + PM, the same basis as the per-onderdeel Total (incl. PM) rows. */
+  hours: number;
+  price: number;
+}
+
+/**
+ * Every included onderdeel (standard workstreams, then the integrations),
+ * grouped by delivery phase in phase order. `showPhases` is false when
+ * everything sits in one phase, so views can skip phase headings that
+ * would only repeat "Phase 1".
+ */
+export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; showPhases: boolean } {
+  const onderdelen = [
+    ...totals.workstreams.filter((w) => w.enabled),
+    ...(totals.thirdParty.enabled ? [totals.thirdParty] : []),
+    ...(totals.elixirSync.enabled ? [totals.elixirSync] : []),
+  ];
+  const groups = ([1, 2, 3] as const)
+    .map((phase) => {
+      const rows = onderdelen.filter((w) => w.phase === phase);
+      return {
+        phase,
+        rows,
+        hours: rows.reduce((sum, w) => sum + w.hours + w.pmHours, 0),
+        price: rows.reduce((sum, w) => sum + w.price + w.pmPrice, 0),
+      };
+    })
+    .filter((group) => group.rows.length > 0);
+  return { groups, showPhases: groups.length > 1 };
+}
