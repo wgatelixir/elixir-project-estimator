@@ -14,8 +14,9 @@ const complexityTableSchema = z.record(z.string(), complexityTableEntrySchema);
 
 const standardLineItemSchema = z.object({
   id: z.string(),
-  activity: z.enum(["Session", "Setup", "Desk work"]),
+  activity: z.enum(["Session", "Session Prep", "Setup", "Risk Buffer", "Desk work"]),
   topic: localizedStringSchema,
+  duration: z.number().nonnegative().nullable().optional(),
   standardEffort: z.number(),
   complexityTable: z.enum(["session", "setup"]),
   complexity: z.string(),

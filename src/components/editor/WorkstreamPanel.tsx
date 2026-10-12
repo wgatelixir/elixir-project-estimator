@@ -65,6 +65,7 @@ export function WorkstreamPanel({
       id: slugId(workstream.key),
       activity: newActivity,
       topic: { en: topicText, nl: topicText },
+      duration: null,
       standardEffort: newEffort,
       complexityTable: newTable,
       complexity: "Standard" in workstream.sessionComplexity ? "Standard" : Object.keys(workstream.sessionComplexity)[0],
@@ -131,12 +132,15 @@ export function WorkstreamPanel({
       />
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[820px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
               <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnTopic, locale)}</th>
+              <th className="px-3 py-2 text-right font-medium" title={t(s.durationTitle, locale)}>
+                {t(s.columnDuration, locale)}
+              </th>
               <th className="px-3 py-2 text-right font-medium">{t(s.columnStandard, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
               <th className="px-3 py-2 text-right font-medium">{t(s.columnFinalEffort, locale)}</th>
@@ -162,7 +166,7 @@ export function WorkstreamPanel({
                   </td>
                   <td className="px-3 py-2">
                     <span
-                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
+                      className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
                     >
                       {t(activityStyle.label, locale)}
                     </span>
@@ -174,6 +178,19 @@ export function WorkstreamPanel({
                       className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                     <LineItemNote comment={item.comment} locale={locale} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <input
+                      type="number"
+                      step="0.5"
+                      min={0}
+                      value={item.duration ?? ""}
+                      onChange={(e) =>
+                        updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
+                      }
+                      title={t(s.durationTitle, locale)}
+                      className="w-14 rounded border border-transparent px-1.5 py-1 text-right tabular-nums text-slate-500 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                    />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input
@@ -215,14 +232,14 @@ export function WorkstreamPanel({
           </tbody>
           <tfoot>
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={5}>
+              <td className="px-3 py-2" colSpan={6}>
                 {t(s.totalFinalEffort, locale)}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-brand-ink">
-              <td className="px-3 py-2" colSpan={5}>
+              <td className="px-3 py-2" colSpan={6}>
                 {t(s.budget, locale)}
               </td>
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
@@ -231,14 +248,14 @@ export function WorkstreamPanel({
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-slate-600">
-              <td className="px-3 py-2" colSpan={5}>
+              <td className="px-3 py-2" colSpan={6}>
                 {t(s.projectManagement, locale)} ({formatPercent(pmPercent)})
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={5}>
+              <td className="px-3 py-2" colSpan={6}>
                 {t(s.total, locale)}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">
@@ -256,13 +273,14 @@ export function WorkstreamPanel({
           onChange={(e) => {
             const v = e.target.value as LineActivityType;
             setNewActivity(v);
-            setNewTable(v === "Setup" ? "setup" : "session");
+            setNewTable(v === "Session" ? "session" : "setup");
           }}
           className="rounded border border-slate-300 px-2 py-1.5 text-sm"
         >
           <option value="Session">{t(s.activitySession, locale)}</option>
+          <option value="Session Prep">{t(s.activitySessionPrep, locale)}</option>
           <option value="Setup">{t(s.activitySetup, locale)}</option>
-          <option value="Desk work">{t(s.activityDeskWork, locale)}</option>
+          <option value="Risk Buffer">{t(s.activityRiskBuffer, locale)}</option>
         </select>
         <input
           value={newTopic}

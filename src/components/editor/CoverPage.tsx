@@ -14,7 +14,10 @@ import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
+import { Rulebook } from "./Rulebook";
 
+// "deployment_golive" is no longer in the template (V3 moved trainings and go-live into
+// each hub tab) but older estimations still have it, so keep listing it when present.
 const FOUNDATION_KEYS = ["business_assessment", "technical_assessment", "data_migration", "deployment_golive"];
 const HUB_KEYS = [
   "sales_implementation",
@@ -209,6 +212,8 @@ export function CoverPage({
         <h2 className="text-base font-semibold text-brand-ink">{t(s.heading, locale)}</h2>
         <p className="mt-1 text-sm text-slate-500">{t(s.intro, locale)}</p>
       </div>
+
+      <Rulebook locale={locale} />
 
       <GroupCard title={t(s.foundationTitle, locale)} description={t(s.foundationDescription, locale)}>
         <ColumnHeader locale={locale} />
