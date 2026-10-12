@@ -13,8 +13,10 @@ import type {
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
+import { formatCurrency } from "@/lib/format";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
+import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
@@ -69,6 +71,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string>(initial.updatedAt);
   const [error, setError] = useState<string | null>(null);
+  const [justUpgraded, setJustUpgraded] = useState(false);
 
   const totals = useMemo(() => computeEstimationTotals(data), [data]);
 
@@ -135,6 +138,26 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   function updateHubSpotLicense(next: HubSpotLicenseState) {
     setData((prev) => ({ ...prev, hubspotLicense: next }));
+    markDirty();
+  }
+
+  function upgradeTemplate() {
+    const s = UI_STRINGS.templateUpgrade;
+    const next = upgradeToCurrentTemplate(data);
+    const before = formatCurrency(totals.grandTotalPrice, locale);
+    const after = formatCurrency(computeEstimationTotals(next).grandTotalPrice, locale);
+    const message = [
+      t(s.confirmIntro, locale),
+      `${t(s.confirmTotals, locale)}: ${before} → ${after}`,
+      ...(meta.status === "FINAL" ? [t(s.confirmFinal, locale)] : []),
+      t(s.confirmUndo, locale),
+    ].join("\n\n");
+    if (!window.confirm(message)) return;
+    setData(next);
+    if (!next.standardWorkstreams.some((ws) => ws.key === activeTab) && data.standardWorkstreams.some((ws) => ws.key === activeTab)) {
+      setActiveTab(COVER_TAB_ID);
+    }
+    setJustUpgraded(true);
     markDirty();
   }
 
@@ -210,6 +233,27 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
         locale={locale}
         onChangeLocale={updateLocale}
       />
+
+      {isLegacyTemplate(data) && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 print:hidden">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-amber-900">{t(UI_STRINGS.templateUpgrade.bannerTitle, locale)}</div>
+            <p className="mt-0.5 text-xs text-amber-800">{t(UI_STRINGS.templateUpgrade.bannerBody, locale)}</p>
+          </div>
+          <button
+            onClick={upgradeTemplate}
+            className="flex-shrink-0 rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+          >
+            {t(UI_STRINGS.templateUpgrade.button, locale)}
+          </button>
+        </div>
+      )}
+      {justUpgraded && dirty && (
+        <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 print:hidden">
+          <div className="text-sm font-semibold text-sky-900">{t(UI_STRINGS.templateUpgrade.doneTitle, locale)}</div>
+          <p className="mt-0.5 text-xs text-sky-800">{t(UI_STRINGS.templateUpgrade.doneBody, locale)}</p>
+        </div>
+      )}
 
       {activeTab === PROPOSAL_TAB_ID ? (
         <div className="mt-6">
