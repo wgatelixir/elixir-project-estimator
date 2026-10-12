@@ -4,6 +4,7 @@ import type {
   ElixirSyncStream,
   EstimationState,
   LocalizedString,
+  ProjectPhase,
   StandardLineItem,
   StandardWorkstream,
   ThirdPartyIntegrationState,
@@ -39,6 +40,7 @@ export interface WorkstreamTotals {
   key: string;
   label: LocalizedString;
   enabled: boolean;
+  phase: ProjectPhase;
   hours: number;
   hourlyRate: number;
   price: number;
@@ -63,6 +65,7 @@ export function computeStandardWorkstreamTotals(
     key: ws.key,
     label: ws.label,
     enabled: ws.enabled,
+    phase: ws.phase ?? 1,
     hours,
     hourlyRate: ws.hourlyRate,
     price: hours * ws.hourlyRate,
@@ -96,6 +99,7 @@ export function computeThirdPartyTotals(
     key: "third_party_integration",
     label: THIRD_PARTY_INTEGRATION_LABEL,
     enabled: state.enabled,
+    phase: state.phase ?? 1,
     hours,
     hourlyRate: state.hourlyRate,
     price: hours * state.hourlyRate,
@@ -134,6 +138,7 @@ export function computeElixirSyncTotals(
     key: "elixirsync_integration",
     label: ELIXIRSYNC_INTEGRATION_LABEL,
     enabled: state.enabled,
+    phase: state.phase ?? 1,
     hours,
     hourlyRate: state.hourlyRate,
     price: hours * state.hourlyRate,

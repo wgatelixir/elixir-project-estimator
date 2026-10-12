@@ -6,6 +6,7 @@ import type {
   HubSpotLicenseState,
   Locale,
   LocalizedString,
+  ProjectPhase,
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
@@ -29,17 +30,49 @@ const HUB_KEYS = [
 
 // One fixed column template shared by the header and every row, so Rate/Hours/Budget
 // never drift out of alignment regardless of label length or whether a row has a result yet.
-const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_190px_90px_120px] items-center gap-3";
+const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_92px_190px_90px_120px] items-center gap-3";
+
+const PHASES: ProjectPhase[] = [1, 2, 3];
 
 function ColumnHeader({ locale }: { locale: Locale }) {
   const s = UI_STRINGS.coverPage;
   return (
     <div className={`${ROW_GRID} px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400`}>
       <span>{t(s.columnWorkstream, locale)}</span>
+      <span>{t(s.columnPhase, locale)}</span>
       <span className="text-right">{t(s.columnRate, locale)}</span>
       <span className="text-right">{t(s.columnHours, locale)}</span>
       <span className="text-right">{t(s.columnBudget, locale)}</span>
     </div>
+  );
+}
+
+/** Kept selectable while a row is unchecked, so a phase can be planned before it's in scope. */
+function PhaseSelect({
+  phase,
+  enabled,
+  locale,
+  onChange,
+}: {
+  phase: ProjectPhase | undefined;
+  enabled: boolean;
+  locale: Locale;
+  onChange: (phase: ProjectPhase) => void;
+}) {
+  const s = UI_STRINGS.coverPage;
+  return (
+    <select
+      value={phase ?? 1}
+      onChange={(e) => onChange(Number(e.target.value) as ProjectPhase)}
+      title={t(s.phaseTitle, locale)}
+      className={`w-full rounded border border-slate-300 bg-white px-1.5 py-1 text-xs focus:border-brand-indigo focus:outline-none ${enabled ? "text-brand-ink" : "text-slate-400"}`}
+    >
+      {PHASES.map((p) => (
+        <option key={p} value={p}>
+          {t(s.columnPhase, locale)} {p}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -74,8 +107,8 @@ function WorkstreamRow({
   onChange: (next: StandardWorkstream) => void;
 }) {
   return (
-    <label className={`${ROW_GRID} cursor-pointer rounded-md px-3 py-2.5 hover:bg-slate-50`}>
-      <span className="flex min-w-0 items-center gap-3">
+    <div className={`${ROW_GRID} rounded-md px-3 py-2.5 hover:bg-slate-50`}>
+      <label className="flex min-w-0 cursor-pointer items-center gap-3">
         <input
           type="checkbox"
           checked={workstream.enabled}
@@ -85,7 +118,13 @@ function WorkstreamRow({
         <span className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
           {t(workstream.label, locale)}
         </span>
-      </span>
+      </label>
+      <PhaseSelect
+        phase={workstream.phase}
+        enabled={workstream.enabled}
+        locale={locale}
+        onChange={(phase) => onChange({ ...workstream, phase })}
+      />
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
         <RateHint
@@ -96,7 +135,7 @@ function WorkstreamRow({
       </span>
       <HoursCell enabled={workstream.enabled} hours={hours} locale={locale} />
       <BudgetCell enabled={workstream.enabled} price={price} locale={locale} />
-    </label>
+    </div>
   );
 }
 
@@ -105,23 +144,27 @@ function ToggleRow({
   rate,
   defaultRate,
   enabled,
+  phase,
   hours,
   price,
   locale,
   onChange,
+  onChangePhase,
 }: {
   label: LocalizedString;
   rate: number;
   defaultRate: number;
   enabled: boolean;
+  phase: ProjectPhase | undefined;
   hours: number;
   price: number;
   locale: Locale;
   onChange: (enabled: boolean) => void;
+  onChangePhase: (phase: ProjectPhase) => void;
 }) {
   return (
-    <label className={`${ROW_GRID} cursor-pointer rounded-md px-3 py-2.5 hover:bg-slate-50`}>
-      <span className="flex min-w-0 items-center gap-3">
+    <div className={`${ROW_GRID} rounded-md px-3 py-2.5 hover:bg-slate-50`}>
+      <label className="flex min-w-0 cursor-pointer items-center gap-3">
         <input
           type="checkbox"
           checked={enabled}
@@ -131,14 +174,15 @@ function ToggleRow({
         <span className={`truncate text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>
           {t(label, locale)}
         </span>
-      </span>
+      </label>
+      <PhaseSelect phase={phase} enabled={enabled} locale={locale} onChange={onChangePhase} />
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{rate}/h</span>
         <RateHint rate={rate} defaultRate={defaultRate} locale={locale} />
       </span>
       <HoursCell enabled={enabled} hours={hours} locale={locale} />
       <BudgetCell enabled={enabled} price={price} locale={locale} />
-    </label>
+    </div>
   );
 }
 
@@ -258,7 +302,9 @@ export function CoverPage({
             hours={totals.elixirSync.hours}
             price={totals.elixirSync.price}
             locale={locale}
+            phase={data.elixirSyncIntegration.phase}
             onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
+            onChangePhase={(phase) => onChangeElixirSync({ ...data.elixirSyncIntegration, phase })}
           />
           <ToggleRow
             label={UI_STRINGS.editor.tabThirdParty}
@@ -268,7 +314,9 @@ export function CoverPage({
             hours={totals.thirdParty.hours}
             price={totals.thirdParty.price}
             locale={locale}
+            phase={data.thirdPartyIntegration.phase}
             onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
+            onChangePhase={(phase) => onChangeThirdParty({ ...data.thirdPartyIntegration, phase })}
           />
         </div>
       </GroupCard>
@@ -285,6 +333,7 @@ export function CoverPage({
 
       <div className={`${ROW_GRID} rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm`}>
         <span className="text-slate-500">{t(s.pmRateLabel, locale)}</span>
+        <span />
         <span className="flex items-center justify-end gap-2 text-xs">
           <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate, locale)}/h</span>
           <RateHint rate={data.pmRate} defaultRate={DEFAULT_HOURLY_RATES.pm} locale={locale} />

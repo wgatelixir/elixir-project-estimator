@@ -59,6 +59,8 @@ export const UI_STRINGS = {
   },
   coverPage: {
     columnWorkstream: { en: "Workstream", nl: "Workstream" },
+    columnPhase: { en: "Phase", nl: "Fase" },
+    phaseTitle: { en: "Delivery phase of this onderdeel", nl: "In welke fase dit onderdeel wordt opgeleverd" },
     columnRate: { en: "Rate", nl: "Tarief" },
     columnHours: { en: "Hours", nl: "Uren" },
     columnBudget: { en: "Budget", nl: "Budget" },
@@ -99,6 +101,7 @@ export const UI_STRINGS = {
     columnComplexity: { en: "Complexity", nl: "Complexiteit" },
     columnFinalEffort: { en: "Final effort", nl: "Uiteindelijke inspanning" },
     removeLine: { en: "Remove line", nl: "Regel verwijderen" },
+    dragToReorder: { en: "Drag to reorder", nl: "Sleep om te verplaatsen" },
     newLineTopicPlaceholder: { en: "New line topic…", nl: "Onderwerp nieuwe regel…" },
     whichComplexityTable: { en: "Which complexity table this line uses", nl: "Welke complexiteitstabel deze regel gebruikt" },
     sessionComplexityOption: { en: "Session complexity", nl: "Sessiecomplexiteit" },
@@ -206,6 +209,8 @@ export const UI_STRINGS = {
     capacityPacksSummary: { en: "Capacity packs & Agents packs (reference)", nl: "Capacity packs & Agents-packs (referentie)" },
   },
   proposalSummary: {
+    phase: { en: "Phase", nl: "Fase" },
+    phaseSubtotal: { en: "Subtotal phase", nl: "Subtotaal fase" },
     untitledClient: { en: "Untitled client", nl: "Naamloze klant" },
     generated: { en: "Generated", nl: "Gegenereerd op" },
     preparedBy: { en: "Prepared by", nl: "Opgesteld door" },
