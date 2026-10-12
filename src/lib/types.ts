@@ -37,9 +37,13 @@ export interface StandardLineItem {
   enabled: boolean;
 }
 
+/** Which delivery phase an onderdeel is planned in. Missing = phase 1 (estimations saved before phases existed). */
+export type ProjectPhase = 1 | 2 | 3;
+
 export interface StandardWorkstream {
   key: string;
   label: LocalizedString;
+  phase?: ProjectPhase;
   /** A disabled workstream contributes 0 hours/price and is collapsed in the UI. */
   enabled: boolean;
   hourlyRate: number;
@@ -62,6 +66,7 @@ export interface ThirdPartyLineItem {
 
 export interface ThirdPartyIntegrationState {
   enabled: boolean;
+  phase?: ProjectPhase;
   hourlyRate: number;
   items: ThirdPartyLineItem[];
   sessionComplexity: ComplexityTable;
@@ -88,6 +93,7 @@ export interface ElixirSyncStream {
 
 export interface ElixirSyncIntegrationState {
   enabled: boolean;
+  phase?: ProjectPhase;
   hourlyRate: number;
   streams: ElixirSyncStream[];
   subscriptionQty: number;

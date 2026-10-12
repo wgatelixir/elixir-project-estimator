@@ -7,8 +7,10 @@ integrations), with a shared dashboard so estimations live in one place
 instead of scattered spreadsheet copies.
 
 - **Estimator** (`/estimations/[id]`) &mdash; edit standard effort, complexity
-  factors, and per-line items for every workstream, live totals, PM % and
-  integration subscriptions.
+  factors, and per-line items for every workstream (drag a line by its handle
+  to reorder it), live totals, PM % and integration subscriptions. The Cover
+  page assigns each onderdeel to phase 1, 2 or 3; the Proposal Summary groups
+  its overview by phase, with subtotals, once more than one phase is used.
 - **Dashboard** (`/`) &mdash; every saved estimation with client, status,
   hours, price, and last edit. "Duplicate" freezes a copy as a snapshot you
   can pull numbers from for a proposal while the original stays editable.

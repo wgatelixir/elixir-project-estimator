@@ -12,6 +12,8 @@ const complexityTableEntrySchema = z.object({
 
 const complexityTableSchema = z.record(z.string(), complexityTableEntrySchema);
 
+const phaseSchema = z.union([z.literal(1), z.literal(2), z.literal(3)]).optional();
+
 const standardLineItemSchema = z.object({
   id: z.string(),
   activity: z.enum(["Session", "Session Prep", "Setup", "Risk Buffer", "Desk work"]),
@@ -27,6 +29,7 @@ const standardLineItemSchema = z.object({
 const standardWorkstreamSchema = z.object({
   key: z.string(),
   label: localizedStringSchema,
+  phase: phaseSchema,
   enabled: z.boolean(),
   hourlyRate: z.number().nonnegative(),
   items: z.array(standardLineItemSchema),
@@ -46,6 +49,7 @@ const thirdPartyLineItemSchema = z.object({
 
 const thirdPartyIntegrationSchema = z.object({
   enabled: z.boolean(),
+  phase: phaseSchema,
   hourlyRate: z.number().nonnegative(),
   items: z.array(thirdPartyLineItemSchema),
   sessionComplexity: complexityTableSchema,
@@ -71,6 +75,7 @@ const elixirSyncStreamSchema = z.object({
 
 const elixirSyncIntegrationSchema = z.object({
   enabled: z.boolean(),
+  phase: phaseSchema,
   hourlyRate: z.number().nonnegative(),
   streams: z.array(elixirSyncStreamSchema),
   subscriptionQty: z.number().nonnegative(),

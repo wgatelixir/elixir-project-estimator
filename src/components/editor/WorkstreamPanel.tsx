@@ -46,6 +46,9 @@ export function WorkstreamPanel({
   const [newTopic, setNewTopic] = useState("");
   const [newEffort, setNewEffort] = useState(4);
   const [newTable, setNewTable] = useState<"session" | "setup">("session");
+  // Drag-to-reorder: the row being dragged, and where it would land (above or below which row).
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | null>(null);
 
   function updateItem(id: string, patch: Partial<StandardLineItem>) {
     onChange({
@@ -56,6 +59,21 @@ export function WorkstreamPanel({
 
   function removeItem(id: string) {
     onChange({ ...workstream, items: workstream.items.filter((it) => it.id !== id) });
+  }
+
+  function moveItem(fromId: string, toId: string, after: boolean) {
+    if (fromId === toId) return;
+    const items = [...workstream.items];
+    const [moved] = items.splice(items.findIndex((it) => it.id === fromId), 1);
+    const target = items.findIndex((it) => it.id === toId);
+    if (!moved || target < 0) return;
+    items.splice(after ? target + 1 : target, 0, moved);
+    onChange({ ...workstream, items });
+  }
+
+  function endDrag() {
+    setDragId(null);
+    setDropTarget(null);
   }
 
   function addItem() {
@@ -72,7 +90,12 @@ export function WorkstreamPanel({
       comment: null,
       enabled: true,
     };
-    onChange({ ...workstream, items: [...workstream.items, item] });
+    // Land the new line at the end of its own activity group (e.g. after the last
+    // Session Prep line) rather than at the bottom of the table.
+    const items = [...workstream.items];
+    const lastOfGroup = items.map((it) => it.activity).lastIndexOf(newActivity);
+    items.splice(lastOfGroup >= 0 ? lastOfGroup + 1 : items.length, 0, item);
+    onChange({ ...workstream, items });
     setNewTopic("");
     setNewEffort(4);
   }
@@ -135,7 +158,7 @@ export function WorkstreamPanel({
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
-              <th className="w-8 px-3 py-2" />
+              <th className="w-14 px-3 py-2" />
               <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnTopic, locale)}</th>
               <th className="px-3 py-2 text-right font-medium" title={t(s.durationTitle, locale)}>
@@ -154,15 +177,52 @@ export function WorkstreamPanel({
               return (
                 <tr
                   key={item.id}
-                  className={`${activityStyle.rowBg} ${item.enabled ? "" : "opacity-40"}`}
+                  className={`${activityStyle.rowBg} ${item.enabled ? "" : "opacity-40"} ${dragId === item.id ? "opacity-30" : ""} ${
+                    dropTarget?.id === item.id && dragId !== item.id
+                      ? dropTarget.after
+                        ? "shadow-[inset_0_-2px_0_0_var(--color-brand-indigo)]"
+                        : "shadow-[inset_0_2px_0_0_var(--color-brand-indigo)]"
+                      : ""
+                  }`}
+                  onDragOver={(e) => {
+                    if (!dragId) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const after = e.clientY > rect.top + rect.height / 2;
+                    if (dropTarget?.id !== item.id || dropTarget.after !== after) setDropTarget({ id: item.id, after });
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (dragId && dropTarget) moveItem(dragId, dropTarget.id, dropTarget.after);
+                    endDrag();
+                  }}
                 >
                   <td className="px-3 py-2">
-                    <input
-                      type="checkbox"
-                      checked={item.enabled}
-                      onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
-                      className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      {/* Only the handle is draggable, so text in the row's inputs stays selectable. */}
+                      <span
+                        draggable
+                        onDragStart={(e) => {
+                          setDragId(item.id);
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", item.id);
+                          const row = e.currentTarget.closest("tr");
+                          if (row) e.dataTransfer.setDragImage(row, 16, 16);
+                        }}
+                        onDragEnd={endDrag}
+                        title={t(s.dragToReorder, locale)}
+                        className="cursor-grab select-none px-0.5 text-base leading-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+                      >
+                        &#x2807;
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={item.enabled}
+                        onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
+                        className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
+                      />
+                    </div>
                   </td>
                   <td className="px-3 py-2">
                     <span
