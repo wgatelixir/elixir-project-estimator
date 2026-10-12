@@ -51,6 +51,14 @@ The V3 workbook dropped the separate HubSpot Deployment & Go-Live tab (its
 trainings and go-live now sit inside each hub implementation tab), so it's
 no longer in the template; estimations created before V3 keep it.
 
+Estimations created from the V2 template show a banner in the editor with an
+**Update to V3 template** button (`src/lib/upgradeTemplate.ts`). It is opt-in
+per estimation and only changes the unsaved editor state: it keeps rates,
+included workstreams, complexity choices, hand-edited topics/hours and the
+user's own lines, swaps the template lines for V3's, and shows the old and
+new total price before applying. Nothing is migrated in bulk, since saved
+estimations may already have been sent to a client.
+
 If you need numbers that reconcile with an Excel estimate line-for-line,
 they may be off by these amounts for the affected tabs.
 

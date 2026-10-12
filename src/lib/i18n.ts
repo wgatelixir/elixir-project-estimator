@@ -31,6 +31,32 @@ export const UI_STRINGS = {
     tabElixirSync: { en: "ElixirSync Integration", nl: "ElixirSync Integration" },
     downloadPdf: { en: "🖨️ Download PDF", nl: "🖨️ PDF downloaden" },
   },
+  templateUpgrade: {
+    bannerTitle: { en: "Created with the old estimation template (V2)", nl: "Gemaakt met het oude estimation-template (V2)" },
+    bannerBody: {
+      en: "The V3 template adds session prep, risk buffers and the trainings and go-live inside each hub tab. Updating keeps your rates, included workstreams, complexity choices, edited hours and your own lines.",
+      nl: "Het V3-template voegt sessievoorbereiding, risicobuffers en de trainingen en go-live per hub-tabblad toe. Bijwerken behoudt je tarieven, aangevinkte workstreams, complexiteitskeuzes, aangepaste uren en je eigen regels.",
+    },
+    button: { en: "Update to V3 template", nl: "Bijwerken naar V3-template" },
+    confirmIntro: {
+      en: "Update this estimation to the V3 template?",
+      nl: "Deze estimation bijwerken naar het V3-template?",
+    },
+    confirmTotals: { en: "Total price", nl: "Totaalprijs" },
+    confirmFinal: {
+      en: "This estimation is marked Final, so it may already have been sent. Consider using Duplicate on the dashboard first and updating the copy.",
+      nl: "Deze estimation staat op Final en is mogelijk al verstuurd. Overweeg eerst Duplicate op het dashboard en werk de kopie bij.",
+    },
+    confirmUndo: {
+      en: "Nothing is saved until you click Save; reload the page to undo.",
+      nl: "Er wordt niets opgeslagen tot je op Opslaan klikt; herlaad de pagina om het ongedaan te maken.",
+    },
+    doneTitle: { en: "Updated to the V3 template - not saved yet", nl: "Bijgewerkt naar het V3-template - nog niet opgeslagen" },
+    doneBody: {
+      en: "Review the workstreams, then click Save. Reload the page to undo.",
+      nl: "Controleer de workstreams en klik daarna op Opslaan. Herlaad de pagina om het ongedaan te maken.",
+    },
+  },
   coverPage: {
     columnWorkstream: { en: "Workstream", nl: "Workstream" },
     columnRate: { en: "Rate", nl: "Tarief" },
