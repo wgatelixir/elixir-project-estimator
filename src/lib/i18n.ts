@@ -111,7 +111,7 @@ export const UI_STRINGS = {
     budget: { en: "Budget", nl: "Budget" },
     complexityTablesAdvanced: { en: "Complexity tables (advanced)", nl: "Complexiteitstabellen (geavanceerd)" },
     activitySession: { en: "Session", nl: "Sessie" },
-    activitySessionPrep: { en: "Session Prep", nl: "Sessievoorbereiding" },
+    activitySessionPrep: { en: "Session Prep", nl: "Voorbereiding" },
     activitySetup: { en: "Setup", nl: "Setup" },
     activityRiskBuffer: { en: "Risk Buffer", nl: "Risicobuffer" },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
@@ -155,6 +155,7 @@ export const UI_STRINGS = {
     activityLabel: { en: "Activity:", nl: "Activiteit:" },
   },
   summarySidebar: {
+    inclPm: { en: "(incl. PM)", nl: "(incl. PM)" },
     summary: { en: "Summary", nl: "Samenvatting" },
     billableEffort: { en: "Billable effort", nl: "Factureerbare inspanning" },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },

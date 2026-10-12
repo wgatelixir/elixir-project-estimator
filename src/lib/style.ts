@@ -141,7 +141,7 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     badge: "bg-sky-100 text-sky-700",
     dot: "bg-sky-400",
     rowBg: "bg-sky-50",
-    label: { en: "Session Prep", nl: "Sessievoorbereiding" },
+    label: { en: "Session Prep", nl: "Voorbereiding" },
   },
   setup: {
     badge: "bg-slate-200 text-slate-700",

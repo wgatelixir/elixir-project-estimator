@@ -9,8 +9,9 @@ instead of scattered spreadsheet copies.
 - **Estimator** (`/estimations/[id]`) &mdash; edit standard effort, complexity
   factors, and per-line items for every workstream (drag a line by its handle
   to reorder it), live totals, PM % and integration subscriptions. The Cover
-  page assigns each onderdeel to phase 1, 2 or 3; the Proposal Summary groups
-  its overview by phase, with subtotals, once more than one phase is used.
+  page assigns each onderdeel to phase 1, 2 or 3; once more than one phase is
+  used, the sidebar summary and the Proposal Summary overview group by phase
+  with subtotals, and every onderdeel page shows its phase.
 - **Dashboard** (`/`) &mdash; every saved estimation with client, status,
   hours, price, and last edit. "Duplicate" freezes a copy as a snapshot you
   can pull numbers from for a proposal while the original stays editable.
