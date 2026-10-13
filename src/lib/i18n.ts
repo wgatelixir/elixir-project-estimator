@@ -102,6 +102,17 @@ export const UI_STRINGS = {
     columnFinalEffort: { en: "Final effort", nl: "Uiteindelijke inspanning" },
     removeLine: { en: "Remove line", nl: "Regel verwijderen" },
     dragToReorder: { en: "Drag to reorder", nl: "Sleep om te verplaatsen" },
+    linkedTo: { en: "Linked to", nl: "Gekoppeld aan" },
+    notLinked: { en: "Not linked to a session", nl: "Niet gekoppeld aan een sessie" },
+    linkTitle: {
+      en: "Switching the linked session on or off switches this line with it. You can still switch this line on its own.",
+      nl: "Zet je de gekoppelde sessie aan of uit, dan gaat deze regel mee. Je kunt deze regel daarna nog los aan- of uitzetten.",
+    },
+    linkedCount: { en: "linked line(s) follow this session on/off", nl: "gekoppelde regel(s) gaan mee aan/uit" },
+    linkedSessionTitle: {
+      en: "Switching this session on or off also switches its linked prep lines.",
+      nl: "Zet je deze sessie aan of uit, dan gaan de gekoppelde voorbereidingen mee.",
+    },
     newLineTopicPlaceholder: { en: "New line topic…", nl: "Onderwerp nieuwe regel…" },
     whichComplexityTable: { en: "Which complexity table this line uses", nl: "Welke complexiteitstabel deze regel gebruikt" },
     sessionComplexityOption: { en: "Session complexity", nl: "Sessiecomplexiteit" },

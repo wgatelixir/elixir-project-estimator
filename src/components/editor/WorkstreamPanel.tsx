@@ -14,6 +14,7 @@ import {
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
+import { removeLine, setLineEnabled } from "@/lib/lineLinks";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
@@ -25,6 +26,52 @@ function slugId(prefix: string) {
 function complexityOptionsFor(item: StandardLineItem, ws: StandardWorkstream): string[] {
   const table = item.complexityTable === "session" ? ws.sessionComplexity : ws.setupComplexity;
   return Object.keys(table);
+}
+
+/**
+ * Session rows show how many lines follow them on/off; prep rows (and any other
+ * linked row) get a compact picker to change or remove their session link.
+ */
+function LineLink({
+  item,
+  workstream,
+  locale,
+  onChange,
+}: {
+  item: StandardLineItem;
+  workstream: StandardWorkstream;
+  locale: Locale;
+  onChange: (linkedTo: string | null) => void;
+}) {
+  const s = UI_STRINGS.workstreamPanel;
+  if (item.activity === "Session") {
+    const count = workstream.items.filter((it) => it.linkedTo === item.id).length;
+    if (count === 0) return null;
+    return (
+      <p className="mt-0.5 text-[11px] text-sky-700" title={t(s.linkedSessionTitle, locale)}>
+        &#128279; {count} {t(s.linkedCount, locale)}
+      </p>
+    );
+  }
+  if (item.activity !== "Session Prep" && !item.linkedTo) return null;
+  const sessions = workstream.items.filter((it) => it.activity === "Session");
+  return (
+    <label className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-500" title={t(s.linkTitle, locale)}>
+      <span aria-hidden>&#128279;</span>
+      <select
+        value={item.linkedTo ?? ""}
+        onChange={(e) => onChange(e.target.value || null)}
+        className={`max-w-[340px] truncate rounded border border-transparent bg-transparent py-0 pl-0.5 pr-5 text-[11px] hover:border-slate-200 focus:border-brand-indigo focus:outline-none ${item.linkedTo ? "text-sky-700" : "text-slate-400"}`}
+      >
+        <option value="">{t(s.notLinked, locale)}</option>
+        {sessions.map((session) => (
+          <option key={session.id} value={session.id}>
+            {t(s.linkedTo, locale)} {session.topic[locale]}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }
 
 export function WorkstreamPanel({
@@ -58,7 +105,7 @@ export function WorkstreamPanel({
   }
 
   function removeItem(id: string) {
-    onChange({ ...workstream, items: workstream.items.filter((it) => it.id !== id) });
+    onChange(removeLine(workstream, id));
   }
 
   function moveItem(fromId: string, toId: string, after: boolean) {
@@ -79,6 +126,13 @@ export function WorkstreamPanel({
   function addItem() {
     if (!newTopic.trim()) return;
     const topicText = newTopic.trim();
+    // A new prep line links itself to the session with the same topic, if there is one.
+    const sameTopicSession =
+      newActivity === "Session Prep"
+        ? workstream.items.find(
+            (it) => it.activity === "Session" && it.topic[locale].trim().toLowerCase() === topicText.toLowerCase()
+          )
+        : undefined;
     const item: StandardLineItem = {
       id: slugId(workstream.key),
       activity: newActivity,
@@ -87,6 +141,7 @@ export function WorkstreamPanel({
       standardEffort: newEffort,
       complexityTable: newTable,
       complexity: "Standard" in workstream.sessionComplexity ? "Standard" : Object.keys(workstream.sessionComplexity)[0],
+      linkedTo: sameTopicSession?.id ?? null,
       comment: null,
       enabled: true,
     };
@@ -219,7 +274,7 @@ export function WorkstreamPanel({
                       <input
                         type="checkbox"
                         checked={item.enabled}
-                        onChange={(e) => updateItem(item.id, { enabled: e.target.checked })}
+                        onChange={(e) => onChange(setLineEnabled(workstream, item.id, e.target.checked))}
                         className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
                       />
                     </div>
@@ -238,6 +293,7 @@ export function WorkstreamPanel({
                       className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                     <LineItemNote comment={item.comment} locale={locale} />
+                    <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input
