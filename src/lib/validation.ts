@@ -22,6 +22,7 @@ const standardLineItemSchema = z.object({
   standardEffort: z.number(),
   complexityTable: z.enum(["session", "setup"]),
   complexity: z.string(),
+  linkedTo: z.string().nullable().optional(),
   comment: localizedStringSchema.nullable().optional(),
   enabled: z.boolean(),
 });

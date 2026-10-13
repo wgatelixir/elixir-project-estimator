@@ -86,6 +86,12 @@ integration flow", Data Migration "Best Practices & Customer Input", and
 Marketing "Key User Training" / "Admin User Training". Hours are unchanged
 (both use the setup complexity table).
 
+Each Session Prep line is **linked** (`linkedTo`) to the Session it prepares,
+matched on topic. Switching a session off or on switches its linked prep
+lines with it, and a prep line can still be switched on its own afterwards.
+Marketing "Key User Training" / "Admin User Training" prep stay unlinked,
+because V3's Marketing tab has no matching training sessions.
+
 ## Uni-dimensional vs. multi-dimensional projects
 
 A **dimension** = one HubSpot hub in scope (Sales, Service, Marketing, CMS,

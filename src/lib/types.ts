@@ -32,6 +32,13 @@ export interface StandardLineItem {
   complexityTable: "session" | "setup";
   /** Key into that table (e.g. "Standard", "High"). */
   complexity: string;
+  /**
+   * The Session line this line belongs to (e.g. a Session Prep line's session).
+   * Switching that session on/off switches this line with it; this line can still be
+   * toggled on its own afterwards. `null` = deliberately unlinked; missing = take the
+   * template's link (estimations saved before links existed).
+   */
+  linkedTo?: string | null;
   comment?: LocalizedString | null;
   /** Unchecked lines are kept (for re-enabling) but excluded from totals. */
   enabled: boolean;

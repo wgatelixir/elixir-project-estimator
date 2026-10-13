@@ -17,6 +17,7 @@ import { formatCurrency } from "@/lib/format";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
+import { backfillTemplateLinks } from "@/lib/lineLinks";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
@@ -41,7 +42,7 @@ const PROPOSAL_TAB_ID = "proposal_summary";
 // / "English" anyway.
 function normalizeEstimationState(data: EstimationState): EstimationState {
   return {
-    ...migrateLegacyLocaleFields(data),
+    ...backfillTemplateLinks(migrateLegacyLocaleFields(data)),
     hubspotLicense: data.hubspotLicense ?? createDefaultHubSpotLicenseState(),
     locale: data.locale ?? "en",
   };
