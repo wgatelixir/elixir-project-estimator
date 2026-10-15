@@ -7,7 +7,9 @@
  * the "elixir" wordmark (indigo type, crimson dot).
  */
 :root {
-  --background: #eff3f3;
+  /* App canvas behind the white cards: a few shades darker than the brand mist
+     (same cool hue) so cards read as distinct surfaces instead of blending in. */
+  --background: #dde4ea;
   --foreground: #1f1f1f;
 
   --color-brand-indigo: #130078;
@@ -16,6 +18,7 @@
   --color-brand-crimson-hover: #c20033;
   --color-brand-ink: #1f1f1f;
   --color-brand-mist: #eff3f3;
+  --color-canvas: var(--background);
 }
 
 @theme inline {
@@ -27,6 +30,9 @@
   --color-brand-crimson-hover: var(--color-brand-crimson-hover);
   --color-brand-ink: var(--color-brand-ink);
   --color-brand-mist: var(--color-brand-mist);
+  --color-canvas: var(--color-canvas);
+  /* Card elevation: a hairline plus a soft, slightly wider shadow. */
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 6px rgb(15 23 42 / 0.07);
   --font-sans: var(--font-poppins);
 }
 

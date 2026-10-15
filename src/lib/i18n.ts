@@ -21,6 +21,7 @@ export const UI_STRINGS = {
     saved: { en: "Saved", nl: "Opgeslagen" },
     saving: { en: "Saving…", nl: "Opslaan…" },
     save: { en: "Save", nl: "Opslaan" },
+    saveShortcut: { en: "Save (Ctrl/⌘+S)", nl: "Opslaan (Ctrl/⌘+S)" },
     backToDashboard: { en: "← Back to dashboard", nl: "← Terug naar dashboard" },
     language: { en: "Language", nl: "Taal" },
   },
@@ -108,7 +109,7 @@ export const UI_STRINGS = {
       en: "Switching the linked session on or off switches this line with it. You can still switch this line on its own.",
       nl: "Zet je de gekoppelde sessie aan of uit, dan gaat deze regel mee. Je kunt deze regel daarna nog los aan- of uitzetten.",
     },
-    linkedCount: { en: "linked line(s) follow this session on/off", nl: "gekoppelde regel(s) gaan mee aan/uit" },
+    linkedCount: { en: "linked", nl: "gekoppeld" },
     linkedSessionTitle: {
       en: "Switching this session on or off also switches its linked prep lines.",
       nl: "Zet je deze sessie aan of uit, dan gaan de gekoppelde voorbereidingen mee.",
