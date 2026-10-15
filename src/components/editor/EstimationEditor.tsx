@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
   ElixirSyncIntegrationState,
@@ -13,7 +13,7 @@ import type {
   ThirdPartyIntegrationState,
 } from "@/lib/types";
 import { computeEstimationTotals } from "@/lib/calculations";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatHours } from "@/lib/format";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
@@ -87,12 +87,30 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
       ...(data.hubspotLicense.enabled
         ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) }]
         : []),
-      ...data.standardWorkstreams.filter((ws) => ws.enabled).map((ws) => ({ id: ws.key, label: t(ws.label, locale) })),
+      ...data.standardWorkstreams
+        .filter((ws) => ws.enabled)
+        .map((ws) => ({
+          id: ws.key,
+          label: t(ws.label, locale),
+          hint: formatHours(totals.workstreams.find((w) => w.key === ws.key)?.hours ?? 0, locale),
+        })),
       ...(data.thirdPartyIntegration.enabled
-        ? [{ id: "third_party_integration", label: t(UI_STRINGS.editor.tabThirdParty, locale) }]
+        ? [
+            {
+              id: "third_party_integration",
+              label: t(UI_STRINGS.editor.tabThirdParty, locale),
+              hint: formatHours(totals.thirdParty.hours, locale),
+            },
+          ]
         : []),
       ...(data.elixirSyncIntegration.enabled
-        ? [{ id: "elixirsync_integration", label: t(UI_STRINGS.editor.tabElixirSync, locale) }]
+        ? [
+            {
+              id: "elixirsync_integration",
+              label: t(UI_STRINGS.editor.tabElixirSync, locale),
+              hint: formatHours(totals.elixirSync.hours, locale),
+            },
+          ]
         : []),
     ],
     [
@@ -100,6 +118,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
       data.thirdPartyIntegration.enabled,
       data.elixirSyncIntegration.enabled,
       data.hubspotLicense.enabled,
+      totals,
       locale,
     ]
   );
@@ -197,6 +216,31 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
     }
   }
 
+  // Ctrl/Cmd+S saves (instead of the browser's "save page"), and leaving the page
+  // with unsaved changes asks first. The ref keeps the key handler on the latest save.
+  const saveRef = useRef(handleSave);
+  useEffect(() => {
+    saveRef.current = handleSave;
+  });
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveRef.current();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+  useEffect(() => {
+    if (!dirty) return;
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault();
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
   const activeWorkstream = data.standardWorkstreams.find((ws) => ws.key === activeTab);
 
   // Drives the "Complexity guide" block in the sticky sidebar, so it stays
@@ -276,7 +320,24 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
-            <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
+            {/* Stays in view while scrolling a long workstream, with Save at hand when there's something to save. */}
+            <div className="sticky top-0 z-20 -mx-2 bg-canvas/95 px-2 pt-2 backdrop-blur print:hidden">
+              <div className="flex items-end gap-3">
+                <div className="min-w-0 flex-1">
+                  <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
+                </div>
+                {dirty && (
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    title={t(UI_STRINGS.topBar.saveShortcut, locale)}
+                    className="mb-1.5 flex-shrink-0 rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-indigo-hover disabled:opacity-60"
+                  >
+                    {saving ? t(UI_STRINGS.topBar.saving, locale) : t(UI_STRINGS.topBar.save, locale)}
+                  </button>
+                )}
+              </div>
+            </div>
             <div className="mt-4">
               {activeTab === COVER_TAB_ID && (
                 <CoverPage

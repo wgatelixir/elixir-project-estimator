@@ -171,15 +171,18 @@ export function WorkstreamPanel({
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-brand-ink">
-          <input
-            type="checkbox"
-            checked={workstream.enabled}
-            onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
-          />
-          {t(s.includeWorkstream, locale)}
-        </label>
+        <div className="min-w-0">
+          <h2 className="truncate text-base font-semibold text-brand-ink">{t(workstream.label, locale)}</h2>
+          <label className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
+            <input
+              type="checkbox"
+              checked={workstream.enabled}
+              onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
+              className="h-3.5 w-3.5 rounded border-slate-300 accent-brand-indigo"
+            />
+            {t(s.includeWorkstream, locale)}
+          </label>
+        </div>
         <div className="flex items-center gap-4 text-sm text-slate-500">
           <label className="flex items-center gap-1.5">
             {t(s.hourlyRate, locale)}
