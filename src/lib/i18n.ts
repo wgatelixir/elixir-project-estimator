@@ -176,6 +176,13 @@ export const UI_STRINGS = {
     totalEffort: { en: "Total effort", nl: "Totale inspanning" },
     grandTotal: { en: "Grand total", nl: "Totaalbedrag" },
     viewProposalSummary: { en: "📄 View Proposal Summary", nl: "📄 Bekijk Proposal Summary" },
+    exportLabel: { en: "Export", nl: "Exporteren" },
+    exportExcel: { en: "⬇ Excel", nl: "⬇ Excel" },
+    exportJson: { en: "⬇ JSON", nl: "⬇ JSON" },
+    exportTitle: {
+      en: "Download the included workstreams and lines with hours and rates, for import into other software. Exports what's on screen, including unsaved changes.",
+      nl: "Download de opgenomen workstreams en regels met uren en tarieven, om te importeren in andere software. Exporteert wat je op het scherm ziet, inclusief niet-opgeslagen wijzigingen.",
+    },
     complexityGuide: { en: "Complexity guide", nl: "Complexiteitsgids" },
   },
   rateHint: {

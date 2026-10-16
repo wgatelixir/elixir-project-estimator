@@ -65,6 +65,38 @@ estimations may already have been sent to a client.
 If you need numbers that reconcile with an Excel estimate line-for-line,
 they may be off by these amounts for the affected tabs.
 
+## Export (Excel / JSON)
+
+The editor sidebar has **Export ⬇ Excel** and **⬇ JSON** buttons, for importing an
+estimation into other software. Both are built from one model
+(`src/lib/export/model.ts`), so they always carry the same numbers. They export
+what's on screen (including unsaved changes) and only what's in scope: included
+workstreams and included lines.
+
+- **Names** (workstream, topic, description) are in the estimation's language.
+- **Keys** (`workstreamKey`, `lineId`), **activity values** (`Session`,
+  `Session Prep`, `Setup`, `Risk Buffer`, `Integration`, `Project management`)
+  and **column/field names** are stable English, so an import mapping keeps
+  working across languages.
+- **Project management** is one line per workstream, so the lines add up to
+  the total incl. PM.
+- **Amounts** are in EUR, rounded to cents.
+
+**Excel** (`.xlsx`, written by `src/lib/export/xlsx.ts`; no formulas, no merged
+cells, no totals rows in the data sheets):
+
+| Sheet | One row per | Columns |
+|---|---|---|
+| Workstreams | workstream / integration | key, name, phase, hours, hourly rate, price, PM hours, PM rate, PM price, total price (incl. PM) |
+| Lines | line item (+ one PM line per workstream) | workstream key, workstream, phase, line ID, activity, topic, description, duration (h), standard effort (h), complexity, complexity adjustment (h), final effort (h), hourly rate, price |
+| Summary | field | client, project, owner, status, estimation ID, language, currency, export time, PM % and rate, totals, subscriptions, grand total |
+
+**JSON** (`format: "elixir-estimation-export"`, `schemaVersion: 1`): the same
+data as one object, with fields `estimation`, `projectManagement`,
+`workstreams[]` (each with its `lines[]`), `subscriptions[]` and `totals`. The
+TypeScript interface `EstimationExport` in `src/lib/export/model.ts` is the
+schema. Bump `schemaVersion` on any breaking change.
+
 ## Local development
 
 Requires Node 20+ and a Postgres database.
