@@ -18,6 +18,8 @@ import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
 import { backfillTemplateLinks } from "@/lib/lineLinks";
+import { buildEstimationExport, exportFileBaseName } from "@/lib/export/model";
+import { estimationToJson, estimationToXlsx } from "@/lib/export/exportEstimation";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
@@ -179,6 +181,25 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
     }
     setJustUpgraded(true);
     markDirty();
+  }
+
+  // Exports what's on screen (incl. unsaved edits), not the last saved version.
+  function handleExport(format: "xlsx" | "json") {
+    const exportMeta = { id: initial.id, ...meta };
+    const model = buildEstimationExport(exportMeta, data);
+    const blob =
+      format === "xlsx"
+        ? new Blob([estimationToXlsx(model) as BlobPart], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          })
+        : new Blob([estimationToJson(model)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${exportFileBaseName(exportMeta)}.${format}`;
+    link.click();
+    // Released a moment later: revoking synchronously can cancel the download in Safari.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   function updateLocale(next: Locale) {
@@ -390,6 +411,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               pmPercent={data.pmPercent}
               onChangePm={updatePm}
               onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
+              onExport={handleExport}
               legend={sidebarLegend}
               locale={locale}
             />

@@ -21,6 +21,8 @@ interface SummarySidebarProps {
   pmPercent: number;
   onChangePm: (next: { pmRate?: number; pmPercent?: number }) => void;
   onOpenProposal: () => void;
+  /** Downloads the in-scope workstreams, lines, hours and rates for import into other software. */
+  onExport: (format: "xlsx" | "json") => void;
   /** Complexity guide for whichever tab is currently open, so it stays visible while scrolling a long workstream. Undefined on tabs with no complexity system (Cover, ElixirSync). */
   legend?: ActiveComplexityLegend;
   locale?: Locale;
@@ -32,6 +34,7 @@ export function SummarySidebar({
   pmPercent,
   onChangePm,
   onOpenProposal,
+  onExport,
   legend,
   locale = "en",
 }: SummarySidebarProps) {
@@ -146,6 +149,18 @@ export function SummarySidebar({
         >
           {t(s.viewProposalSummary, locale)}
         </button>
+        <div className="mt-2 flex items-center gap-2 text-xs text-slate-500" title={t(s.exportTitle, locale)}>
+          <span>{t(s.exportLabel, locale)}</span>
+          {(["xlsx", "json"] as const).map((format) => (
+            <button
+              key={format}
+              onClick={() => onExport(format)}
+              className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 font-medium text-slate-700 transition-colors hover:border-brand-indigo hover:text-brand-indigo"
+            >
+              {format === "xlsx" ? t(s.exportExcel, locale) : t(s.exportJson, locale)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {legend && (
