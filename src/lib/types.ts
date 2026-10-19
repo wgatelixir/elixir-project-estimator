@@ -61,6 +61,12 @@ export interface StandardLineItem {
 /** Which delivery phase an onderdeel is planned in. Missing = phase 1 (estimations saved before phases existed). */
 export type ProjectPhase = 1 | 2 | 3;
 
+/**
+ * Sales stage of an onderdeel: still being proposed (counts toward the forecast)
+ * or already won. Missing = "proposal" (estimations saved before stages existed).
+ */
+export type DealStage = "proposal" | "closed_won";
+
 export type CustomWorkstreamType = "support" | "change_requests" | "continuous_improvement" | "other";
 
 /** Present only on workstreams the user created on the Cover page (not from the template). */
@@ -78,6 +84,7 @@ export interface StandardWorkstream {
   key: string;
   label: LocalizedString;
   phase?: ProjectPhase;
+  stage?: DealStage;
   custom?: CustomWorkstreamSettings;
   /** A disabled workstream contributes 0 hours/price and is collapsed in the UI. */
   enabled: boolean;
@@ -102,6 +109,7 @@ export interface ThirdPartyLineItem {
 export interface ThirdPartyIntegrationState {
   enabled: boolean;
   phase?: ProjectPhase;
+  stage?: DealStage;
   hourlyRate: number;
   items: ThirdPartyLineItem[];
   sessionComplexity: ComplexityTable;
@@ -129,6 +137,7 @@ export interface ElixirSyncStream {
 export interface ElixirSyncIntegrationState {
   enabled: boolean;
   phase?: ProjectPhase;
+  stage?: DealStage;
   hourlyRate: number;
   streams: ElixirSyncStream[];
   subscriptionQty: number;
