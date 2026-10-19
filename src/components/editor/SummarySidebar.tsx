@@ -1,6 +1,6 @@
 "use client";
 
-import { groupByPhase, type EstimationTotals } from "@/lib/calculations";
+import { groupByPhase, totalsByStage, type EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import type { ComplexityBand } from "@/lib/style";
 import { PanelLegend } from "./Legend";
@@ -40,6 +40,7 @@ export function SummarySidebar({
 }: SummarySidebarProps) {
   const s = UI_STRINGS.summarySidebar;
   const { groups: phaseGroups, showPhases } = groupByPhase(totals);
+  const byStage = totalsByStage(totals);
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -140,6 +141,23 @@ export function SummarySidebar({
           <div className="text-xs font-semibold uppercase tracking-wide text-white/80">{t(s.grandTotal, locale)}</div>
           <div className="text-xl font-semibold tabular-nums">
             {formatCurrency(totals.grandTotalPrice, locale)}
+          </div>
+          {/* Split for the forecast: won work vs. work still in the proposal stage. */}
+          <div className="mt-2 space-y-0.5 border-t border-white/20 pt-2 text-xs" title={t(s.stageSplitTitle, locale)}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-white/80">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                {t(UI_STRINGS.coverPage.stageClosedWon, locale)}
+              </span>
+              <span className="tabular-nums">{formatCurrency(byStage.closed_won.price, locale)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-white/80">
+                <span className="h-2 w-2 rounded-full bg-white/60" />
+                {t(s.forecastProposal, locale)}
+              </span>
+              <span className="tabular-nums">{formatCurrency(byStage.proposal.price, locale)}</span>
+            </div>
           </div>
         </div>
 
