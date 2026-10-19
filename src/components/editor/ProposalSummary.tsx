@@ -13,6 +13,7 @@ import {
   COMPLEXITY_STYLES,
 } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
+import { CUSTOM_WORKSTREAM_TYPE_LABELS } from "@/lib/customWorkstreams";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 
@@ -178,19 +179,25 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   // Phase label in each onderdeel's page header - only once more than one phase is in use.
   const phasePrefix = (phase: ProjectPhase | undefined) => (showPhases ? `${t(s.phase, locale)} ${phase ?? 1} · ` : "");
 
+  const retainerText = (r: { months: number; monthlyPrice: number }) =>
+    `${formatCurrency(r.monthlyPrice, locale)}/${t(s.monthShort, locale)} × ${r.months} ${t(UI_STRINGS.workstreamPanel.months, locale)}`;
+
   const pages: { key: string; phase?: ProjectPhase; content: React.ReactNode }[] = [];
 
   enabledWorkstreams.forEach((ws) => {
     const items = ws.items.filter((item) => item.enabled);
-    const hours = items.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
     const wTotals = totals.workstreams.find((w) => w.key === ws.key)!;
+    const hours = wTotals.hours;
+    const retainer = wTotals.retainer;
+    const typePrefix = ws.custom ? `${t(CUSTOM_WORKSTREAM_TYPE_LABELS[ws.custom.type], locale)} · ` : "";
+    const retainerPrefix = retainer ? `${retainerText(retainer)} · ` : "";
     pages.push({
       key: ws.key,
       phase: ws.phase ?? 1,
       content: (
         <SectionCard
           title={t(ws.label, locale)}
-          subtitle={`${phasePrefix(ws.phase)}${formatHours(hours, locale)} · ${formatCurrency(hours * ws.hourlyRate, locale)}`}
+          subtitle={`${phasePrefix(ws.phase)}${typePrefix}${retainerPrefix}${formatHours(hours, locale)} · ${formatCurrency(wTotals.price, locale)}`}
         >
           <table className="w-full table-fixed text-left">
             <ColGroup widths={WORKSTREAM_COLS} />
@@ -200,7 +207,10 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
                 <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
                 <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
-                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnFinal, locale)}</th>
+                <th className="truncate px-3 py-1 text-right font-medium">
+                  {t(s.columnFinal, locale)}
+                  {retainer && ` / ${t(s.monthShort, locale)}`}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -234,9 +244,19 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               )}
             </tbody>
             <tfoot>
+              {retainer && (
+                <tr className="border-t border-slate-200 bg-slate-50 text-brand-ink">
+                  <td className="px-3 py-1" colSpan={4}>
+                    {t(UI_STRINGS.workstreamPanel.perMonth, locale)} &middot; {formatHours(retainer.monthlyHours, locale)}
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(retainer.monthlyPrice, locale)}</td>
+                </tr>
+              )}
               <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
                 <td className="px-3 py-1" colSpan={4}>
-                  {t(s.total, locale)}
+                  {retainer
+                    ? `${t(UI_STRINGS.workstreamPanel.totalOverMonths, locale)} ${retainer.months} ${t(UI_STRINGS.workstreamPanel.months, locale)}`
+                    : t(s.total, locale)}
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatHours(hours, locale)}</td>
               </tr>
@@ -457,7 +477,10 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 : []),
               ...group.rows.flatMap((w) => [
                 <tr key={w.key} className="print:break-inside-avoid">
-                  <td className="truncate px-3 py-1 text-brand-ink">{t(w.label, locale)}</td>
+                  <td className="truncate px-3 py-1 text-brand-ink">
+                    {t(w.label, locale)}
+                    {w.retainer && <span className="text-slate-400"> ({retainerText(w.retainer)})</span>}
+                  </td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours, locale)}</td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">
                     {formatCurrency(w.hourlyRate, locale)}

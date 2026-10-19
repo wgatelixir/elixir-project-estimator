@@ -143,6 +143,18 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
     markDirty();
   }
 
+  function addWorkstream(ws: StandardWorkstream) {
+    setData((prev) => ({ ...prev, standardWorkstreams: [...prev.standardWorkstreams, ws] }));
+    setActiveTab(ws.key);
+    markDirty();
+  }
+
+  function removeWorkstream(key: string) {
+    setData((prev) => ({ ...prev, standardWorkstreams: prev.standardWorkstreams.filter((ws) => ws.key !== key) }));
+    if (activeTab === key) setActiveTab(COVER_TAB_ID);
+    markDirty();
+  }
+
   function updateThirdParty(next: ThirdPartyIntegrationState) {
     setData((prev) => ({ ...prev, thirdPartyIntegration: next }));
     markDirty();
@@ -364,6 +376,8 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                 <CoverPage
                   data={data}
                   onChangeWorkstream={updateWorkstream}
+                  onAddWorkstream={addWorkstream}
+                  onRemoveWorkstream={removeWorkstream}
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}
                   onChangeHubSpotLicense={updateHubSpotLicense}

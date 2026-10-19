@@ -31,6 +31,12 @@ const standardWorkstreamSchema = z.object({
   key: z.string(),
   label: localizedStringSchema,
   phase: phaseSchema,
+  custom: z
+    .object({
+      type: z.enum(["support", "change_requests", "continuous_improvement", "other"]),
+      retainerMonths: z.number().int().positive().max(120).nullable(),
+    })
+    .optional(),
   enabled: z.boolean(),
   hourlyRate: z.number().nonnegative(),
   items: z.array(standardLineItemSchema),

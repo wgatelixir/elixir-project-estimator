@@ -12,6 +12,15 @@ instead of scattered spreadsheet copies.
   page assigns each onderdeel to phase 1, 2 or 3; once more than one phase is
   used, the sidebar summary and the Proposal Summary overview group by phase
   with subtotals, and every onderdeel page shows its phase.
+- **Client-specific workstreams** &mdash; the Cover page's "Client-specific
+  workstreams" block adds workstreams for support, change requests,
+  continuous improvement or anything else. Each gets its own tab with line
+  items and is billed either one-off or as a **monthly retainer** for N
+  months. For a retainer, the line hours are per month, and the workstream's
+  hours and price are the monthly figures times the months. It's
+  `StandardWorkstream.custom` (`src/lib/customWorkstreams.ts`), so phases,
+  links, totals, the Proposal Summary and the export treat it like any other
+  workstream.
 - **Dashboard** (`/`) &mdash; every saved estimation with client, status,
   hours, price, and last edit. "Duplicate" freezes a copy as a snapshot you
   can pull numbers from for a proposal while the original stays editable.
@@ -81,14 +90,20 @@ workstreams and included lines.
 - **Project management** is one line per workstream, so the lines add up to
   the total incl. PM.
 - **Amounts** are in EUR, rounded to cents.
+- **Retainers:** `type` is set only for client-specific workstreams, and
+  `billing` is `one_off` or `retainer`. On retainer workstreams and lines,
+  `hours`/`price` (`finalEffortHours`/`price` per line) are the totals over
+  all months, and the per-month figures come alongside. That way every
+  sheet still adds up to the grand total, and an importer that ignores the
+  retainer fields still gets the right amounts.
 
 **Excel** (`.xlsx`, written by `src/lib/export/xlsx.ts`; no formulas, no merged
 cells, no totals rows in the data sheets):
 
 | Sheet | One row per | Columns |
 |---|---|---|
-| Workstreams | workstream / integration | key, name, phase, hours, hourly rate, price, PM hours, PM rate, PM price, total price (incl. PM) |
-| Lines | line item (+ one PM line per workstream) | workstream key, workstream, phase, line ID, activity, topic, description, duration (h), standard effort (h), complexity, complexity adjustment (h), final effort (h), hourly rate, price |
+| Workstreams | workstream / integration | key, name, phase, type, billing, months, hours per month, price per month, hours, hourly rate, price, PM hours, PM rate, PM price, total price (incl. PM) |
+| Lines | line item (+ one PM line per workstream) | workstream key, workstream, phase, line ID, activity, topic, description, duration (h), standard effort (h), complexity, complexity adjustment (h), months, hours per month, price per month, final effort (h), hourly rate, price |
 | Summary | field | client, project, owner, status, estimation ID, language, currency, export time, PM % and rate, totals, subscriptions, grand total |
 
 **JSON** (`format: "elixir-estimation-export"`, `schemaVersion: 1`): the same

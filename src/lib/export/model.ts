@@ -5,12 +5,13 @@
 // types and field names are stable, so an import mapping keeps working.
 
 import {
+  type WorkstreamTotals,
   computeEstimationTotals,
   elixirSyncStreamHours,
   lineItemFinalEffort,
   thirdPartyLineItemHours,
 } from "../calculations";
-import type { EstimationState, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
+import type { CustomWorkstreamType, EstimationState, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
 
 export const EXPORT_FORMAT = "elixir-estimation-export";
 export const EXPORT_SCHEMA_VERSION = 1;
@@ -27,19 +28,34 @@ export interface ExportLine {
   topic: string;
   description: string | null;
   durationHours: number | null;
-  /** Null where the line has no standard effort of its own (integrations, PM). */
+  /** Null where the line has no standard effort of its own (integrations, PM). Per month on retainer lines. */
   standardEffortHours: number | null;
   complexity: string | null;
+  /** Per month on retainer lines. */
   complexityAdjustmentHours: number | null;
+  /** Total over all months (retainer) - so lines always add up to the workstream total. */
   finalEffortHours: number;
   hourlyRate: number;
+  /** Total over all months (retainer). */
   price: number;
+  /** 1 for one-off work; the retainer length otherwise. */
+  months: number;
+  /** Retainer lines only, else null. */
+  hoursPerMonth: number | null;
+  pricePerMonth: number | null;
 }
 
 export interface ExportWorkstream {
   key: string;
   name: string;
   phase: ProjectPhase;
+  /** Set for client-specific workstreams created on the Cover page; null for template workstreams and integrations. */
+  type: CustomWorkstreamType | null;
+  billing: "one_off" | "retainer";
+  /** Retainer only, else null. hours/price below are the totals over all months. */
+  retainerMonths: number | null;
+  hoursPerMonth: number | null;
+  pricePerMonth: number | null;
   hours: number;
   hourlyRate: number;
   price: number;
@@ -112,7 +128,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
   const name = (l: LocalizedString) => l[locale] || l.en;
   const totals = computeEstimationTotals(data);
 
-  const pmLine = (key: string, workstream: string, phase: ProjectPhase, pmHours: number): ExportLine => ({
+  const pmLine = (key: string, workstream: string, phase: ProjectPhase, pmHours: number, months: number): ExportLine => ({
     workstreamKey: key,
     workstream,
     phase,
@@ -127,15 +143,24 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
     finalEffortHours: round(pmHours),
     hourlyRate: data.pmRate,
     price: round(pmHours * data.pmRate),
+    months,
+    hoursPerMonth: months > 1 ? round(pmHours / months) : null,
+    pricePerMonth: months > 1 ? round((pmHours / months) * data.pmRate) : null,
   });
 
   const workstream = (
-    w: { key: string; label: LocalizedString; phase: ProjectPhase; hours: number; hourlyRate: number; price: number; pmHours: number; pmPrice: number },
-    lines: ExportLine[]
+    w: WorkstreamTotals,
+    lines: ExportLine[],
+    type: CustomWorkstreamType | null = null
   ): ExportWorkstream => ({
     key: w.key,
     name: name(w.label),
     phase: w.phase,
+    type,
+    billing: w.retainer ? "retainer" : "one_off",
+    retainerMonths: w.retainer?.months ?? null,
+    hoursPerMonth: w.retainer ? round(w.retainer.monthlyHours) : null,
+    pricePerMonth: w.retainer ? round(w.retainer.monthlyPrice) : null,
     hours: round(w.hours),
     hourlyRate: w.hourlyRate,
     price: round(w.price),
@@ -143,7 +168,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
     pmRate: data.pmRate,
     pmPrice: round(w.pmPrice),
     totalPrice: round(w.price + w.pmPrice),
-    lines: [...lines, pmLine(w.key, name(w.label), w.phase, w.pmHours)],
+    lines: [...lines, pmLine(w.key, name(w.label), w.phase, w.pmHours, w.retainer?.months ?? 1)],
   });
 
   const workstreams: ExportWorkstream[] = [];
@@ -151,6 +176,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
   for (const ws of data.standardWorkstreams) {
     if (!ws.enabled) continue;
     const w = totals.workstreams.find((t) => t.key === ws.key)!;
+    const months = w.retainer?.months ?? 1;
     const lines = ws.items
       .filter((item) => item.enabled)
       .map((item): ExportLine => {
@@ -167,12 +193,15 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
           standardEffortHours: item.standardEffort,
           complexity: item.complexity,
           complexityAdjustmentHours: round(finalEffort - item.standardEffort),
-          finalEffortHours: round(finalEffort),
+          finalEffortHours: round(finalEffort * months),
           hourlyRate: ws.hourlyRate,
-          price: round(finalEffort * ws.hourlyRate),
+          price: round(finalEffort * months * ws.hourlyRate),
+          months,
+          hoursPerMonth: w.retainer ? round(finalEffort) : null,
+          pricePerMonth: w.retainer ? round(finalEffort * ws.hourlyRate) : null,
         };
       });
-    workstreams.push(workstream(w, lines));
+    workstreams.push(workstream(w, lines, ws.custom?.type ?? null));
   }
 
   const tp = data.thirdPartyIntegration;
@@ -197,6 +226,9 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
           finalEffortHours: round(hours),
           hourlyRate: tp.hourlyRate,
           price: round(hours * tp.hourlyRate),
+          months: 1,
+          hoursPerMonth: null,
+          pricePerMonth: null,
         };
       });
     workstreams.push(workstream(totals.thirdParty, lines));
@@ -223,6 +255,9 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
           finalEffortHours: round(hours),
           hourlyRate: es.hourlyRate,
           price: round(hours * es.hourlyRate),
+          months: 1,
+          hoursPerMonth: null,
+          pricePerMonth: null,
         };
       });
     workstreams.push(workstream(totals.elixirSync, lines));

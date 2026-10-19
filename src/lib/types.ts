@@ -47,10 +47,24 @@ export interface StandardLineItem {
 /** Which delivery phase an onderdeel is planned in. Missing = phase 1 (estimations saved before phases existed). */
 export type ProjectPhase = 1 | 2 | 3;
 
+export type CustomWorkstreamType = "support" | "change_requests" | "continuous_improvement" | "other";
+
+/** Present only on workstreams the user created on the Cover page (not from the template). */
+export interface CustomWorkstreamSettings {
+  type: CustomWorkstreamType;
+  /**
+   * null = one-off, priced like any other workstream. A number = a monthly
+   * retainer for that many months: the line hours are per month, and the
+   * workstream's hours and price are the monthly figures times the months.
+   */
+  retainerMonths: number | null;
+}
+
 export interface StandardWorkstream {
   key: string;
   label: LocalizedString;
   phase?: ProjectPhase;
+  custom?: CustomWorkstreamSettings;
   /** A disabled workstream contributes 0 hours/price and is collapsed in the UI. */
   enabled: boolean;
   hourlyRate: number;

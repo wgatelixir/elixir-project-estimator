@@ -47,6 +47,14 @@ export interface WorkstreamTotals {
   /** This onderdeel's own share of project management, at the estimation's pmPercent/pmRate. */
   pmHours: number;
   pmPrice: number;
+  /** Set for a monthly retainer: hours/price above are the totals over all months. */
+  retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
+}
+
+/** Months a workstream's line hours are multiplied by: the retainer length, or 1 for one-off work. */
+export function workstreamMonths(ws: Pick<StandardWorkstream, "custom">): number {
+  const months = ws.custom?.retainerMonths;
+  return months && months > 0 ? months : 1;
 }
 
 export function computeStandardWorkstreamTotals(
@@ -54,12 +62,14 @@ export function computeStandardWorkstreamTotals(
   pmPercent: number,
   pmRate: number
 ): WorkstreamTotals {
-  const hours = ws.enabled
+  const monthlyHours = ws.enabled
     ? ws.items.reduce(
         (sum, item) => (item.enabled ? sum + lineItemFinalEffort(item, ws) : sum),
         0
       )
     : 0;
+  const months = workstreamMonths(ws);
+  const hours = monthlyHours * months;
   const pmHours = hours * pmPercent;
   return {
     key: ws.key,
@@ -71,6 +81,9 @@ export function computeStandardWorkstreamTotals(
     price: hours * ws.hourlyRate,
     pmHours,
     pmPrice: pmHours * pmRate,
+    ...(ws.custom?.retainerMonths
+      ? { retainer: { months, monthlyHours, monthlyPrice: monthlyHours * ws.hourlyRate } }
+      : {}),
   };
 }
 
