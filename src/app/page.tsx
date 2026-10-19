@@ -48,7 +48,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-4 py-3 font-medium">Client / Project</th>
+              <th className="px-4 py-3 font-medium">Client</th>
+              <th className="px-4 py-3 font-medium">Project</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Owner</th>
               <th className="px-4 py-3 text-right font-medium">Hours</th>
@@ -60,7 +61,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <tbody className="divide-y divide-slate-100">
             {estimations.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
                   {q ? "No estimations match your search." : "No estimations yet — create the first one."}
                 </td>
               </tr>
@@ -74,8 +75,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   >
                     {e.clientName}
                   </a>
-                  {e.projectName && <div className="text-xs text-slate-500">{e.projectName}</div>}
                 </td>
+                <td className="px-4 py-3 text-slate-600">{e.projectName || "—"}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={e.status} />
                 </td>

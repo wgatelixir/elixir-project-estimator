@@ -100,6 +100,13 @@ export const UI_STRINGS = {
       nl: "HubSpot's eigen software-abonnementskosten - apart geprijsd, bijgehouden op een eigen tabblad, nooit onderdeel van de totalen hierboven.",
     },
     pmRateLabel: { en: "Project management rate", nl: "Projectmanagement-tarief" },
+    ratesTitle: { en: "Rates for this estimation", nl: "Tarieven voor deze estimation" },
+    ratesDescription: {
+      en: "Set once here. The service rate applies immediately to every workstream and integration still on the current service rate - anything already changed on its own tab is left alone.",
+      nl: "Eén keer hier instellen. Het servicetarief wordt direct toegepast op elke workstream en integratie die nog op het huidige servicetarief staat - wat al apart is aangepast op een eigen tabblad blijft ongewijzigd.",
+    },
+    pmRateInputLabel: { en: "Project management", nl: "Projectmanagement" },
+    serviceRateInputLabel: { en: "Other services", nl: "Overige diensten" },
     projectTotal: { en: "Project total", nl: "Projecttotaal" },
     totalEffort: { en: "total effort", nl: "totale inspanning" },
   },

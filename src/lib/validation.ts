@@ -126,6 +126,7 @@ export const estimationStateSchema = z.object({
   elixirSyncIntegration: elixirSyncIntegrationSchema,
   pmRate: z.number().nonnegative(),
   pmPercent: z.number().min(0).max(1),
+  serviceRate: z.number().nonnegative(),
   hubspotLicense: hubspotLicenseSchema,
 });
 

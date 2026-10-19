@@ -2722,6 +2722,8 @@ export const ELIXIRSYNC_INTEGRATION_TEMPLATE: ElixirSyncIntegrationState = {
 
 export const DEFAULT_PM_RATE = 150;
 export const DEFAULT_PM_PERCENT = 0.15;
+/** Starting point for the Cover page's bulk "Service rate" control - matches the hub implementation tier. */
+export const DEFAULT_SERVICE_RATE = 135;
 
 export function createDefaultEstimationState(): EstimationState {
   return {
@@ -2731,6 +2733,7 @@ export function createDefaultEstimationState(): EstimationState {
     elixirSyncIntegration: structuredClone(ELIXIRSYNC_INTEGRATION_TEMPLATE),
     pmRate: DEFAULT_PM_RATE,
     pmPercent: DEFAULT_PM_PERCENT,
+    serviceRate: DEFAULT_SERVICE_RATE,
     hubspotLicense: createDefaultHubSpotLicenseState(),
   };
 }

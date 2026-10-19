@@ -178,6 +178,15 @@ export interface EstimationState {
   elixirSyncIntegration: ElixirSyncIntegrationState;
   pmRate: number;
   pmPercent: number;
+  /**
+   * The Cover page's bulk-apply rate for implementation work: typing a new
+   * value here updates every standard workstream, Third Party Integration
+   * and ElixirSync Integration whose hourlyRate still equals the current
+   * serviceRate, so one field can reprice a whole estimation's "everything
+   * except PM" in one go. Onderdelen already set to a different (manually
+   * overridden) rate are left alone - still editable individually per tab.
+   */
+  serviceRate: number;
   hubspotLicense: HubSpotLicenseState;
 }
 

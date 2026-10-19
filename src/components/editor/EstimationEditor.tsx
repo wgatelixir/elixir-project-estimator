@@ -15,6 +15,7 @@ import type {
 import { computeEstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours } from "@/lib/format";
 import { createDefaultHubSpotLicenseState } from "@/lib/hubspotPricing";
+import { DEFAULT_SERVICE_RATE } from "@/lib/templates";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
 import { backfillTemplateLinks } from "@/lib/lineLinks";
@@ -47,6 +48,7 @@ function normalizeEstimationState(data: EstimationState): EstimationState {
     ...backfillTemplateLinks(migrateLegacyLocaleFields(data)),
     hubspotLicense: data.hubspotLicense ?? createDefaultHubSpotLicenseState(),
     locale: data.locale ?? "en",
+    serviceRate: data.serviceRate ?? DEFAULT_SERVICE_RATE,
   };
 }
 
@@ -167,6 +169,30 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   function updatePm(next: Partial<Pick<EstimationState, "pmRate" | "pmPercent">>) {
     setData((prev) => ({ ...prev, ...next }));
+    markDirty();
+  }
+
+  // Bulk-reprices every standard workstream, Third Party Integration and
+  // ElixirSync Integration still following the current serviceRate - an
+  // onderdeel whose hourlyRate was already changed away from it (a
+  // deliberate per-tab override) is left alone.
+  function applyServiceRate(nextRate: number) {
+    setData((prev) => {
+      const follows = (rate: number) => rate === prev.serviceRate;
+      return {
+        ...prev,
+        serviceRate: nextRate,
+        standardWorkstreams: prev.standardWorkstreams.map((ws) =>
+          follows(ws.hourlyRate) ? { ...ws, hourlyRate: nextRate } : ws
+        ),
+        thirdPartyIntegration: follows(prev.thirdPartyIntegration.hourlyRate)
+          ? { ...prev.thirdPartyIntegration, hourlyRate: nextRate }
+          : prev.thirdPartyIntegration,
+        elixirSyncIntegration: follows(prev.elixirSyncIntegration.hourlyRate)
+          ? { ...prev.elixirSyncIntegration, hourlyRate: nextRate }
+          : prev.elixirSyncIntegration,
+      };
+    });
     markDirty();
   }
 
@@ -381,6 +407,8 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}
                   onChangeHubSpotLicense={updateHubSpotLicense}
+                  onChangePm={updatePm}
+                  onApplyServiceRate={applyServiceRate}
                   locale={locale}
                 />
               )}
