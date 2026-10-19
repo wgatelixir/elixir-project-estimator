@@ -6,6 +6,7 @@ import type {
   HubSpotLicenseState,
   Locale,
   CustomWorkstreamType,
+  DealStage,
   LocalizedString,
   ProjectPhase,
   StandardWorkstream,
@@ -39,7 +40,7 @@ const HUB_KEYS = [
 
 // One fixed column template shared by the header and every row, so Rate/Hours/Budget
 // never drift out of alignment regardless of label length or whether a row has a result yet.
-const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_92px_190px_90px_120px] items-center gap-3";
+const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_92px_124px_190px_90px_120px] items-center gap-3";
 
 const PHASES: ProjectPhase[] = [1, 2, 3];
 
@@ -49,6 +50,7 @@ function ColumnHeader({ locale }: { locale: Locale }) {
     <div className={`${ROW_GRID} px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400`}>
       <span>{t(s.columnWorkstream, locale)}</span>
       <span>{t(s.columnPhase, locale)}</span>
+      <span>{t(s.columnStage, locale)}</span>
       <span className="text-right">{t(s.columnRate, locale)}</span>
       <span className="text-right">{t(s.columnHours, locale)}</span>
       <span className="text-right">{t(s.columnBudget, locale)}</span>
@@ -63,22 +65,58 @@ function PhaseSelect({
   locale,
   onChange,
 }: {
-  phase: ProjectPhase | undefined;
+  phase: ProjectPhase | null | undefined;
   enabled: boolean;
   locale: Locale;
-  onChange: (phase: ProjectPhase) => void;
+  onChange: (phase: ProjectPhase | null) => void;
 }) {
   const s = UI_STRINGS.coverPage;
   return (
     <select
-      value={phase ?? 1}
-      onChange={(e) => onChange(Number(e.target.value) as ProjectPhase)}
+      value={phase === null ? "na" : (phase ?? 1)}
+      onChange={(e) => onChange(e.target.value === "na" ? null : (Number(e.target.value) as ProjectPhase))}
       title={t(s.phaseTitle, locale)}
       className={`w-full rounded border border-slate-300 bg-white px-1.5 py-1 text-xs focus:border-brand-indigo focus:outline-none ${enabled ? "text-brand-ink" : "text-slate-400"}`}
     >
       {PHASES.map((p) => (
         <option key={p} value={p}>
           {t(s.columnPhase, locale)} {p}
+        </option>
+      ))}
+      <option value="na">{t(s.phaseNotApplicable, locale)}</option>
+    </select>
+  );
+}
+
+const STAGES: DealStage[] = ["proposal", "closed_won"];
+
+/** Sales stage per onderdeel, so the forecast can tell won work from work still being proposed. */
+function StageSelect({
+  stage,
+  enabled,
+  locale,
+  onChange,
+}: {
+  stage: DealStage | undefined;
+  enabled: boolean;
+  locale: Locale;
+  onChange: (stage: DealStage) => void;
+}) {
+  const s = UI_STRINGS.coverPage;
+  const value = stage ?? "proposal";
+  const won = value === "closed_won";
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as DealStage)}
+      title={t(s.stageTitle, locale)}
+      className={`w-full rounded border px-1.5 py-1 text-xs focus:border-brand-indigo focus:outline-none ${
+        won ? "border-emerald-300 bg-emerald-50 font-medium text-emerald-800" : "border-slate-300 bg-white"
+      } ${enabled ? "" : "opacity-50"}`}
+    >
+      {STAGES.map((option) => (
+        <option key={option} value={option}>
+          {t(option === "closed_won" ? s.stageClosedWon : s.stageProposal, locale)}
         </option>
       ))}
     </select>
@@ -152,6 +190,12 @@ function WorkstreamRow({
         locale={locale}
         onChange={(phase) => onChange({ ...workstream, phase })}
       />
+      <StageSelect
+        stage={workstream.stage}
+        enabled={workstream.enabled}
+        locale={locale}
+        onChange={(stage) => onChange({ ...workstream, stage })}
+      />
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{workstream.hourlyRate}/h</span>
         <RateHint
@@ -172,22 +216,26 @@ function ToggleRow({
   defaultRate,
   enabled,
   phase,
+  stage,
   hours,
   price,
   locale,
   onChange,
   onChangePhase,
+  onChangeStage,
 }: {
   label: LocalizedString;
   rate: number;
   defaultRate: number;
   enabled: boolean;
-  phase: ProjectPhase | undefined;
+  phase: ProjectPhase | null | undefined;
+  stage: DealStage | undefined;
   hours: number;
   price: number;
   locale: Locale;
   onChange: (enabled: boolean) => void;
-  onChangePhase: (phase: ProjectPhase) => void;
+  onChangePhase: (phase: ProjectPhase | null) => void;
+  onChangeStage: (stage: DealStage) => void;
 }) {
   return (
     <div className={`${ROW_GRID} rounded-md px-3 py-2.5 hover:bg-slate-50`}>
@@ -203,6 +251,7 @@ function ToggleRow({
         </span>
       </label>
       <PhaseSelect phase={phase} enabled={enabled} locale={locale} onChange={onChangePhase} />
+      <StageSelect stage={stage} enabled={enabled} locale={locale} onChange={onChangeStage} />
       <span className="flex items-center justify-end gap-2 text-xs">
         <span className="font-medium text-slate-600">&euro;{rate}/h</span>
         <RateHint rate={rate} defaultRate={defaultRate} locale={locale} />
@@ -581,6 +630,8 @@ export function CoverPage({
             phase={data.elixirSyncIntegration.phase}
             onChange={(enabled) => onChangeElixirSync({ ...data.elixirSyncIntegration, enabled })}
             onChangePhase={(phase) => onChangeElixirSync({ ...data.elixirSyncIntegration, phase })}
+            stage={data.elixirSyncIntegration.stage}
+            onChangeStage={(stage) => onChangeElixirSync({ ...data.elixirSyncIntegration, stage })}
           />
           <ToggleRow
             label={UI_STRINGS.editor.tabThirdParty}
@@ -593,6 +644,8 @@ export function CoverPage({
             phase={data.thirdPartyIntegration.phase}
             onChange={(enabled) => onChangeThirdParty({ ...data.thirdPartyIntegration, enabled })}
             onChangePhase={(phase) => onChangeThirdParty({ ...data.thirdPartyIntegration, phase })}
+            stage={data.thirdPartyIntegration.stage}
+            onChangeStage={(stage) => onChangeThirdParty({ ...data.thirdPartyIntegration, stage })}
           />
         </div>
       </GroupCard>
@@ -609,6 +662,7 @@ export function CoverPage({
 
       <div className={`${ROW_GRID} rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm`}>
         <span className="text-slate-500">{t(s.pmRateLabel, locale)}</span>
+        <span />
         <span />
         <span className="flex items-center justify-end gap-2 text-xs">
           <span className="font-medium text-brand-ink">{formatCurrency(data.pmRate, locale)}/h</span>

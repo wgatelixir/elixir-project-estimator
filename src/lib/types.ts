@@ -58,8 +58,18 @@ export interface StandardLineItem {
   enabled: boolean;
 }
 
-/** Which delivery phase an onderdeel is planned in. Missing = phase 1 (estimations saved before phases existed). */
+/**
+ * Which delivery phase an onderdeel is planned in. On the state, `null` means
+ * "not applicable" (no phase) and a missing value means phase 1 (estimations
+ * saved before phases existed).
+ */
 export type ProjectPhase = 1 | 2 | 3;
+
+/**
+ * Sales stage of an onderdeel: still being proposed (counts toward the forecast)
+ * or already won. Missing = "proposal" (estimations saved before stages existed).
+ */
+export type DealStage = "proposal" | "closed_won";
 
 export type CustomWorkstreamType = "support" | "change_requests" | "continuous_improvement" | "other";
 
@@ -77,7 +87,8 @@ export interface CustomWorkstreamSettings {
 export interface StandardWorkstream {
   key: string;
   label: LocalizedString;
-  phase?: ProjectPhase;
+  phase?: ProjectPhase | null;
+  stage?: DealStage;
   custom?: CustomWorkstreamSettings;
   /** A disabled workstream contributes 0 hours/price and is collapsed in the UI. */
   enabled: boolean;
@@ -101,7 +112,8 @@ export interface ThirdPartyLineItem {
 
 export interface ThirdPartyIntegrationState {
   enabled: boolean;
-  phase?: ProjectPhase;
+  phase?: ProjectPhase | null;
+  stage?: DealStage;
   hourlyRate: number;
   items: ThirdPartyLineItem[];
   sessionComplexity: ComplexityTable;
@@ -128,7 +140,8 @@ export interface ElixirSyncStream {
 
 export interface ElixirSyncIntegrationState {
   enabled: boolean;
-  phase?: ProjectPhase;
+  phase?: ProjectPhase | null;
+  stage?: DealStage;
   hourlyRate: number;
   streams: ElixirSyncStream[];
   subscriptionQty: number;

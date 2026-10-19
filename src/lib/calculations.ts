@@ -3,6 +3,7 @@ import type {
   ElixirSyncIntegrationState,
   ElixirSyncStream,
   EstimationState,
+  DealStage,
   LocalizedString,
   ProjectPhase,
   StandardLineItem,
@@ -49,11 +50,17 @@ export function lineItemPrice(
   return lineItemFinalEffort(item, workstream) * lineItemRate(item, workstream);
 }
 
+/** null = no phase ("n.v.t."); a missing value is phase 1 (saved before phases existed). */
+export function resolvePhase(phase: ProjectPhase | null | undefined): ProjectPhase | null {
+  return phase === undefined ? 1 : phase;
+}
+
 export interface WorkstreamTotals {
   key: string;
   label: LocalizedString;
   enabled: boolean;
-  phase: ProjectPhase;
+  phase: ProjectPhase | null;
+  stage: DealStage;
   hours: number;
   /** The workstream's rate - or, when lines carry their own rates, the effective (blended) rate: price / hours. */
   hourlyRate: number;
@@ -87,7 +94,8 @@ export function computeStandardWorkstreamTotals(
     key: ws.key,
     label: ws.label,
     enabled: ws.enabled,
-    phase: ws.phase ?? 1,
+    phase: resolvePhase(ws.phase),
+    stage: ws.stage ?? "proposal",
     hours,
     hourlyRate: hasLineRates && monthlyHours > 0 ? monthlyPrice / monthlyHours : ws.hourlyRate,
     price: monthlyPrice * months,
@@ -122,7 +130,8 @@ export function computeThirdPartyTotals(
     key: "third_party_integration",
     label: THIRD_PARTY_INTEGRATION_LABEL,
     enabled: state.enabled,
-    phase: state.phase ?? 1,
+    phase: resolvePhase(state.phase),
+    stage: state.stage ?? "proposal",
     hours,
     hourlyRate: state.hourlyRate,
     price: hours * state.hourlyRate,
@@ -161,7 +170,8 @@ export function computeElixirSyncTotals(
     key: "elixirsync_integration",
     label: ELIXIRSYNC_INTEGRATION_LABEL,
     enabled: state.enabled,
-    phase: state.phase ?? 1,
+    phase: resolvePhase(state.phase),
+    stage: state.stage ?? "proposal",
     hours,
     hourlyRate: state.hourlyRate,
     price: hours * state.hourlyRate,
@@ -257,7 +267,7 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
 }
 
 export interface PhaseGroup {
-  phase: ProjectPhase;
+  phase: ProjectPhase | null;
   rows: WorkstreamTotals[];
   /** Implementation + PM, the same basis as the per-onderdeel Total (incl. PM) rows. */
   hours: number;
@@ -276,7 +286,8 @@ export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; 
     ...(totals.thirdParty.enabled ? [totals.thirdParty] : []),
     ...(totals.elixirSync.enabled ? [totals.elixirSync] : []),
   ];
-  const groups = ([1, 2, 3] as const)
+  // Onderdelen without a phase ("n.v.t.") come last, as their own group.
+  const groups = ([1, 2, 3, null] as const)
     .map((phase) => {
       const rows = onderdelen.filter((w) => w.phase === phase);
       return {
@@ -288,4 +299,32 @@ export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; 
     })
     .filter((group) => group.rows.length > 0);
   return { groups, showPhases: groups.length > 1 };
+}
+
+export interface StageTotals {
+  hours: number;
+  /** Implementation + PM + the subscriptions of integrations in this stage. */
+  price: number;
+}
+
+/**
+ * Splits the grand total by sales stage, for the forecast: what's already won
+ * and what is still proposed. Every included onderdeel counts with its PM; an
+ * integration's subscription follows that integration's stage. The two prices
+ * always add up to grandTotalPrice.
+ */
+export function totalsByStage(totals: EstimationTotals): Record<DealStage, StageTotals> {
+  const result: Record<DealStage, StageTotals> = {
+    proposal: { hours: 0, price: 0 },
+    closed_won: { hours: 0, price: 0 },
+  };
+  const onderdelen = [...totals.workstreams, totals.thirdParty, totals.elixirSync].filter((w) => w.enabled);
+  for (const w of onderdelen) {
+    result[w.stage].hours += w.hours + w.pmHours;
+    result[w.stage].price += w.price + w.pmPrice;
+  }
+  const [elixirSyncSubscription, thirdPartySubscription] = totals.subscriptions;
+  result[totals.elixirSync.stage].price += elixirSyncSubscription?.price ?? 0;
+  result[totals.thirdParty.stage].price += thirdPartySubscription?.price ?? 0;
+  return result;
 }

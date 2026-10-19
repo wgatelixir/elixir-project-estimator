@@ -64,6 +64,14 @@ export const UI_STRINGS = {
   coverPage: {
     columnWorkstream: { en: "Workstream", nl: "Workstream" },
     columnPhase: { en: "Phase", nl: "Fase" },
+    columnStage: { en: "Stage", nl: "Stage" },
+    phaseNotApplicable: { en: "N/A", nl: "N.v.t." },
+    stageProposal: { en: "Proposal", nl: "Proposal" },
+    stageClosedWon: { en: "Closed won", nl: "Closed won" },
+    stageTitle: {
+      en: "Sales stage: Proposal counts toward the forecast, Closed won is already won.",
+      nl: "Salesstage: Proposal telt mee in de forecast, Closed won is al gewonnen.",
+    },
     phaseTitle: { en: "Delivery phase of this onderdeel", nl: "In welke fase dit onderdeel wordt opgeleverd" },
     columnRate: { en: "Rate", nl: "Tarief" },
     columnHours: { en: "Hours", nl: "Uren" },
@@ -219,6 +227,11 @@ export const UI_STRINGS = {
     grandTotal: { en: "Grand total", nl: "Totaalbedrag" },
     viewProposalSummary: { en: "📄 View Proposal Summary", nl: "📄 Bekijk Proposal Summary" },
     exportLabel: { en: "Export", nl: "Exporteren" },
+    forecastProposal: { en: "Forecast (proposal)", nl: "Forecast (proposal)" },
+    stageSplitTitle: {
+      en: "Grand total split by the Stage set per onderdeel on the Cover page (incl. PM and subscriptions).",
+      nl: "Totaalbedrag gesplitst op de Stage per onderdeel op het Voorblad (incl. PM en abonnementen).",
+    },
     exportExcel: { en: "⬇ Excel", nl: "⬇ Excel" },
     exportJson: { en: "⬇ JSON", nl: "⬇ JSON" },
     exportTitle: {
@@ -274,6 +287,8 @@ export const UI_STRINGS = {
     monthShort: { en: "mo.", nl: "mnd" },
     phase: { en: "Phase", nl: "Fase" },
     phaseSubtotal: { en: "Subtotal phase", nl: "Subtotaal fase" },
+    phaseNotApplicable: { en: "No phase", nl: "Geen fase" },
+    notApplicableShort: { en: "n/a", nl: "n.v.t." },
     untitledClient: { en: "Untitled client", nl: "Naamloze klant" },
     generated: { en: "Generated", nl: "Gegenereerd op" },
     preparedBy: { en: "Prepared by", nl: "Opgesteld door" },

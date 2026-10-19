@@ -7,12 +7,13 @@
 import {
   type WorkstreamTotals,
   computeEstimationTotals,
+  totalsByStage,
   elixirSyncStreamHours,
   lineItemFinalEffort,
   lineItemRate,
   thirdPartyLineItemHours,
 } from "../calculations";
-import type { CustomWorkstreamType, EstimationState, LineActivityType, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
+import type { CustomWorkstreamType, DealStage, EstimationState, LineActivityType, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
 
 export const EXPORT_FORMAT = "elixir-estimation-export";
 export const EXPORT_SCHEMA_VERSION = 1;
@@ -23,7 +24,10 @@ export type ExportActivity = LineActivityType | "Integration" | "Project managem
 export interface ExportLine {
   workstreamKey: string;
   workstream: string;
-  phase: ProjectPhase;
+  /** null = no phase ("n.v.t."). */
+  phase: ProjectPhase | null;
+  /** The workstream's sales stage, repeated per line so a flat import can filter on it. */
+  stage: DealStage;
   lineId: string;
   activity: ExportActivity;
   topic: string;
@@ -49,7 +53,10 @@ export interface ExportLine {
 export interface ExportWorkstream {
   key: string;
   name: string;
-  phase: ProjectPhase;
+  /** null = no phase ("n.v.t."). */
+  phase: ProjectPhase | null;
+  /** "proposal" counts toward the forecast; "closed_won" is already won. */
+  stage: DealStage;
   /** Set for client-specific workstreams created on the Cover page; null for template workstreams and integrations. */
   type: CustomWorkstreamType | null;
   billing: "one_off" | "retainer";
@@ -102,6 +109,9 @@ export interface EstimationExport {
     totalPrice: number;
     subscriptionsPrice: number;
     grandTotalPrice: number;
+    /** grandTotalPrice split by stage (incl. PM; subscriptions follow their integration). */
+    closedWonPrice: number;
+    proposalPrice: number;
   };
 }
 
@@ -128,8 +138,11 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
   const locale = data.locale;
   const name = (l: LocalizedString) => l[locale] || l.en;
   const totals = computeEstimationTotals(data);
+  const byStage = totalsByStage(totals);
 
-  const pmLine = (key: string, workstream: string, phase: ProjectPhase, pmHours: number, months: number): ExportLine => ({
+  // Lines are built without the stage; workstream() stamps its stage onto each of them.
+  type LineDraft = Omit<ExportLine, "stage">;
+  const pmLine = (key: string, workstream: string, phase: ProjectPhase | null, pmHours: number, months: number): LineDraft => ({
     workstreamKey: key,
     workstream,
     phase,
@@ -151,12 +164,13 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
 
   const workstream = (
     w: WorkstreamTotals,
-    lines: ExportLine[],
+    lines: LineDraft[],
     type: CustomWorkstreamType | null = null
   ): ExportWorkstream => ({
     key: w.key,
     name: name(w.label),
     phase: w.phase,
+    stage: w.stage,
     type,
     billing: w.retainer ? "retainer" : "one_off",
     retainerMonths: w.retainer?.months ?? null,
@@ -169,7 +183,10 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
     pmRate: data.pmRate,
     pmPrice: round(w.pmPrice),
     totalPrice: round(w.price + w.pmPrice),
-    lines: [...lines, pmLine(w.key, name(w.label), w.phase, w.pmHours, w.retainer?.months ?? 1)],
+    lines: [...lines, pmLine(w.key, name(w.label), w.phase, w.pmHours, w.retainer?.months ?? 1)].map((line) => ({
+      ...line,
+      stage: w.stage,
+    })),
   });
 
   const workstreams: ExportWorkstream[] = [];
@@ -180,7 +197,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
     const months = w.retainer?.months ?? 1;
     const lines = ws.items
       .filter((item) => item.enabled)
-      .map((item): ExportLine => {
+      .map((item): LineDraft => {
         const finalEffort = lineItemFinalEffort(item, ws);
         const rate = lineItemRate(item, ws);
         return {
@@ -210,7 +227,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
   if (tp.enabled) {
     const lines = tp.items
       .filter((item) => item.enabled && thirdPartyLineItemHours(item, tp) > 0)
-      .map((item): ExportLine => {
+      .map((item): LineDraft => {
         const hours = thirdPartyLineItemHours(item, tp);
         const direction = item.from && item.to ? ` (${item.from} → ${item.to})` : "";
         return {
@@ -240,7 +257,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
   if (es.enabled) {
     const lines = es.streams
       .filter((stream) => stream.included)
-      .map((stream): ExportLine => {
+      .map((stream): LineDraft => {
         const hours = elixirSyncStreamHours(stream);
         return {
           workstreamKey: totals.elixirSync.key,
@@ -298,6 +315,8 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
       totalPrice: round(totals.totalEffortPrice),
       subscriptionsPrice: round(totals.subscriptionsPrice),
       grandTotalPrice: round(totals.grandTotalPrice),
+      closedWonPrice: round(byStage.closed_won.price),
+      proposalPrice: round(byStage.proposal.price),
     },
   };
 }

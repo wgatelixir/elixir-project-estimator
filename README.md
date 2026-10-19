@@ -26,6 +26,12 @@ instead of scattered spreadsheet copies.
   (`StandardLineItem.hourlyRate`; empty = the workstream's rate). Prices are
   then summed per line, and the workstream shows the effective (blended)
   rate.
+- **Sales stage** &mdash; the Cover page also sets a **Stage** per workstream
+  and integration: *Proposal* (default; counts toward the forecast) or
+  *Closed won*. The sidebar splits the grand total by stage
+  (`totalsByStage`, incl. PM; subscriptions follow their integration), and
+  the export carries `stage` per workstream and per line, plus
+  `closedWonPrice` / `proposalPrice` in the totals.
 - **Dashboard** (`/`) &mdash; every saved estimation with client, status,
   hours, price, and last edit. "Duplicate" freezes a copy as a snapshot you
   can pull numbers from for a proposal while the original stays editable.
@@ -107,8 +113,8 @@ cells, no totals rows in the data sheets):
 
 | Sheet | One row per | Columns |
 |---|---|---|
-| Workstreams | workstream / integration | key, name, phase, type, billing, months, hours per month, price per month, hours, hourly rate, price, PM hours, PM rate, PM price, total price (incl. PM) |
-| Lines | line item (+ one PM line per workstream) | workstream key, workstream, phase, line ID, activity, topic, description, duration (h), standard effort (h), complexity, complexity adjustment (h), months, hours per month, price per month, final effort (h), hourly rate, price |
+| Workstreams | workstream / integration | key, name, phase, stage, type, billing, months, hours per month, price per month, hours, hourly rate, price, PM hours, PM rate, PM price, total price (incl. PM) |
+| Lines | line item (+ one PM line per workstream) | workstream key, workstream, phase, stage, line ID, activity, topic, description, duration (h), standard effort (h), complexity, complexity adjustment (h), months, hours per month, price per month, final effort (h), hourly rate, price |
 | Summary | field | client, project, owner, status, estimation ID, language, currency, export time, PM % and rate, totals, subscriptions, grand total |
 
 **JSON** (`format: "elixir-estimation-export"`, `schemaVersion: 1`): the same
