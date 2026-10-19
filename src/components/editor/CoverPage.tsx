@@ -5,6 +5,7 @@ import type {
   EstimationState,
   HubSpotLicenseState,
   Locale,
+  CustomWorkstreamType,
   LocalizedString,
   ProjectPhase,
   StandardWorkstream,
@@ -15,6 +16,13 @@ import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
+import {
+  CUSTOM_WORKSTREAM_TYPES,
+  CUSTOM_WORKSTREAM_TYPE_LABELS,
+  createCustomWorkstream,
+  isCustomWorkstream,
+} from "@/lib/customWorkstreams";
+import { useState } from "react";
 import { Rulebook } from "./Rulebook";
 
 // "deployment_golive" is no longer in the template (V3 moved trainings and go-live into
@@ -99,26 +107,49 @@ function WorkstreamRow({
   price,
   locale,
   onChange,
+  onRemove,
 }: {
   workstream: StandardWorkstream;
   hours: number;
   price: number;
   locale: Locale;
   onChange: (next: StandardWorkstream) => void;
+  /** Only for user-created workstreams. */
+  onRemove?: () => void;
 }) {
+  const s = UI_STRINGS.coverPage;
   return (
     <div className={`${ROW_GRID} rounded-md px-3 py-2.5 hover:bg-slate-50`}>
-      <label className="flex min-w-0 cursor-pointer items-center gap-3">
-        <input
-          type="checkbox"
-          checked={workstream.enabled}
-          onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
-          className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
-        />
-        <span className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
-          {t(workstream.label, locale)}
-        </span>
-      </label>
+      <div className="flex min-w-0 items-center gap-2">
+        <label className="flex min-w-0 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            checked={workstream.enabled}
+            onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
+            className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
+          />
+          <span className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
+            {t(workstream.label, locale)}
+          </span>
+        </label>
+        {workstream.custom && (
+          <span className="flex-shrink-0 rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700">
+            {t(CUSTOM_WORKSTREAM_TYPE_LABELS[workstream.custom.type], locale)}
+            {workstream.custom.retainerMonths
+              ? ` · ${t(s.retainerBadge, locale)} ${workstream.custom.retainerMonths} ${t(s.monthsShort, locale)}`
+              : ""}
+          </span>
+        )}
+        {onRemove && (
+          <button
+            onClick={onRemove}
+            title={t(s.removeWorkstream, locale)}
+            className="flex-shrink-0 px-1 text-slate-300 hover:text-brand-crimson"
+          >
+            &times;
+          </button>
+        )}
+      </div>
       <PhaseSelect
         phase={workstream.phase}
         enabled={workstream.enabled}
@@ -231,12 +262,55 @@ interface CoverPageProps {
   onChangeThirdParty: (next: ThirdPartyIntegrationState) => void;
   onChangeElixirSync: (next: ElixirSyncIntegrationState) => void;
   onChangeHubSpotLicense: (next: HubSpotLicenseState) => void;
+  onAddWorkstream: (ws: StandardWorkstream) => void;
+  onRemoveWorkstream: (key: string) => void;
   locale: Locale;
+}
+
+/** Name + type, then "Add": the new workstream gets its own tab, where its lines and billing are set. */
+function AddCustomWorkstream({ locale, onAdd }: { locale: Locale; onAdd: (ws: StandardWorkstream) => void }) {
+  const s = UI_STRINGS.coverPage;
+  const [name, setName] = useState("");
+  const [type, setType] = useState<CustomWorkstreamType>("change_requests");
+  function add() {
+    onAdd(createCustomWorkstream(name, type));
+    setName("");
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-3">
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && add()}
+        placeholder={t(s.customNamePlaceholder, locale)}
+        className="min-w-[220px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-indigo focus:outline-none"
+      />
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value as CustomWorkstreamType)}
+        className="rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-indigo focus:outline-none"
+      >
+        {CUSTOM_WORKSTREAM_TYPES.map((option) => (
+          <option key={option} value={option}>
+            {t(CUSTOM_WORKSTREAM_TYPE_LABELS[option], locale)}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={add}
+        className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+      >
+        {t(s.addCustomWorkstream, locale)}
+      </button>
+    </div>
+  );
 }
 
 export function CoverPage({
   data,
   onChangeWorkstream,
+  onAddWorkstream,
+  onRemoveWorkstream,
   onChangeThirdParty,
   onChangeElixirSync,
   onChangeHubSpotLicense,
@@ -246,6 +320,7 @@ export function CoverPage({
   const byKey = (key: string) => data.standardWorkstreams.find((ws) => ws.key === key);
   const foundation = FOUNDATION_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
   const hubs = HUB_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
+  const customs = data.standardWorkstreams.filter(isCustomWorkstream);
 
   const totals = computeEstimationTotals(data);
   const resultFor = (key: string) => totals.workstreams.find((w) => w.key === key);
@@ -289,6 +364,30 @@ export function CoverPage({
             />
           ))}
         </div>
+      </GroupCard>
+
+      <GroupCard title={t(s.customTitle, locale)} description={t(s.customDescription, locale)}>
+        {customs.length > 0 && (
+          <>
+            <ColumnHeader locale={locale} />
+            <div className="divide-y divide-slate-100 p-1.5 pt-0">
+              {customs.map((ws) => (
+                <WorkstreamRow
+                  key={ws.key}
+                  workstream={ws}
+                  hours={resultFor(ws.key)?.hours ?? 0}
+                  price={resultFor(ws.key)?.price ?? 0}
+                  locale={locale}
+                  onChange={(next) => onChangeWorkstream(ws.key, next)}
+                  onRemove={() => {
+                    if (window.confirm(`${t(s.removeWorkstreamConfirm, locale)} "${t(ws.label, locale)}"?`)) onRemoveWorkstream(ws.key);
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        <AddCustomWorkstream locale={locale} onAdd={onAddWorkstream} />
       </GroupCard>
 
       <GroupCard title={t(s.integrationsTitle, locale)} description={t(s.integrationsDescription, locale)}>

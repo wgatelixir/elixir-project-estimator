@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort } from "@/lib/calculations";
+import { lineItemFinalEffort, workstreamMonths } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_STYLES,
@@ -15,6 +15,8 @@ import {
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { removeLine, setLineEnabled } from "@/lib/lineLinks";
+import { CUSTOM_WORKSTREAM_TYPES, CUSTOM_WORKSTREAM_TYPE_LABELS, DEFAULT_RETAINER_MONTHS } from "@/lib/customWorkstreams";
+import type { CustomWorkstreamType } from "@/lib/types";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
@@ -161,10 +163,14 @@ export function WorkstreamPanel({
     onChange({ ...workstream, [which]: table });
   }
 
-  const totalHours = workstream.items.reduce(
+  // For a retainer the lines are hours per month; totals cover all months.
+  const monthlyHours = workstream.items.reduce(
     (sum, it) => (it.enabled ? sum + lineItemFinalEffort(it, workstream) : sum),
     0
   );
+  const months = workstreamMonths(workstream);
+  const isRetainer = Boolean(workstream.custom?.retainerMonths);
+  const totalHours = monthlyHours * months;
   const pmHours = totalHours * pmPercent;
   const pmPrice = pmHours * pmRate;
 
@@ -172,7 +178,16 @@ export function WorkstreamPanel({
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold text-brand-ink">{t(workstream.label, locale)}</h2>
+          {workstream.custom ? (
+            <input
+              value={workstream.label[locale]}
+              onChange={(e) => onChange({ ...workstream, label: { en: e.target.value, nl: e.target.value } })}
+              aria-label={t(s.workstreamName, locale)}
+              className="-ml-1.5 w-full rounded border border-transparent px-1.5 py-0.5 text-base font-semibold text-brand-ink hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+            />
+          ) : (
+            <h2 className="truncate text-base font-semibold text-brand-ink">{t(workstream.label, locale)}</h2>
+          )}
           <label className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
             <input
               type="checkbox"
@@ -205,6 +220,64 @@ export function WorkstreamPanel({
         </div>
       </div>
 
+      {workstream.custom && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-200 bg-violet-50/60 px-4 py-2.5 text-sm text-slate-600">
+          <label className="flex items-center gap-2">
+            {t(s.workstreamType, locale)}
+            <select
+              value={workstream.custom.type}
+              onChange={(e) =>
+                onChange({ ...workstream, custom: { ...workstream.custom!, type: e.target.value as CustomWorkstreamType } })
+              }
+              className="rounded border border-slate-300 bg-white px-2 py-1 text-sm focus:border-brand-indigo focus:outline-none"
+            >
+              {CUSTOM_WORKSTREAM_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {t(CUSTOM_WORKSTREAM_TYPE_LABELS[type], locale)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            {t(s.billing, locale)}
+            <select
+              value={isRetainer ? "retainer" : "one_off"}
+              onChange={(e) =>
+                onChange({
+                  ...workstream,
+                  custom: {
+                    ...workstream.custom!,
+                    retainerMonths: e.target.value === "retainer" ? DEFAULT_RETAINER_MONTHS : null,
+                  },
+                })
+              }
+              className="rounded border border-slate-300 bg-white px-2 py-1 text-sm focus:border-brand-indigo focus:outline-none"
+            >
+              <option value="one_off">{t(s.billingOneOff, locale)}</option>
+              <option value="retainer">{t(s.billingRetainer, locale)}</option>
+            </select>
+          </label>
+          {isRetainer && (
+            <label className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={120}
+                step={1}
+                value={workstream.custom.retainerMonths ?? ""}
+                onChange={(e) => {
+                  const value = Math.round(Number(e.target.value));
+                  if (value >= 1 && value <= 120) onChange({ ...workstream, custom: { ...workstream.custom!, retainerMonths: value } });
+                }}
+                className="w-16 rounded border border-slate-300 bg-white px-1.5 py-1 text-right tabular-nums focus:border-brand-indigo focus:outline-none"
+              />
+              {t(s.months, locale)}
+              <span className="text-xs text-slate-500">{t(s.retainerHint, locale)}</span>
+            </label>
+          )}
+        </div>
+      )}
+
       <PanelLegend
         sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
         setupHours={complexityHoursByBand(workstream.setupComplexity)}
@@ -224,7 +297,10 @@ export function WorkstreamPanel({
               </th>
               <th className="px-3 py-2 text-right font-medium">{t(s.columnStandard, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
-              <th className="px-3 py-2 text-right font-medium">{t(s.columnFinalEffort, locale)}</th>
+              <th className="px-3 py-2 text-right font-medium">
+                {t(s.columnFinalEffort, locale)}
+                {isRetainer && <span className="block normal-case text-violet-600">{t(s.finalEffortPerMonth, locale)}</span>}
+              </th>
               <th className="w-8 px-3 py-2" />
             </tr>
           </thead>
@@ -350,9 +426,20 @@ export function WorkstreamPanel({
             })}
           </tbody>
           <tfoot>
+            {isRetainer && (
+              <tr className="border-t border-slate-200 bg-violet-50/60 text-brand-ink">
+                <td className="px-3 py-2" colSpan={6}>
+                  {t(s.perMonth, locale)} &middot; {formatHours(monthlyHours, locale)}
+                </td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">
+                  {formatCurrency(monthlyHours * workstream.hourlyRate, locale)}
+                </td>
+                <td className="px-3 py-2" />
+              </tr>
+            )}
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
               <td className="px-3 py-2" colSpan={6}>
-                {t(s.totalFinalEffort, locale)}
+                {isRetainer ? `${t(s.totalOverMonths, locale)} ${months} ${t(s.months, locale)}` : t(s.totalFinalEffort, locale)}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
               <td className="px-3 py-2" />
