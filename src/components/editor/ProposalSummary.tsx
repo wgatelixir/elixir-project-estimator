@@ -2,10 +2,19 @@
 
 import Image from "next/image";
 import type { EstimationState, EstimationStatus, Locale, ProjectPhase } from "@/lib/types";
-import { computeEstimationTotals, groupByPhase, lineItemFinalEffort, thirdPartyLineItemHours } from "@/lib/calculations";
+import {
+  computeEstimationTotals,
+  groupByPhase,
+  lineItemFinalEffort,
+  lineItemPrice,
+  lineItemRate,
+  thirdPartyLineItemHours,
+} from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
+  ACTIVITY_LEGEND,
   ACTIVITY_STYLES,
+  CUSTOM_ACTIVITY_LEGEND,
   classifyActivity,
   classifyComplexity,
   complexityCommentsByBand,
@@ -205,12 +214,25 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               <tr>
                 <th className="truncate px-3 py-1 font-medium">{t(s.columnActivity, locale)}</th>
                 <th className="truncate px-3 py-1 font-medium">{t(s.columnTopic, locale)}</th>
-                <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
-                <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
-                <th className="truncate px-3 py-1 text-right font-medium">
-                  {t(s.columnFinal, locale)}
-                  {retainer && ` / ${t(s.monthShort, locale)}`}
-                </th>
+                {ws.custom ? (
+                  <>
+                    <th className="truncate px-3 py-1 text-right font-medium">{t(UI_STRINGS.workstreamPanel.columnHours, locale)}</th>
+                    <th className="truncate px-3 py-1 text-right font-medium">{t(UI_STRINGS.workstreamPanel.columnRate, locale)}</th>
+                    <th className="truncate px-3 py-1 text-right font-medium">
+                      {t(UI_STRINGS.workstreamPanel.columnAmount, locale)}
+                      {retainer && ` / ${t(s.monthShort, locale)}`}
+                    </th>
+                  </>
+                ) : (
+                  <>
+                    <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnStd, locale)}</th>
+                    <th className="truncate px-3 py-1 font-medium">{t(s.columnComplexity, locale)}</th>
+                    <th className="truncate px-3 py-1 text-right font-medium">
+                      {t(s.columnFinal, locale)}
+                      {retainer && ` / ${t(s.monthShort, locale)}`}
+                    </th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -225,13 +247,30 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                       <div className="truncate">{t(item.topic, locale)}</div>
                       <LineItemNote comment={item.comment} locale={locale} />
                     </td>
-                    <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
-                    <td className="px-3 py-1">
-                      <ComplexityPill level={item.complexity} />
-                    </td>
-                    <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                      {formatHours(lineItemFinalEffort(item, ws), locale)}
-                    </td>
+                    {ws.custom ? (
+                      // Client-specific lines are priced per line (own rate possible), so show hours, rate and amount.
+                      <>
+                        <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                          {formatHours(lineItemFinalEffort(item, ws), locale)}
+                        </td>
+                        <td className="px-3 py-1 text-right tabular-nums text-slate-600">
+                          {formatCurrency(lineItemRate(item, ws), locale)}
+                        </td>
+                        <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                          {formatCurrency(lineItemPrice(item, ws), locale)}
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-3 py-1 text-right tabular-nums text-slate-600">{item.standardEffort}</td>
+                        <td className="px-3 py-1">
+                          <ComplexityPill level={item.complexity} />
+                        </td>
+                        <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+                          {formatHours(lineItemFinalEffort(item, ws), locale)}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 );
               })}
@@ -288,6 +327,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
             sessionHours={complexityHoursByBand(ws.sessionComplexity)}
             setupHours={complexityHoursByBand(ws.setupComplexity)}
             comments={complexityCommentsByBand(ws.sessionComplexity)}
+            activityBands={ws.custom ? CUSTOM_ACTIVITY_LEGEND : ACTIVITY_LEGEND}
             locale={locale}
           />
         </SectionCard>

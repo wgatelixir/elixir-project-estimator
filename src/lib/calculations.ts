@@ -36,12 +36,26 @@ export function lineItemFinalEffort(
   return item.standardEffort + complexityHours(table, item.complexity);
 }
 
+/** The rate a line is priced at: its own, or else the workstream's. */
+export function lineItemRate(item: StandardLineItem, workstream: Pick<StandardWorkstream, "hourlyRate">): number {
+  return item.hourlyRate ?? workstream.hourlyRate;
+}
+
+/** One line's price for one month (or the whole job, for one-off work). */
+export function lineItemPrice(
+  item: StandardLineItem,
+  workstream: Pick<StandardWorkstream, "sessionComplexity" | "setupComplexity" | "hourlyRate">
+): number {
+  return lineItemFinalEffort(item, workstream) * lineItemRate(item, workstream);
+}
+
 export interface WorkstreamTotals {
   key: string;
   label: LocalizedString;
   enabled: boolean;
   phase: ProjectPhase;
   hours: number;
+  /** The workstream's rate - or, when lines carry their own rates, the effective (blended) rate: price / hours. */
   hourlyRate: number;
   price: number;
   /** This onderdeel's own share of project management, at the estimation's pmPercent/pmRate. */
@@ -62,12 +76,10 @@ export function computeStandardWorkstreamTotals(
   pmPercent: number,
   pmRate: number
 ): WorkstreamTotals {
-  const monthlyHours = ws.enabled
-    ? ws.items.reduce(
-        (sum, item) => (item.enabled ? sum + lineItemFinalEffort(item, ws) : sum),
-        0
-      )
-    : 0;
+  const lines = ws.enabled ? ws.items.filter((item) => item.enabled) : [];
+  const monthlyHours = lines.reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+  const monthlyPrice = lines.reduce((sum, item) => sum + lineItemPrice(item, ws), 0);
+  const hasLineRates = lines.some((item) => item.hourlyRate != null && item.hourlyRate !== ws.hourlyRate);
   const months = workstreamMonths(ws);
   const hours = monthlyHours * months;
   const pmHours = hours * pmPercent;
@@ -77,13 +89,11 @@ export function computeStandardWorkstreamTotals(
     enabled: ws.enabled,
     phase: ws.phase ?? 1,
     hours,
-    hourlyRate: ws.hourlyRate,
-    price: hours * ws.hourlyRate,
+    hourlyRate: hasLineRates && monthlyHours > 0 ? monthlyPrice / monthlyHours : ws.hourlyRate,
+    price: monthlyPrice * months,
     pmHours,
     pmPrice: pmHours * pmRate,
-    ...(ws.custom?.retainerMonths
-      ? { retainer: { months, monthlyHours, monthlyPrice: monthlyHours * ws.hourlyRate } }
-      : {}),
+    ...(ws.custom?.retainerMonths ? { retainer: { months, monthlyHours, monthlyPrice } } : {}),
   };
 }
 

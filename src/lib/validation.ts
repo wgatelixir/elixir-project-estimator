@@ -16,7 +16,17 @@ const phaseSchema = z.union([z.literal(1), z.literal(2), z.literal(3)]).optional
 
 const standardLineItemSchema = z.object({
   id: z.string(),
-  activity: z.enum(["Session", "Session Prep", "Setup", "Risk Buffer", "Desk work"]),
+  activity: z.enum([
+    "Session",
+    "Session Prep",
+    "Setup",
+    "Risk Buffer",
+    "Desk work",
+    "Consulting",
+    "Development",
+    "Support",
+  ]),
+  hourlyRate: z.number().nonnegative().nullable().optional(),
   topic: localizedStringSchema,
   duration: z.number().nonnegative().nullable().optional(),
   standardEffort: z.number(),

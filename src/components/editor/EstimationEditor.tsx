@@ -144,8 +144,8 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   }
 
   function addWorkstream(ws: StandardWorkstream) {
+    // Stays on the Cover page, where the new workstream's edit form opens; its tab appears in the bar.
     setData((prev) => ({ ...prev, standardWorkstreams: [...prev.standardWorkstreams, ws] }));
-    setActiveTab(ws.key);
     markDirty();
   }
 
@@ -389,6 +389,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               )}
               {activeWorkstream && (
                 <WorkstreamPanel
+                  key={activeWorkstream.key}
                   workstream={activeWorkstream}
                   onChange={(next) => updateWorkstream(activeWorkstream.key, next)}
                   pmPercent={data.pmPercent}

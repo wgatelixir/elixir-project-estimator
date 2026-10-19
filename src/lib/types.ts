@@ -19,7 +19,16 @@ export type ComplexityTable = Record<string, ComplexityTableEntry>;
 
 // "Desk work" only exists on estimations created from the V2 template; V3 uses
 // "Session Prep" for session preparation and "Risk Buffer" for contingency lines.
-export type LineActivityType = "Session" | "Session Prep" | "Setup" | "Risk Buffer" | "Desk work";
+export type LineActivityType =
+  | "Session"
+  | "Session Prep"
+  | "Setup"
+  | "Risk Buffer"
+  | "Desk work"
+  // Service activities, offered in client-specific workstreams.
+  | "Consulting"
+  | "Development"
+  | "Support";
 
 export interface StandardLineItem {
   id: string;
@@ -28,6 +37,11 @@ export interface StandardLineItem {
   /** Session length in hours (the sheet's "Duration" column) - informational, not used in totals. */
   duration?: number | null;
   standardEffort: number;
+  /**
+   * This line's own hourly rate; missing/null = the workstream's rate. Lets a
+   * client-specific workstream price consulting, development and support differently.
+   */
+  hourlyRate?: number | null;
   /** Which of the workstream's two complexity tables this line's dropdown looks up. */
   complexityTable: "session" | "setup";
   /** Key into that table (e.g. "Standard", "High"). */
