@@ -62,6 +62,7 @@ export const UI_STRINGS = {
     columnWorkstream: { en: "Workstream", nl: "Workstream" },
     columnPhase: { en: "Phase", nl: "Fase" },
     columnStage: { en: "Stage", nl: "Stage" },
+    phaseNotApplicable: { en: "N/A", nl: "N.v.t." },
     stageProposal: { en: "Proposal", nl: "Proposal" },
     stageClosedWon: { en: "Closed won", nl: "Closed won" },
     stageTitle: {
@@ -283,6 +284,8 @@ export const UI_STRINGS = {
     monthShort: { en: "mo.", nl: "mnd" },
     phase: { en: "Phase", nl: "Fase" },
     phaseSubtotal: { en: "Subtotal phase", nl: "Subtotaal fase" },
+    phaseNotApplicable: { en: "No phase", nl: "Geen fase" },
+    notApplicableShort: { en: "n/a", nl: "n.v.t." },
     untitledClient: { en: "Untitled client", nl: "Naamloze klant" },
     generated: { en: "Generated", nl: "Gegenereerd op" },
     preparedBy: { en: "Prepared by", nl: "Opgesteld door" },

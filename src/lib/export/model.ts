@@ -24,7 +24,8 @@ export type ExportActivity = LineActivityType | "Integration" | "Project managem
 export interface ExportLine {
   workstreamKey: string;
   workstream: string;
-  phase: ProjectPhase;
+  /** null = no phase ("n.v.t."). */
+  phase: ProjectPhase | null;
   /** The workstream's sales stage, repeated per line so a flat import can filter on it. */
   stage: DealStage;
   lineId: string;
@@ -52,7 +53,8 @@ export interface ExportLine {
 export interface ExportWorkstream {
   key: string;
   name: string;
-  phase: ProjectPhase;
+  /** null = no phase ("n.v.t."). */
+  phase: ProjectPhase | null;
   /** "proposal" counts toward the forecast; "closed_won" is already won. */
   stage: DealStage;
   /** Set for client-specific workstreams created on the Cover page; null for template workstreams and integrations. */
@@ -140,7 +142,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
 
   // Lines are built without the stage; workstream() stamps its stage onto each of them.
   type LineDraft = Omit<ExportLine, "stage">;
-  const pmLine = (key: string, workstream: string, phase: ProjectPhase, pmHours: number, months: number): LineDraft => ({
+  const pmLine = (key: string, workstream: string, phase: ProjectPhase | null, pmHours: number, months: number): LineDraft => ({
     workstreamKey: key,
     workstream,
     phase,
