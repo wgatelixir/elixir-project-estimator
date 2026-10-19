@@ -239,7 +239,7 @@ export function ThirdPartyPanel({
             </tr>
             <tr className="bg-slate-50 text-slate-600">
               <td className="px-3 py-2" colSpan={6}>
-                {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(pmPercent)})
+                {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(pmPercent)} &middot; {formatHours(pmHours, locale)})
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />

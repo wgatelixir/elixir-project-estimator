@@ -307,7 +307,8 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               </tr>
               <tr className="bg-slate-50 text-slate-600">
                 <td className="px-3 py-1" colSpan={4}>
-                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)} &middot;{" "}
+                  {formatHours(wTotals.pmHours, locale)})
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(wTotals.pmPrice, locale)}</td>
               </tr>
@@ -394,7 +395,8 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               </tr>
               <tr className="bg-slate-50 text-slate-600">
                 <td className="px-3 py-1" colSpan={5}>
-                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)} &middot;{" "}
+                  {formatHours(totals.thirdParty.pmHours, locale)})
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.thirdParty.pmPrice, locale)}</td>
               </tr>
@@ -470,7 +472,8 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               </tr>
               <tr className="bg-slate-50 text-slate-600">
                 <td className="px-3 py-1">
-                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)})
+                  {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)} &middot;{" "}
+                  {formatHours(totals.elixirSync.pmHours, locale)})
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totals.elixirSync.pmPrice, locale)}</td>
               </tr>
