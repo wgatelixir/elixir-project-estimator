@@ -20,7 +20,7 @@ instead of scattered spreadsheet copies.
   hours and price are the monthly figures times the months. It's
   `StandardWorkstream.custom` (`src/lib/customWorkstreams.ts`), so phases,
   links, totals, the Proposal Summary and the export treat it like any other
-  workstream Name, type, billing and removal are edited on the Cover page
+  workstream. Name, type, billing and removal are edited on the Cover page
   (✎). In these workstreams, lines can also be **Consulting**,
   **Development** or **Support** and carry their **own hourly rate**
   (`StandardLineItem.hourlyRate`; empty = the workstream's rate). Prices are
