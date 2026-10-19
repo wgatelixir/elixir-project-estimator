@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort, workstreamMonths } from "@/lib/calculations";
+import { lineItemFinalEffort, lineItemPrice, workstreamMonths } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
+  ACTIVITY_LEGEND,
   ACTIVITY_STYLES,
+  CUSTOM_ACTIVITY_LEGEND,
   classifyActivity,
   classifyComplexity,
   complexityCommentsByBand,
@@ -91,7 +93,8 @@ export function WorkstreamPanel({
 }) {
   const s = UI_STRINGS.workstreamPanel;
   const [showTables, setShowTables] = useState(false);
-  const [newActivity, setNewActivity] = useState<LineActivityType>("Session");
+  const isCustom = Boolean(workstream.custom);
+  const [newActivity, setNewActivity] = useState<LineActivityType>(isCustom ? "Consulting" : "Session");
   const [newTopic, setNewTopic] = useState("");
   const [newEffort, setNewEffort] = useState(4);
   const [newTable, setNewTable] = useState<"session" | "setup">("session");
@@ -168,9 +171,14 @@ export function WorkstreamPanel({
     (sum, it) => (it.enabled ? sum + lineItemFinalEffort(it, workstream) : sum),
     0
   );
+  // Lines can carry their own rate (client-specific workstreams), so price is summed per line.
+  const monthlyPrice = workstream.items.reduce((sum, it) => (it.enabled ? sum + lineItemPrice(it, workstream) : sum), 0);
   const months = workstreamMonths(workstream);
   const isRetainer = Boolean(workstream.custom?.retainerMonths);
   const totalHours = monthlyHours * months;
+  const totalPrice = monthlyPrice * months;
+  // Footer label cells span every column up to the one holding the amounts.
+  const labelSpan = isCustom ? 7 : 6;
   const pmHours = totalHours * pmPercent;
   const pmPrice = pmHours * pmRate;
 
@@ -215,7 +223,7 @@ export function WorkstreamPanel({
             locale={locale}
           />
           <span className="font-medium text-brand-ink">
-            {formatHours(totalHours, locale)} &middot; {formatCurrency(totalHours * workstream.hourlyRate, locale)}
+            {formatHours(totalHours, locale)} &middot; {formatCurrency(totalPrice, locale)}
           </span>
         </div>
       </div>
@@ -282,6 +290,7 @@ export function WorkstreamPanel({
         sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
         setupHours={complexityHoursByBand(workstream.setupComplexity)}
         comments={complexityCommentsByBand(workstream.sessionComplexity)}
+        activityBands={isCustom ? CUSTOM_ACTIVITY_LEGEND : ACTIVITY_LEGEND}
         locale={locale}
       />
 
@@ -292,15 +301,27 @@ export function WorkstreamPanel({
               <th className="w-14 px-3 py-2" />
               <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnTopic, locale)}</th>
-              <th className="px-3 py-2 text-right font-medium" title={t(s.durationTitle, locale)}>
-                {t(s.columnDuration, locale)}
-              </th>
-              <th className="px-3 py-2 text-right font-medium">{t(s.columnStandard, locale)}</th>
+              {isCustom ? (
+                <th className="px-3 py-2 text-right font-medium" title={t(s.lineRateTitle, locale)}>
+                  {t(s.columnRate, locale)}
+                </th>
+              ) : (
+                <th className="px-3 py-2 text-right font-medium" title={t(s.durationTitle, locale)}>
+                  {t(s.columnDuration, locale)}
+                </th>
+              )}
+              <th className="px-3 py-2 text-right font-medium">{t(isCustom ? s.columnHours : s.columnStandard, locale)}</th>
               <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
               <th className="px-3 py-2 text-right font-medium">
                 {t(s.columnFinalEffort, locale)}
                 {isRetainer && <span className="block normal-case text-violet-600">{t(s.finalEffortPerMonth, locale)}</span>}
               </th>
+              {isCustom && (
+                <th className="px-3 py-2 text-right font-medium">
+                  {t(s.columnAmount, locale)}
+                  {isRetainer && <span className="block normal-case text-violet-600">{t(s.finalEffortPerMonth, locale)}</span>}
+                </th>
+              )}
               <th className="w-8 px-3 py-2" />
             </tr>
           </thead>
@@ -375,17 +396,32 @@ export function WorkstreamPanel({
                     <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <input
-                      type="number"
-                      step="0.5"
-                      min={0}
-                      value={item.duration ?? ""}
-                      onChange={(e) =>
-                        updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
-                      }
-                      title={t(s.durationTitle, locale)}
-                      className="w-14 rounded border border-transparent px-1.5 py-1 text-right tabular-nums text-slate-500 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                    />
+                    {isCustom ? (
+                      // Empty = the workstream's rate (shown as placeholder); a value overrides it for this line.
+                      <input
+                        type="number"
+                        min={0}
+                        value={item.hourlyRate ?? ""}
+                        placeholder={String(workstream.hourlyRate)}
+                        onChange={(e) =>
+                          updateItem(item.id, { hourlyRate: e.target.value === "" ? null : Number(e.target.value) })
+                        }
+                        title={t(s.lineRateTitle, locale)}
+                        className="w-20 rounded border border-slate-200 px-1.5 py-1 text-right tabular-nums placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+                      />
+                    ) : (
+                      <input
+                        type="number"
+                        step="0.5"
+                        min={0}
+                        value={item.duration ?? ""}
+                        onChange={(e) =>
+                          updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
+                        }
+                        title={t(s.durationTitle, locale)}
+                        className="w-14 rounded border border-transparent px-1.5 py-1 text-right tabular-nums text-slate-500 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      />
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input
@@ -412,6 +448,11 @@ export function WorkstreamPanel({
                   <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
                     {formatHours(lineItemFinalEffort(item, workstream), locale)}
                   </td>
+                  {isCustom && (
+                    <td className="px-3 py-2 text-right tabular-nums text-brand-ink">
+                      {formatCurrency(lineItemPrice(item, workstream), locale)}
+                    </td>
+                  )}
                   <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => removeItem(item.id)}
@@ -428,44 +469,44 @@ export function WorkstreamPanel({
           <tfoot>
             {isRetainer && (
               <tr className="border-t border-slate-200 bg-violet-50/60 text-brand-ink">
-                <td className="px-3 py-2" colSpan={6}>
+                <td className="px-3 py-2" colSpan={labelSpan}>
                   {t(s.perMonth, locale)} &middot; {formatHours(monthlyHours, locale)}
                 </td>
                 <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                  {formatCurrency(monthlyHours * workstream.hourlyRate, locale)}
+                  {formatCurrency(monthlyPrice, locale)}
                 </td>
                 <td className="px-3 py-2" />
               </tr>
             )}
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={6}>
+              <td className="px-3 py-2" colSpan={labelSpan}>
                 {isRetainer ? `${t(s.totalOverMonths, locale)} ${months} ${t(s.months, locale)}` : t(s.totalFinalEffort, locale)}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-brand-ink">
-              <td className="px-3 py-2" colSpan={6}>
+              <td className="px-3 py-2" colSpan={labelSpan}>
                 {t(s.budget, locale)}
               </td>
               <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                {formatCurrency(totalHours * workstream.hourlyRate, locale)}
+                {formatCurrency(totalPrice, locale)}
               </td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="bg-slate-50 text-slate-600">
-              <td className="px-3 py-2" colSpan={6}>
+              <td className="px-3 py-2" colSpan={labelSpan}>
                 {t(s.projectManagement, locale)} ({formatPercent(pmPercent)})
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
               <td className="px-3 py-2" />
             </tr>
             <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={6}>
+              <td className="px-3 py-2" colSpan={labelSpan}>
                 {t(s.total, locale)}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">
-                {formatCurrency(totalHours * workstream.hourlyRate + pmPrice, locale)}
+                {formatCurrency(totalPrice + pmPrice, locale)}
               </td>
               <td className="px-3 py-2" />
             </tr>
@@ -487,6 +528,13 @@ export function WorkstreamPanel({
           <option value="Session Prep">{t(s.activitySessionPrep, locale)}</option>
           <option value="Setup">{t(s.activitySetup, locale)}</option>
           <option value="Risk Buffer">{t(s.activityRiskBuffer, locale)}</option>
+          {isCustom && (
+            <>
+              <option value="Consulting">{t(s.activityConsulting, locale)}</option>
+              <option value="Development">{t(s.activityDevelopment, locale)}</option>
+              <option value="Support">{t(s.activitySupport, locale)}</option>
+            </>
+          )}
         </select>
         <input
           value={newTopic}

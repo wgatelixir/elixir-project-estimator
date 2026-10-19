@@ -1,4 +1,4 @@
-import type { ComplexityBand } from "@/lib/style";
+import type { ActivityBand, ComplexityBand } from "@/lib/style";
 import {
   ACTIVITY_LEGEND,
   ACTIVITY_STYLES,
@@ -16,6 +16,8 @@ interface PanelLegendProps {
   variant?: "standard" | "thirdParty";
   /** Third Party has no Activity legend of its own (Session/Setup already shown by the standard legend). */
   showActivity?: boolean;
+  /** Which activity types the legend lists; defaults to the template's (Session, Prep, Setup, Risk Buffer). */
+  activityBands?: ActivityBand[];
   /** +/- hours delta per band, read from the Session complexity table currently in effect. */
   sessionHours?: Partial<Record<ComplexityBand, number>>;
   /** +/- hours delta per band, read from the Setup complexity table currently in effect. */
@@ -48,6 +50,7 @@ function deltaTextFor(
 export function PanelLegend({
   variant = "standard",
   showActivity = true,
+  activityBands = ACTIVITY_LEGEND,
   sessionHours,
   setupHours,
   comments,
@@ -66,7 +69,7 @@ export function PanelLegend({
       {showActivity && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span className="font-medium text-slate-400">{t(UI_STRINGS.legend.activityLabel, locale)}</span>
-          {ACTIVITY_LEGEND.map((band) => {
+          {activityBands.map((band) => {
             const style = ACTIVITY_STYLES[band];
             return (
               <span key={band} className="flex items-center gap-1.5">

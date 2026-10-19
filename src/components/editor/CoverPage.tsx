@@ -19,6 +19,7 @@ import { RateHint } from "./RateHint";
 import {
   CUSTOM_WORKSTREAM_TYPES,
   CUSTOM_WORKSTREAM_TYPE_LABELS,
+  DEFAULT_RETAINER_MONTHS,
   createCustomWorkstream,
   isCustomWorkstream,
 } from "@/lib/customWorkstreams";
@@ -107,15 +108,15 @@ function WorkstreamRow({
   price,
   locale,
   onChange,
-  onRemove,
+  actions,
 }: {
   workstream: StandardWorkstream;
   hours: number;
   price: number;
   locale: Locale;
   onChange: (next: StandardWorkstream) => void;
-  /** Only for user-created workstreams. */
-  onRemove?: () => void;
+  /** Extra controls after the name (the edit button on user-created workstreams). */
+  actions?: React.ReactNode;
 }) {
   const s = UI_STRINGS.coverPage;
   return (
@@ -128,7 +129,10 @@ function WorkstreamRow({
             onChange={(e) => onChange({ ...workstream, enabled: e.target.checked })}
             className="h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
           />
-          <span className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
+          <span
+            title={t(workstream.label, locale)}
+            className={`truncate text-sm font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}
+          >
             {t(workstream.label, locale)}
           </span>
         </label>
@@ -140,15 +144,7 @@ function WorkstreamRow({
               : ""}
           </span>
         )}
-        {onRemove && (
-          <button
-            onClick={onRemove}
-            title={t(s.removeWorkstream, locale)}
-            className="flex-shrink-0 px-1 text-slate-300 hover:text-brand-crimson"
-          >
-            &times;
-          </button>
-        )}
+        {actions}
       </div>
       <PhaseSelect
         phase={workstream.phase}
@@ -267,6 +263,110 @@ interface CoverPageProps {
   locale: Locale;
 }
 
+/**
+ * A user-created workstream on the Cover page: its row, plus an edit form (name,
+ * type, billing, retainer months, remove) behind the pencil button - so the
+ * workstream can be defined and changed here without opening its tab.
+ */
+function CustomWorkstreamRow({
+  workstream,
+  hours,
+  price,
+  locale,
+  onChange,
+  onRemove,
+  startEditing = false,
+}: {
+  workstream: StandardWorkstream;
+  hours: number;
+  price: number;
+  locale: Locale;
+  onChange: (next: StandardWorkstream) => void;
+  onRemove: () => void;
+  /** Opens the edit form straight away (a workstream that was just added). */
+  startEditing?: boolean;
+}) {
+  const s = UI_STRINGS.coverPage;
+  const w = UI_STRINGS.workstreamPanel;
+  const [editing, setEditing] = useState(startEditing);
+  const custom = workstream.custom!;
+  const setCustom = (patch: Partial<typeof custom>) => onChange({ ...workstream, custom: { ...custom, ...patch } });
+  const field = "rounded border border-slate-300 bg-white px-2 py-1 text-sm focus:border-brand-indigo focus:outline-none";
+  return (
+    <div>
+      <WorkstreamRow
+        workstream={workstream}
+        hours={hours}
+        price={price}
+        locale={locale}
+        onChange={onChange}
+        actions={
+          <button
+            onClick={() => setEditing((v) => !v)}
+            aria-expanded={editing}
+            title={t(s.editWorkstream, locale)}
+            className={`flex-shrink-0 rounded px-1.5 text-sm ${editing ? "bg-brand-indigo text-white" : "text-slate-400 hover:text-brand-indigo"}`}
+          >
+            &#9998;
+          </button>
+        }
+      />
+      {editing && (
+        <div className="mx-3 mb-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2.5 text-sm text-slate-600">
+          <label className="flex min-w-[260px] flex-1 items-center gap-2 whitespace-nowrap">
+            {t(w.workstreamName, locale)}
+            <input
+              value={workstream.label[locale]}
+              onChange={(e) => onChange({ ...workstream, label: { en: e.target.value, nl: e.target.value } })}
+              className={`${field} min-w-0 flex-1`}
+            />
+          </label>
+          <label className="flex items-center gap-2 whitespace-nowrap">
+            {t(w.workstreamType, locale)}
+            <select value={custom.type} onChange={(e) => setCustom({ type: e.target.value as CustomWorkstreamType })} className={field}>
+              {CUSTOM_WORKSTREAM_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {t(CUSTOM_WORKSTREAM_TYPE_LABELS[type], locale)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2 whitespace-nowrap">
+            {t(w.billing, locale)}
+            <select
+              value={custom.retainerMonths ? "retainer" : "one_off"}
+              onChange={(e) => setCustom({ retainerMonths: e.target.value === "retainer" ? DEFAULT_RETAINER_MONTHS : null })}
+              className={field}
+            >
+              <option value="one_off">{t(w.billingOneOff, locale)}</option>
+              <option value="retainer">{t(w.billingRetainer, locale)}</option>
+            </select>
+          </label>
+          {custom.retainerMonths && (
+            <label className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={120}
+                value={custom.retainerMonths}
+                onChange={(e) => {
+                  const value = Math.round(Number(e.target.value));
+                  if (value >= 1 && value <= 120) setCustom({ retainerMonths: value });
+                }}
+                className={`${field} w-16 text-right tabular-nums`}
+              />
+              {t(w.months, locale)}
+            </label>
+          )}
+          <button onClick={onRemove} className="ml-auto text-sm font-medium text-brand-crimson hover:underline">
+            {t(s.removeWorkstream, locale)}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Name + type, then "Add": the new workstream gets its own tab, where its lines and billing are set. */
 function AddCustomWorkstream({ locale, onAdd }: { locale: Locale; onAdd: (ws: StandardWorkstream) => void }) {
   const s = UI_STRINGS.coverPage;
@@ -321,6 +421,7 @@ export function CoverPage({
   const foundation = FOUNDATION_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
   const hubs = HUB_KEYS.map(byKey).filter((ws): ws is StandardWorkstream => !!ws);
   const customs = data.standardWorkstreams.filter(isCustomWorkstream);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const totals = computeEstimationTotals(data);
   const resultFor = (key: string) => totals.workstreams.find((w) => w.key === key);
@@ -372,13 +473,14 @@ export function CoverPage({
             <ColumnHeader locale={locale} />
             <div className="divide-y divide-slate-100 p-1.5 pt-0">
               {customs.map((ws) => (
-                <WorkstreamRow
+                <CustomWorkstreamRow
                   key={ws.key}
                   workstream={ws}
                   hours={resultFor(ws.key)?.hours ?? 0}
                   price={resultFor(ws.key)?.price ?? 0}
                   locale={locale}
                   onChange={(next) => onChangeWorkstream(ws.key, next)}
+                  startEditing={ws.key === justAdded}
                   onRemove={() => {
                     if (window.confirm(`${t(s.removeWorkstreamConfirm, locale)} "${t(ws.label, locale)}"?`)) onRemoveWorkstream(ws.key);
                   }}
@@ -387,7 +489,13 @@ export function CoverPage({
             </div>
           </>
         )}
-        <AddCustomWorkstream locale={locale} onAdd={onAddWorkstream} />
+        <AddCustomWorkstream
+          locale={locale}
+          onAdd={(ws) => {
+            setJustAdded(ws.key);
+            onAddWorkstream(ws);
+          }}
+        />
       </GroupCard>
 
       <GroupCard title={t(s.integrationsTitle, locale)} description={t(s.integrationsDescription, locale)}>

@@ -9,15 +9,16 @@ import {
   computeEstimationTotals,
   elixirSyncStreamHours,
   lineItemFinalEffort,
+  lineItemRate,
   thirdPartyLineItemHours,
 } from "../calculations";
-import type { CustomWorkstreamType, EstimationState, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
+import type { CustomWorkstreamType, EstimationState, LineActivityType, EstimationStatus, LocalizedString, ProjectPhase } from "../types";
 
 export const EXPORT_FORMAT = "elixir-estimation-export";
 export const EXPORT_SCHEMA_VERSION = 1;
 
 /** Stable activity values, independent of the estimation's display language. */
-export type ExportActivity = "Session" | "Session Prep" | "Setup" | "Risk Buffer" | "Desk work" | "Integration" | "Project management";
+export type ExportActivity = LineActivityType | "Integration" | "Project management";
 
 export interface ExportLine {
   workstreamKey: string;
@@ -162,7 +163,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
     hoursPerMonth: w.retainer ? round(w.retainer.monthlyHours) : null,
     pricePerMonth: w.retainer ? round(w.retainer.monthlyPrice) : null,
     hours: round(w.hours),
-    hourlyRate: w.hourlyRate,
+    hourlyRate: round(w.hourlyRate),
     price: round(w.price),
     pmHours: round(w.pmHours),
     pmRate: data.pmRate,
@@ -181,6 +182,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
       .filter((item) => item.enabled)
       .map((item): ExportLine => {
         const finalEffort = lineItemFinalEffort(item, ws);
+        const rate = lineItemRate(item, ws);
         return {
           workstreamKey: ws.key,
           workstream: name(ws.label),
@@ -194,11 +196,11 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
           complexity: item.complexity,
           complexityAdjustmentHours: round(finalEffort - item.standardEffort),
           finalEffortHours: round(finalEffort * months),
-          hourlyRate: ws.hourlyRate,
-          price: round(finalEffort * months * ws.hourlyRate),
+          hourlyRate: rate,
+          price: round(finalEffort * months * rate),
           months,
           hoursPerMonth: w.retainer ? round(finalEffort) : null,
-          pricePerMonth: w.retainer ? round(finalEffort * ws.hourlyRate) : null,
+          pricePerMonth: w.retainer ? round(finalEffort * rate) : null,
         };
       });
     workstreams.push(workstream(w, lines, ws.custom?.type ?? null));

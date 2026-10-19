@@ -111,7 +111,15 @@ export const COMPLEXITY_DESCRIPTIONS: Record<
   },
 };
 
-export type ActivityBand = "session" | "session-prep" | "setup" | "risk-buffer" | "desk-work";
+export type ActivityBand =
+  | "session"
+  | "session-prep"
+  | "setup"
+  | "risk-buffer"
+  | "desk-work"
+  | "consulting"
+  | "development"
+  | "support";
 
 export function classifyActivity(activity: string): ActivityBand {
   const a = activity.toLowerCase();
@@ -119,6 +127,9 @@ export function classifyActivity(activity: string): ActivityBand {
   if (a === "session prep") return "session-prep";
   if (a === "setup") return "setup";
   if (a === "risk buffer") return "risk-buffer";
+  if (a === "consulting") return "consulting";
+  if (a === "development") return "development";
+  if (a === "support") return "support";
   return "desk-work";
 }
 
@@ -161,8 +172,28 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     rowBg: "bg-white",
     label: { en: "Desk work", nl: "Deskwork" },
   },
+  consulting: {
+    badge: "bg-teal-100 text-teal-800",
+    dot: "bg-teal-500",
+    rowBg: "bg-white",
+    label: { en: "Consulting", nl: "Consulting" },
+  },
+  development: {
+    badge: "bg-fuchsia-100 text-fuchsia-800",
+    dot: "bg-fuchsia-500",
+    rowBg: "bg-white",
+    label: { en: "Development", nl: "Development" },
+  },
+  support: {
+    badge: "bg-lime-100 text-lime-800",
+    dot: "bg-lime-500",
+    rowBg: "bg-white",
+    label: { en: "Support", nl: "Support" },
+  },
 };
 
 // "desk-work" is left out: only legacy (V2-template) estimations still use it, and its
 // badge on those rows is self-explanatory.
 export const ACTIVITY_LEGEND: ActivityBand[] = ["session", "session-prep", "setup", "risk-buffer"];
+/** Client-specific workstreams also offer the service activities. */
+export const CUSTOM_ACTIVITY_LEGEND: ActivityBand[] = [...ACTIVITY_LEGEND, "consulting", "development", "support"];
