@@ -12,7 +12,7 @@ const complexityTableEntrySchema = z.object({
 
 const complexityTableSchema = z.record(z.string(), complexityTableEntrySchema);
 
-const phaseSchema = z.union([z.literal(1), z.literal(2), z.literal(3)]).optional();
+const phaseSchema = z.union([z.literal(1), z.literal(2), z.literal(3)]).nullable().optional();
 const stageSchema = z.enum(["proposal", "closed_won"]).optional();
 
 const standardLineItemSchema = z.object({

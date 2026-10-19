@@ -65,16 +65,16 @@ function PhaseSelect({
   locale,
   onChange,
 }: {
-  phase: ProjectPhase | undefined;
+  phase: ProjectPhase | null | undefined;
   enabled: boolean;
   locale: Locale;
-  onChange: (phase: ProjectPhase) => void;
+  onChange: (phase: ProjectPhase | null) => void;
 }) {
   const s = UI_STRINGS.coverPage;
   return (
     <select
-      value={phase ?? 1}
-      onChange={(e) => onChange(Number(e.target.value) as ProjectPhase)}
+      value={phase === null ? "na" : (phase ?? 1)}
+      onChange={(e) => onChange(e.target.value === "na" ? null : (Number(e.target.value) as ProjectPhase))}
       title={t(s.phaseTitle, locale)}
       className={`w-full rounded border border-slate-300 bg-white px-1.5 py-1 text-xs focus:border-brand-indigo focus:outline-none ${enabled ? "text-brand-ink" : "text-slate-400"}`}
     >
@@ -83,6 +83,7 @@ function PhaseSelect({
           {t(s.columnPhase, locale)} {p}
         </option>
       ))}
+      <option value="na">{t(s.phaseNotApplicable, locale)}</option>
     </select>
   );
 }
@@ -227,13 +228,13 @@ function ToggleRow({
   rate: number;
   defaultRate: number;
   enabled: boolean;
-  phase: ProjectPhase | undefined;
+  phase: ProjectPhase | null | undefined;
   stage: DealStage | undefined;
   hours: number;
   price: number;
   locale: Locale;
   onChange: (enabled: boolean) => void;
-  onChangePhase: (phase: ProjectPhase) => void;
+  onChangePhase: (phase: ProjectPhase | null) => void;
   onChangeStage: (stage: DealStage) => void;
 }) {
   return (

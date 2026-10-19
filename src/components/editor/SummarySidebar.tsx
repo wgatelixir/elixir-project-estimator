@@ -50,7 +50,9 @@ export function SummarySidebar({
             <div key={group.phase}>
               {showPhases && (
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo">
-                  {t(UI_STRINGS.proposalSummary.phase, locale)} {group.phase}
+                  {group.phase === null
+                    ? t(UI_STRINGS.proposalSummary.phaseNotApplicable, locale)
+                    : `${t(UI_STRINGS.proposalSummary.phase, locale)} ${group.phase}`}
                 </div>
               )}
               <dl className="space-y-1.5">
@@ -64,7 +66,8 @@ export function SummarySidebar({
               {showPhases && (
                 <div className="mt-1 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-1 text-xs font-medium text-brand-ink">
                   <span>
-                    {t(UI_STRINGS.proposalSummary.phaseSubtotal, locale)} {group.phase}
+                    {t(UI_STRINGS.proposalSummary.phaseSubtotal, locale)}{" "}
+                    {group.phase ?? t(UI_STRINGS.proposalSummary.notApplicableShort, locale)}
                     <span className="font-normal text-slate-400"> {t(s.inclPm, locale)}</span>
                   </span>
                   <span className="whitespace-nowrap tabular-nums">

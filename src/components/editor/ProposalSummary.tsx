@@ -5,6 +5,7 @@ import type { EstimationState, EstimationStatus, Locale, ProjectPhase } from "@/
 import {
   computeEstimationTotals,
   groupByPhase,
+  resolvePhase,
   lineItemFinalEffort,
   lineItemPrice,
   lineItemRate,
@@ -186,12 +187,18 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
 
   const { groups: phaseGroups, showPhases } = groupByPhase(totals);
   // Phase label in each onderdeel's page header - only once more than one phase is in use.
-  const phasePrefix = (phase: ProjectPhase | undefined) => (showPhases ? `${t(s.phase, locale)} ${phase ?? 1} · ` : "");
+  const phasePrefix = (phase: ProjectPhase | null | undefined) => {
+    if (!showPhases) return "";
+    const resolved = resolvePhase(phase);
+    return resolved === null ? `${t(s.phaseNotApplicable, locale)} · ` : `${t(s.phase, locale)} ${resolved} · `;
+  };
+  /** Heading for a phase group in the Overview (and the sidebar): "Phase 2", or "No phase" for n.v.t. */
+  const phaseLabel = (phase: ProjectPhase | null) => (phase === null ? t(s.phaseNotApplicable, locale) : `${t(s.phase, locale)} ${phase}`);
 
   const retainerText = (r: { months: number; monthlyPrice: number }) =>
     `${formatCurrency(r.monthlyPrice, locale)}/${t(s.monthShort, locale)} × ${r.months} ${t(UI_STRINGS.workstreamPanel.months, locale)}`;
 
-  const pages: { key: string; phase?: ProjectPhase; content: React.ReactNode }[] = [];
+  const pages: { key: string; phase?: ProjectPhase | null; content: React.ReactNode }[] = [];
 
   enabledWorkstreams.forEach((ws) => {
     const items = ws.items.filter((item) => item.enabled);
@@ -202,7 +209,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     const retainerPrefix = retainer ? `${retainerText(retainer)} · ` : "";
     pages.push({
       key: ws.key,
-      phase: ws.phase ?? 1,
+      phase: resolvePhase(ws.phase),
       content: (
         <SectionCard
           title={t(ws.label, locale)}
@@ -339,7 +346,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   if (thirdParty.enabled) {
     pages.push({
       key: "third_party_integration",
-      phase: thirdParty.phase ?? 1,
+      phase: resolvePhase(thirdParty.phase),
       content: (
         <SectionCard
           title={t(s.thirdPartyIntegration, locale)}
@@ -427,7 +434,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   if (elixirSync.enabled) {
     pages.push({
       key: "elixirsync_integration",
-      phase: elixirSync.phase ?? 1,
+      phase: resolvePhase(elixirSync.phase),
       content: (
         <SectionCard
           title={t(s.elixirSyncIntegration, locale)}
@@ -513,7 +520,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 ? [
                     <tr key={`phase-${group.phase}`} className="bg-slate-50 print:break-inside-avoid">
                       <td className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo" colSpan={4}>
-                        {t(s.phase, locale)} {group.phase}
+                        {phaseLabel(group.phase)}
                       </td>
                     </tr>,
                   ]
@@ -546,7 +553,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 ? [
                     <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid">
                       <td className="truncate px-3 py-1">
-                        {t(s.phaseSubtotal, locale)} {group.phase}
+                        {t(s.phaseSubtotal, locale)} {group.phase ?? t(s.notApplicableShort, locale)}
                       </td>
                       <td className="px-3 py-1 text-right tabular-nums">
                         {formatHours(group.hours, locale)}
@@ -587,7 +594,9 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   });
 
   // Onderdeel pages follow delivery order (stable within a phase).
-  pages.sort((a, b) => (a.phase ?? 0) - (b.phase ?? 0));
+  // (Overview has no phase and is moved to the front below; "n.v.t." pages go last.)
+  const pageOrder = (phase: ProjectPhase | null | undefined) => (phase === undefined ? 0 : phase === null ? 4 : phase);
+  pages.sort((a, b) => pageOrder(a.phase) - pageOrder(b.phase));
 
   // Grand total leads instead of trailing - both on screen and as the PDF's first page.
   const overviewIndex = pages.findIndex((page) => page.key === "overview");
