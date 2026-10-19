@@ -24,6 +24,9 @@ export const UI_STRINGS = {
     saveShortcut: { en: "Save (Ctrl/⌘+S)", nl: "Opslaan (Ctrl/⌘+S)" },
     backToDashboard: { en: "← Back to dashboard", nl: "← Terug naar dashboard" },
     language: { en: "Language", nl: "Taal" },
+    opportunityPhaseLabel: { en: "Opportunity phase", nl: "Opportunity-fase" },
+    closedWon: { en: "Closed Won", nl: "Closed Won" },
+    closedWonDeadline: { en: "Closed Won deadline", nl: "Deadline Closed Won" },
   },
   editor: {
     tabCover: { en: "📃 Cover", nl: "📃 Voorblad" },

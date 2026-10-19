@@ -135,6 +135,20 @@ export const estimationMetaSchema = z.object({
   projectName: z.string().trim().optional().nullable(),
   ownerName: z.string().trim().optional().nullable(),
   status: z.enum(["DRAFT", "FINAL"]).optional(),
+  opportunityPhase: z
+    .enum([
+      "QUALIFIED_TO_BUY",
+      "DEMO_SCHEDULED",
+      "PROPOSAL_SENT",
+      "DECISION_MAKER_BOUGHT_IN",
+      "CONTRACT_SENT",
+      "CLOSED_WON",
+      "CLOSED_LOST",
+    ])
+    .optional(),
+  closedWon: z.boolean().optional(),
+  // "" clears the deadline - routes map it to null before writing to Prisma.
+  closedWonDeadline: z.string().trim().optional().nullable(),
 });
 
 export const createEstimationSchema = estimationMetaSchema;

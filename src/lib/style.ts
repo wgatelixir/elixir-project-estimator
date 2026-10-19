@@ -3,7 +3,7 @@
 // read-only proposal summary (static pills) so the two stay visually
 // consistent.
 
-import type { ComplexityTable, LocalizedString } from "./types";
+import type { ComplexityTable, LocalizedString, OpportunityPhase } from "./types";
 
 export type ComplexityBand = "low" | "standard" | "medium" | "high" | "na";
 
@@ -197,3 +197,56 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
 export const ACTIVITY_LEGEND: ActivityBand[] = ["session", "session-prep", "setup", "risk-buffer"];
 /** Client-specific workstreams also offer the service activities. */
 export const CUSTOM_ACTIVITY_LEGEND: ActivityBand[] = [...ACTIVITY_LEGEND, "consulting", "development", "support"];
+
+interface OpportunityPhaseStyle {
+  badge: string;
+  dot: string;
+  label: LocalizedString;
+  description: LocalizedString;
+}
+
+/** HubSpot's standard Sales Pipeline deal stages, styled for the dashboard badge + its legend. */
+export const OPPORTUNITY_PHASE_STYLES: Record<OpportunityPhase, OpportunityPhaseStyle> = {
+  QUALIFIED_TO_BUY: {
+    badge: "bg-slate-100 text-slate-700 border border-slate-200",
+    dot: "bg-slate-400",
+    label: { en: "Qualified to buy", nl: "Qualified to buy" },
+    description: { en: "Confirmed as a genuine buyer.", nl: "Bevestigd als een serieuze koper." },
+  },
+  DEMO_SCHEDULED: {
+    badge: "bg-sky-50 text-sky-700 border border-sky-200",
+    dot: "bg-sky-400",
+    label: { en: "Demo scheduled", nl: "Demo ingepland" },
+    description: { en: "A demo or deeper discovery call is on the calendar.", nl: "Een demo of verdiepend gesprek staat gepland." },
+  },
+  PROPOSAL_SENT: {
+    badge: "bg-amber-50 text-amber-700 border border-amber-200",
+    dot: "bg-amber-400",
+    label: { en: "Proposal/price quote sent", nl: "Voorstel/prijsopgave verstuurd" },
+    description: { en: "A proposal or price quote is with the prospect.", nl: "Een voorstel of prijsopgave ligt bij de prospect." },
+  },
+  DECISION_MAKER_BOUGHT_IN: {
+    badge: "bg-orange-50 text-orange-700 border border-orange-200",
+    dot: "bg-orange-400",
+    label: { en: "Decision maker bought-in", nl: "Beslisser akkoord" },
+    description: { en: "The decision maker has signed off internally.", nl: "De beslisser heeft intern ingestemd." },
+  },
+  CONTRACT_SENT: {
+    badge: "bg-violet-50 text-violet-700 border border-violet-200",
+    dot: "bg-violet-400",
+    label: { en: "Contract sent", nl: "Contract verstuurd" },
+    description: { en: "The contract is out for signature.", nl: "Het contract ligt klaar voor ondertekening." },
+  },
+  CLOSED_WON: {
+    badge: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    dot: "bg-emerald-500",
+    label: { en: "Closed won", nl: "Closed won" },
+    description: { en: "Signed - the deal is won.", nl: "Getekend - de deal is binnen." },
+  },
+  CLOSED_LOST: {
+    badge: "bg-brand-crimson/10 text-brand-crimson border border-brand-crimson/30",
+    dot: "bg-brand-crimson",
+    label: { en: "Closed lost", nl: "Closed lost" },
+    description: { en: "The deal did not go ahead.", nl: "De deal is niet doorgegaan." },
+  },
+};

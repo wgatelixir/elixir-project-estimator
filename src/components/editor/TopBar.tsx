@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { EstimationStatus, Locale } from "@/lib/types";
+import type { EstimationStatus, Locale, OpportunityPhase } from "@/lib/types";
+import { OPPORTUNITY_PHASES } from "@/lib/types";
+import { OPPORTUNITY_PHASE_STYLES } from "@/lib/style";
 import { formatDate } from "@/lib/format";
 import { t, UI_STRINGS } from "@/lib/i18n";
 
@@ -10,6 +12,9 @@ interface Meta {
   projectName: string;
   ownerName: string;
   status: EstimationStatus;
+  opportunityPhase: OpportunityPhase;
+  closedWon: boolean;
+  closedWonDeadline: string;
 }
 
 interface TopBarProps {
@@ -85,6 +90,40 @@ export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, err
             {saving ? t(s.saving, locale) : t(s.save, locale)}
           </button>
         </div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3">
+        <label className="flex items-center gap-1.5 text-sm text-slate-600">
+          {t(s.opportunityPhaseLabel, locale)}
+          <select
+            value={meta.opportunityPhase}
+            onChange={(e) => onChange({ opportunityPhase: e.target.value as OpportunityPhase })}
+            className="rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
+          >
+            {OPPORTUNITY_PHASES.map((phase) => (
+              <option key={phase} value={phase}>
+                {t(OPPORTUNITY_PHASE_STYLES[phase].label, locale)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={meta.closedWon}
+            onChange={(e) => onChange({ closedWon: e.target.checked })}
+            className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
+          />
+          {t(s.closedWon, locale)}
+        </label>
+        <label className="flex items-center gap-1.5 text-sm text-slate-600">
+          {t(s.closedWonDeadline, locale)}
+          <input
+            type="date"
+            value={meta.closedWonDeadline}
+            onChange={(e) => onChange({ closedWonDeadline: e.target.value })}
+            className="rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
+          />
+        </label>
       </div>
       <div className="mt-2">
         <Link href="/" className="text-xs text-slate-400 transition-colors hover:text-brand-crimson">

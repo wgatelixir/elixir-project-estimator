@@ -192,12 +192,41 @@ export interface EstimationState {
 
 export type EstimationStatus = "DRAFT" | "FINAL";
 
+/** HubSpot's standard Sales Pipeline deal stages, in order. */
+export type OpportunityPhase =
+  | "QUALIFIED_TO_BUY"
+  | "DEMO_SCHEDULED"
+  | "PROPOSAL_SENT"
+  | "DECISION_MAKER_BOUGHT_IN"
+  | "CONTRACT_SENT"
+  | "CLOSED_WON"
+  | "CLOSED_LOST";
+
+export const OPPORTUNITY_PHASES: OpportunityPhase[] = [
+  "QUALIFIED_TO_BUY",
+  "DEMO_SCHEDULED",
+  "PROPOSAL_SENT",
+  "DECISION_MAKER_BOUGHT_IN",
+  "CONTRACT_SENT",
+  "CLOSED_WON",
+  "CLOSED_LOST",
+];
+
 export interface EstimationSummary {
   id: string;
   clientName: string;
   projectName: string | null;
   ownerName: string | null;
   status: EstimationStatus;
+  opportunityPhase: OpportunityPhase;
+  /**
+   * Stored independently of opportunityPhase, not derived from it - a deal
+   * can be flagged Closed Won here without opportunityPhase also being set
+   * to CLOSED_WON, and vice versa. Set both if you want them to agree.
+   */
+  closedWon: boolean;
+  /** Target/deadline date tied to the Closed Won flag above. */
+  closedWonDeadline: string | null;
   totalHours: number;
   totalPrice: number;
   createdAt: string;

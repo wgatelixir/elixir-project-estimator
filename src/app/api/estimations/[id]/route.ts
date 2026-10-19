@@ -46,6 +46,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       ownerName:
         parsed.data.ownerName !== undefined ? parsed.data.ownerName || null : existing.ownerName,
       status: parsed.data.status ?? existing.status,
+      opportunityPhase: parsed.data.opportunityPhase ?? existing.opportunityPhase,
+      closedWon: parsed.data.closedWon ?? existing.closedWon,
+      closedWonDeadline:
+        parsed.data.closedWonDeadline !== undefined
+          ? parsed.data.closedWonDeadline
+            ? new Date(parsed.data.closedWonDeadline)
+            : null
+          : existing.closedWonDeadline,
       data: nextData as unknown as Prisma.InputJsonValue,
       totalHours: totals.totalEffortHours,
       totalPrice: totals.grandTotalPrice,

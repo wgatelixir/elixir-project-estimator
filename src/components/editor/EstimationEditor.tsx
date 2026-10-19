@@ -9,6 +9,7 @@ import type {
   EstimationStatus,
   HubSpotLicenseState,
   Locale,
+  OpportunityPhase,
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
@@ -57,6 +58,10 @@ interface Meta {
   projectName: string;
   ownerName: string;
   status: EstimationStatus;
+  opportunityPhase: OpportunityPhase;
+  closedWon: boolean;
+  /** "" = no deadline set; otherwise an HTML date input value (YYYY-MM-DD). */
+  closedWonDeadline: string;
 }
 
 function metaFromRecord(r: EstimationRecord): Meta {
@@ -65,6 +70,9 @@ function metaFromRecord(r: EstimationRecord): Meta {
     projectName: r.projectName ?? "",
     ownerName: r.ownerName ?? "",
     status: r.status,
+    opportunityPhase: r.opportunityPhase,
+    closedWon: r.closedWon,
+    closedWonDeadline: r.closedWonDeadline ? r.closedWonDeadline.slice(0, 10) : "",
   };
 }
 
@@ -257,6 +265,9 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           projectName: meta.projectName,
           ownerName: meta.ownerName,
           status: meta.status,
+          opportunityPhase: meta.opportunityPhase,
+          closedWon: meta.closedWon,
+          closedWonDeadline: meta.closedWonDeadline || null,
           data,
         }),
       });

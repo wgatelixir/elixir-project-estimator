@@ -5,6 +5,7 @@ import { NewEstimationButton } from "@/components/NewEstimationButton";
 import { EstimationRowActions } from "@/components/EstimationRowActions";
 import { SearchBox } from "@/components/SearchBox";
 import { StatusBadge } from "@/components/StatusBadge";
+import { OpportunityPhaseBadge, OpportunityPhaseLegend } from "@/components/OpportunityPhaseBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <SearchBox defaultValue={q ?? ""} />
       </div>
 
+      <OpportunityPhaseLegend />
+
       <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
@@ -51,6 +54,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <th className="px-4 py-3 font-medium">Client</th>
               <th className="px-4 py-3 font-medium">Project</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Opportunity phase</th>
+              <th className="px-4 py-3 font-medium">Closed Won</th>
               <th className="px-4 py-3 font-medium">Owner</th>
               <th className="px-4 py-3 text-right font-medium">Hours</th>
               <th className="px-4 py-3 text-right font-medium">Price</th>
@@ -61,7 +66,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <tbody className="divide-y divide-slate-100">
             {estimations.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={10} className="px-4 py-12 text-center text-slate-400">
                   {q ? "No estimations match your search." : "No estimations yet — create the first one."}
                 </td>
               </tr>
@@ -79,6 +84,23 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <td className="px-4 py-3 text-slate-600">{e.projectName || "—"}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={e.status} />
+                </td>
+                <td className="px-4 py-3">
+                  <OpportunityPhaseBadge phase={e.opportunityPhase} />
+                </td>
+                <td className="px-4 py-3">
+                  {e.closedWon ? (
+                    <span className="inline-flex flex-col text-xs">
+                      <span className="inline-flex w-fit items-center rounded bg-emerald-50 px-1.5 py-0.5 font-medium text-emerald-700 border border-emerald-200">
+                        ✓ Closed Won
+                      </span>
+                      {e.closedWonDeadline && (
+                        <span className="mt-0.5 text-slate-400">{formatDate(e.closedWonDeadline)}</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-slate-300">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-slate-600">{e.ownerName || "—"}</td>
                 <td className="px-4 py-3 text-right tabular-nums text-slate-700">

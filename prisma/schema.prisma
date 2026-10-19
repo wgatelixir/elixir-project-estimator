@@ -17,12 +17,30 @@ enum EstimationStatus {
   FINAL
 }
 
+// HubSpot's standard Sales Pipeline deal stages, in order.
+enum OpportunityPhase {
+  QUALIFIED_TO_BUY
+  DEMO_SCHEDULED
+  PROPOSAL_SENT
+  DECISION_MAKER_BOUGHT_IN
+  CONTRACT_SENT
+  CLOSED_WON
+  CLOSED_LOST
+}
+
 model Estimation {
   id          String           @id @default(cuid())
   clientName  String
   projectName String?
   ownerName   String?
   status      EstimationStatus @default(DRAFT)
+
+  // Sales-pipeline tracking for this opportunity. closedWon/closedWonDeadline
+  // are stored independently of opportunityPhase (not derived from it) - set
+  // both if you want "Closed Won" to show the same way everywhere.
+  opportunityPhase  OpportunityPhase @default(QUALIFIED_TO_BUY)
+  closedWon         Boolean          @default(false)
+  closedWonDeadline DateTime?
 
   // Full estimation state: workstreams, line items, complexity choices,
   // ElixirSync checkboxes, Third Party lines, rates, PM %, subscriptions.

@@ -1,0 +1,7 @@
+-- CreateEnum
+CREATE TYPE "OpportunityPhase" AS ENUM ('QUALIFIED_TO_BUY', 'DEMO_SCHEDULED', 'PROPOSAL_SENT', 'DECISION_MAKER_BOUGHT_IN', 'CONTRACT_SENT', 'CLOSED_WON', 'CLOSED_LOST');
+
+-- AlterTable
+ALTER TABLE "Estimation" ADD COLUMN     "closedWon" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "closedWonDeadline" TIMESTAMP(3),
+ADD COLUMN     "opportunityPhase" "OpportunityPhase" NOT NULL DEFAULT 'QUALIFIED_TO_BUY';
