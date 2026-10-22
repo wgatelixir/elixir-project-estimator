@@ -69,6 +69,9 @@ model EstimationVersion {
   estimationId String
   estimation   Estimation @relation(fields: [estimationId], references: [id], onDelete: Cascade)
 
+  /** 1, 2, 3... in save order per estimation - shown as "v1", "v2" so a version is easy to call out by name. */
+  versionNumber Int
+
   clientName        String
   projectName       String?
   ownerName         String?

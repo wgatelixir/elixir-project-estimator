@@ -31,14 +31,22 @@ export default async function EstimationVersionPage({ params }: PageProps) {
           >
             ← Back to version history
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-brand-ink">Version from {savedAt}</h1>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-brand-ink">
+            v{version.versionNumber}
+            <span className="font-normal text-slate-400"> · {savedAt}</span>
+          </h1>
         </div>
-        <RestoreVersionButton estimationId={id} versionId={versionId} savedAt={savedAt} />
+        <RestoreVersionButton
+          estimationId={id}
+          versionId={versionId}
+          versionNumber={version.versionNumber}
+          savedAt={savedAt}
+        />
       </div>
 
       <p className="mt-4 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-medium text-sky-800 print:hidden">
-        You&apos;re viewing a read-only snapshot saved on {savedAt}. Nothing here can be edited — use
-        &quot;Restore this version&quot; to make it the current version again.
+        You&apos;re viewing a read-only snapshot — v{version.versionNumber}, saved on {savedAt}. Nothing here
+        can be edited — use &quot;Restore this version&quot; to make it the current version again.
       </p>
 
       <div className="mt-6">

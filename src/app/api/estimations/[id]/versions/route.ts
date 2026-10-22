@@ -14,6 +14,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     select: {
       id: true,
       estimationId: true,
+      versionNumber: true,
       clientName: true,
       projectName: true,
       ownerName: true,

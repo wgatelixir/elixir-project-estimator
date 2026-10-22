@@ -22,6 +22,7 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
+      versionNumber: true,
       clientName: true,
       status: true,
       opportunityPhase: true,
@@ -53,6 +54,7 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
+              <th className="px-4 py-3 font-medium">Version</th>
               <th className="px-4 py-3 font-medium">Saved at</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Opportunity phase</th>
@@ -65,7 +67,7 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
           <tbody className="divide-y divide-slate-100">
             {versions.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
                   No versions saved yet.
                 </td>
               </tr>
@@ -77,7 +79,7 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
                     href={`/estimations/${id}/history/${v.id}`}
                     className="font-medium text-brand-ink transition-colors hover:text-brand-crimson hover:underline"
                   >
-                    {formatDateTime(v.createdAt.toISOString())}
+                    v{v.versionNumber}
                   </a>
                   {i === 0 && (
                     <span className="ml-2 inline-flex items-center rounded bg-brand-indigo/10 px-1.5 py-0.5 text-[11px] font-medium text-brand-indigo">
@@ -85,6 +87,7 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
                     </span>
                   )}
                 </td>
+                <td className="px-4 py-3 text-slate-500">{formatDateTime(v.createdAt.toISOString())}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={v.status} />
                 </td>

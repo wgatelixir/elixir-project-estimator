@@ -261,6 +261,8 @@ export interface EstimationRecord extends EstimationSummary {
 export interface EstimationVersionSummary {
   id: string;
   estimationId: string;
+  /** 1, 2, 3... in save order for this estimation - shown as "v1", "v2". */
+  versionNumber: number;
   clientName: string;
   projectName: string | null;
   ownerName: string | null;

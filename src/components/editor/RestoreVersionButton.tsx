@@ -6,17 +6,19 @@ import { useRouter } from "next/navigation";
 export function RestoreVersionButton({
   estimationId,
   versionId,
+  versionNumber,
   savedAt,
 }: {
   estimationId: string;
   versionId: string;
+  versionNumber: number;
   savedAt: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function restore() {
-    if (!confirm(`Restore the version saved at ${savedAt} as the current version of this estimation?`)) {
+    if (!confirm(`Restore v${versionNumber} (saved ${savedAt}) as the current version of this estimation?`)) {
       return;
     }
     setBusy(true);

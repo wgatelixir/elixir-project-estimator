@@ -30,13 +30,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const data = version.data as unknown as EstimationState;
   const totals = computeEstimationTotals(data);
-  const note = `Restored from ${version.createdAt.toLocaleString("en-GB", {
+  const note = `Restored from v${version.versionNumber} (${version.createdAt.toLocaleString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })}`;
+  })})`;
 
   const row = await prisma.$transaction(async (tx) => {
     const updated = await tx.estimation.update({

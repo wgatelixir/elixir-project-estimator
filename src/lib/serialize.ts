@@ -38,6 +38,7 @@ export function toVersionSummary(row: Omit<EstimationVersion, "data">): Estimati
   return {
     id: row.id,
     estimationId: row.estimationId,
+    versionNumber: row.versionNumber,
     clientName: row.clientName,
     projectName: row.projectName,
     ownerName: row.ownerName,

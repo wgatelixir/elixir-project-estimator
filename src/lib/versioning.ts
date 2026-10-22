@@ -5,11 +5,13 @@ import type { Estimation, Prisma, PrismaClient } from "@/generated/prisma/client
 // same transaction as the write it's capturing.
 type PrismaLike = PrismaClient | Prisma.TransactionClient;
 
-/** Inserts a read-only snapshot of `row` as-saved. Call this in the same transaction as the write that produced it. */
-export function snapshotEstimationVersion(client: PrismaLike, row: Estimation, note?: string) {
+/** Inserts a read-only snapshot of `row` as-saved, numbered v1, v2, v3... in save order for this estimation. Call this in the same transaction as the write that produced it. */
+export async function snapshotEstimationVersion(client: PrismaLike, row: Estimation, note?: string) {
+  const versionNumber = (await client.estimationVersion.count({ where: { estimationId: row.id } })) + 1;
   return client.estimationVersion.create({
     data: {
       estimationId: row.id,
+      versionNumber,
       clientName: row.clientName,
       projectName: row.projectName,
       ownerName: row.ownerName,
