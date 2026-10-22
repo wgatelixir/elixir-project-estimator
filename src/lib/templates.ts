@@ -527,7 +527,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-2-sales-workshop-1",
         activity: "Session",
-        topic: { en: "Sales Workshop 1", nl: "Sales workshop 1" },
+        topic: { en: "Lead Management Workshop", nl: "Lead management workshop" },
         duration: 3.0,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -538,7 +538,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-3-sales-workshop-2",
         activity: "Session",
-        topic: { en: "Sales Workshop 2", nl: "Sales workshop 2" },
+        topic: { en: "Deal Management Workshop", nl: "Dealbeheer workshop" },
         duration: 3.0,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -549,7 +549,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-4-sales-workshop-3",
         activity: "Session",
-        topic: { en: "Sales Workshop 3", nl: "Sales workshop 3" },
+        topic: { en: "Account & Activity Management Workshop", nl: "Account- en activiteitenbeheer workshop" },
         duration: 3.0,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -560,7 +560,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-5-sales-workshop-4",
         activity: "Session",
-        topic: { en: "Sales Workshop 4", nl: "Sales workshop 4" },
+        topic: { en: "Permissions, Dashboards & Reporting Workshop", nl: "Permissies, dashboards & rapportages workshop" },
         duration: 3.0,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -638,7 +638,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-12-sales-workshop-1",
         activity: "Session Prep",
-        topic: { en: "Sales Workshop 1", nl: "Sales workshop 1" },
+        topic: { en: "Lead Management Workshop", nl: "Lead management workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -650,7 +650,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-13-sales-workshop-2",
         activity: "Session Prep",
-        topic: { en: "Sales Workshop 2", nl: "Sales workshop 2" },
+        topic: { en: "Deal Management Workshop", nl: "Dealbeheer workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -662,7 +662,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-14-sales-workshop-3",
         activity: "Session Prep",
-        topic: { en: "Sales Workshop 3", nl: "Sales workshop 3" },
+        topic: { en: "Account & Activity Management Workshop", nl: "Account- en activiteitenbeheer workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -674,7 +674,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "sales_implementation-15-sales-workshop-4",
         activity: "Session Prep",
-        topic: { en: "Sales Workshop 4", nl: "Sales workshop 4" },
+        topic: { en: "Permissions, Dashboards & Reporting Workshop", nl: "Permissies, dashboards & rapportages workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1142,7 +1142,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-2-marketing-workshop-1",
         activity: "Session",
-        topic: { en: "Marketing Workshop 1", nl: "Marketing workshop 1" },
+        topic: { en: "Campaign Flow & Buyer's Journey Workshop", nl: "Campagneflow & buyer journey workshop" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1153,7 +1153,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-3-marketing-workshop-2",
         activity: "Session",
-        topic: { en: "Marketing Workshop 2", nl: "Marketing workshop 2" },
+        topic: { en: "GDPR & Marketing Contacts Workshop", nl: "AVG & marketingcontacten workshop" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1164,7 +1164,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-4-marketing-workshop-3",
         activity: "Session",
-        topic: { en: "Marketing Workshop 3", nl: "Marketing workshop 3" },
+        topic: { en: "Lead Qualification & Scoring Workshop", nl: "Leadkwalificatie & scoring workshop" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1175,7 +1175,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-5-marketing-workshop-4",
         activity: "Session",
-        topic: { en: "Marketing Workshop 4", nl: "Marketing workshop 4" },
+        topic: { en: "Lead Scoring & Campaign Flow Workshop", nl: "Leadscoring & campagneflow workshop" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1186,7 +1186,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-6-marketing-workshop-5",
         activity: "Session",
-        topic: { en: "Marketing Workshop 5", nl: "Marketing workshop 5" },
+        topic: { en: "Technical Setup & Asset Training I", nl: "Technische set-up & training campagnemateriaal I" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1197,7 +1197,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-7-marketing-workshop-6",
         activity: "Session",
-        topic: { en: "Marketing Workshop 6", nl: "Marketing workshop 6" },
+        topic: { en: "Technical Setup & Asset Training II", nl: "Technische set-up & training campagnemateriaal II" },
         duration: 1.5,
         standardEffort: 6.0,
         complexityTable: "session",
@@ -1208,7 +1208,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-8-marketing-workshop-7",
         activity: "Session",
-        topic: { en: "Marketing Workshop 7", nl: "Marketing workshop 7" },
+        topic: { en: "Permissions, Dashboards & Reporting Workshop", nl: "Permissies, dashboards & rapportages workshop" },
         duration: 1.5,
         standardEffort: 4.0,
         complexityTable: "session",
@@ -1219,7 +1219,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-9-marketing-validation-session-1",
         activity: "Session",
-        topic: { en: "Marketing Validation Session 1", nl: "Marketing validatiesessie 1" },
+        topic: { en: "Campaign Validation & Analytics Session", nl: "Campagnevalidatie & analytics sessie" },
         duration: 1.5,
         standardEffort: 4.0,
         complexityTable: "session",
@@ -1230,7 +1230,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-10-marketing-validation-session-2",
         activity: "Session",
-        topic: { en: "Marketing Validation Session 2", nl: "Marketing validatiesessie 2" },
+        topic: { en: "Overall & Campaign Check-in Session", nl: "Algemene & campagne check-in sessie" },
         duration: 1.5,
         standardEffort: 3.0,
         complexityTable: "session",
@@ -1253,7 +1253,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-12-marketing-workshop-1",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 1", nl: "Marketing workshop 1" },
+        topic: { en: "Campaign Flow & Buyer's Journey Workshop", nl: "Campagneflow & buyer journey workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1265,7 +1265,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-13-marketing-workshop-2",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 2", nl: "Marketing workshop 2" },
+        topic: { en: "GDPR & Marketing Contacts Workshop", nl: "AVG & marketingcontacten workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1277,7 +1277,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-14-marketing-workshop-3",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 3", nl: "Marketing workshop 3" },
+        topic: { en: "Lead Qualification & Scoring Workshop", nl: "Leadkwalificatie & scoring workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1289,7 +1289,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-15-marketing-workshop-4",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 4", nl: "Marketing workshop 4" },
+        topic: { en: "Lead Scoring & Campaign Flow Workshop", nl: "Leadscoring & campagneflow workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1301,7 +1301,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-16-marketing-workshop-5",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 5", nl: "Marketing workshop 5" },
+        topic: { en: "Technical Setup & Asset Training I", nl: "Technische set-up & training campagnemateriaal I" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1313,7 +1313,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-17-marketing-workshop-6",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 6", nl: "Marketing workshop 6" },
+        topic: { en: "Technical Setup & Asset Training II", nl: "Technische set-up & training campagnemateriaal II" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
@@ -1325,7 +1325,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
       {
         id: "marketing_implementation-18-marketing-workshop-7",
         activity: "Session Prep",
-        topic: { en: "Marketing Workshop 7", nl: "Marketing workshop 7" },
+        topic: { en: "Permissions, Dashboards & Reporting Workshop", nl: "Permissies, dashboards & rapportages workshop" },
         duration: null,
         standardEffort: 3.0,
         complexityTable: "setup",
