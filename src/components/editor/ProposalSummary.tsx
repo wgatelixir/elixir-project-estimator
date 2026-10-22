@@ -568,6 +568,15 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
               ]),
               ...(showPhases
                 ? [
+                    <OverviewPmRow
+                      key={`phase-${group.phase}-pm`}
+                      label={t(s.projectManagement, locale)}
+                      pmPercent={totals.pmPercent}
+                      pmHours={group.pmHours}
+                      pmRate={totals.pmRate}
+                      pmPrice={group.pmPrice}
+                      locale={locale}
+                    />,
                     <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid">
                       <td className="truncate px-3 py-1">
                         {t(s.phaseSubtotal, locale)} {group.phase ?? t(s.notApplicableShort, locale)}

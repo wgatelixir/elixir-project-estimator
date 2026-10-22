@@ -332,6 +332,9 @@ export interface PhaseGroup {
   /** Implementation + PM, the same basis as the per-onderdeel Total (incl. PM) rows. */
   hours: number;
   price: number;
+  /** Just this phase's own share of project management (already folded into hours/price above). */
+  pmHours: number;
+  pmPrice: number;
 }
 
 /**
@@ -388,6 +391,8 @@ export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; 
         rows: groupRows,
         hours: groupRows.reduce((sum, w) => sum + w.hours + w.pmHours, 0),
         price: groupRows.reduce((sum, w) => sum + w.price + w.pmPrice, 0),
+        pmHours: groupRows.reduce((sum, w) => sum + w.pmHours, 0),
+        pmPrice: groupRows.reduce((sum, w) => sum + w.pmPrice, 0),
       };
     })
     .filter((group) => group.rows.length > 0);

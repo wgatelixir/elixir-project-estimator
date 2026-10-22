@@ -27,5 +27,5 @@ export function LineItemNote({
     );
   }
 
-  return <p className="mt-0.5 text-[11px] leading-snug text-slate-400">{t(comment, locale)}</p>;
+  return <p className="mt-0.5 text-[11px] leading-snug text-slate-600">{t(comment, locale)}</p>;
 }

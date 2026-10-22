@@ -69,7 +69,15 @@ export function SummarySidebar({
                 ))}
               </dl>
               {showPhases && (
-                <div className="mt-1 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-1 text-xs font-medium text-brand-ink">
+                <div className="mt-1 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-1 text-xs text-slate-500">
+                  <span>{t(s.projectManagement, locale)}</span>
+                  <span className="whitespace-nowrap tabular-nums">
+                    {formatHours(group.pmHours, locale)} · {formatCurrency(group.pmPrice, locale)}
+                  </span>
+                </div>
+              )}
+              {showPhases && (
+                <div className="mt-1 flex items-center justify-between gap-2 text-xs font-medium text-brand-ink">
                   <span>
                     {t(UI_STRINGS.proposalSummary.phaseSubtotal, locale)}{" "}
                     {group.phase ?? t(UI_STRINGS.proposalSummary.notApplicableShort, locale)}
