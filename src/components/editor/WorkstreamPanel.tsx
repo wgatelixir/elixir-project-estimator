@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { ComplexityTable, LineActivityType, Locale, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort, lineItemPrice, workstreamMonths } from "@/lib/calculations";
+import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
+import { lineItemFinalEffort, lineItemPrice, resolvePhase, workstreamMonths } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_LEGEND,
@@ -75,6 +75,49 @@ function LineLink({
         ))}
       </select>
     </label>
+  );
+}
+
+/**
+ * Per-line delivery phase, overriding the workstream's own - so one session
+ * can be planned for phase 1 while another in the same workstream waits for
+ * phase 2. Left on "Default" it just follows the workstream's phase.
+ */
+function LinePhaseSelect({
+  phase,
+  workstreamPhase,
+  locale,
+  onChange,
+}: {
+  phase: ProjectPhase | null | undefined;
+  workstreamPhase: ProjectPhase | null;
+  locale: Locale;
+  onChange: (phase: ProjectPhase | null | undefined) => void;
+}) {
+  const s = UI_STRINGS.workstreamPanel;
+  const cp = UI_STRINGS.coverPage;
+  const defaultLabel = `${t(s.linePhaseDefault, locale)} (${
+    workstreamPhase === null ? t(cp.phaseNotApplicable, locale) : `${t(cp.columnPhase, locale)} ${workstreamPhase}`
+  })`;
+  const value = phase === undefined ? "default" : phase === null ? "na" : String(phase);
+  return (
+    <select
+      value={value}
+      onChange={(e) => {
+        const v = e.target.value;
+        onChange(v === "default" ? undefined : v === "na" ? null : (Number(v) as ProjectPhase));
+      }}
+      title={t(s.linePhaseTitle, locale)}
+      className={`mt-0.5 max-w-[180px] truncate rounded border border-transparent bg-transparent py-0 pl-0.5 pr-5 text-[11px] hover:border-slate-200 focus:border-brand-indigo focus:outline-none ${
+        phase !== undefined ? "text-brand-indigo" : "text-slate-400"
+      }`}
+    >
+      <option value="default">{defaultLabel}</option>
+      <option value="1">{t(cp.columnPhase, locale)} 1</option>
+      <option value="2">{t(cp.columnPhase, locale)} 2</option>
+      <option value="3">{t(cp.columnPhase, locale)} 3</option>
+      <option value="na">{t(cp.phaseNotApplicable, locale)}</option>
+    </select>
   );
 }
 
@@ -394,6 +437,12 @@ export function WorkstreamPanel({
                     />
                     <LineItemNote comment={item.comment} locale={locale} />
                     <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />
+                    <LinePhaseSelect
+                      phase={item.phase}
+                      workstreamPhase={resolvePhase(workstream.phase)}
+                      locale={locale}
+                      onChange={(phase) => updateItem(item.id, { phase })}
+                    />
                   </td>
                   <td className="px-3 py-2 text-right">
                     {isCustom ? (

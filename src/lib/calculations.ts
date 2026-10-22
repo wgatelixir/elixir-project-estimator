@@ -55,6 +55,23 @@ export function resolvePhase(phase: ProjectPhase | null | undefined): ProjectPha
   return phase === undefined ? 1 : phase;
 }
 
+/** A line's own phase if set, otherwise its workstream's (already-resolved) phase. */
+export function resolveLinePhase(
+  itemPhase: ProjectPhase | null | undefined,
+  workstreamPhase: ProjectPhase | null
+): ProjectPhase | null {
+  return itemPhase === undefined ? workstreamPhase : itemPhase;
+}
+
+/** A standard workstream's hours/price/PM for just the lines in one phase. */
+export interface WorkstreamPhaseSlice {
+  phase: ProjectPhase | null;
+  hours: number;
+  price: number;
+  pmHours: number;
+  pmPrice: number;
+}
+
 export interface WorkstreamTotals {
   key: string;
   label: LocalizedString;
@@ -70,6 +87,14 @@ export interface WorkstreamTotals {
   pmPrice: number;
   /** Set for a monthly retainer: hours/price above are the totals over all months. */
   retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
+  /**
+   * This onderdeel's own lines, split by their resolved phase (see
+   * resolveLinePhase) - one slice per phase actually in use. More than one
+   * entry means the onderdeel's sessions span multiple delivery phases.
+   * Only set for standard workstreams; Third Party and ElixirSync carry a
+   * single phase for the whole onderdeel.
+   */
+  phaseSlices?: WorkstreamPhaseSlice[];
 }
 
 /** Months a workstream's line hours are multiplied by: the retainer length, or 1 for one-off work. */
@@ -90,11 +115,31 @@ export function computeStandardWorkstreamTotals(
   const months = workstreamMonths(ws);
   const hours = monthlyHours * months;
   const pmHours = hours * pmPercent;
+  const wsPhase = resolvePhase(ws.phase);
+
+  // Bucket this onderdeel's own lines by resolved phase, so a workstream whose
+  // sessions span multiple phases can contribute to each phase's roadmap total.
+  const buckets = new Map<ProjectPhase | null, { hours: number; price: number }>();
+  for (const item of lines) {
+    const itemPhase = resolveLinePhase(item.phase, wsPhase);
+    const bucket = buckets.get(itemPhase) ?? { hours: 0, price: 0 };
+    bucket.hours += lineItemFinalEffort(item, ws) * months;
+    bucket.price += lineItemPrice(item, ws) * months;
+    buckets.set(itemPhase, bucket);
+  }
+  const phaseSlices: WorkstreamPhaseSlice[] =
+    buckets.size > 0
+      ? [...buckets.entries()].map(([phase, b]) => {
+          const slicePmHours = b.hours * pmPercent;
+          return { phase, hours: b.hours, price: b.price, pmHours: slicePmHours, pmPrice: slicePmHours * pmRate };
+        })
+      : [{ phase: wsPhase, hours: 0, price: 0, pmHours: 0, pmPrice: 0 }];
+
   return {
     key: ws.key,
     label: ws.label,
     enabled: ws.enabled,
-    phase: resolvePhase(ws.phase),
+    phase: wsPhase,
     stage: ws.stage ?? "proposal",
     hours,
     hourlyRate: hasLineRates && monthlyHours > 0 ? monthlyPrice / monthlyHours : ws.hourlyRate,
@@ -102,6 +147,7 @@ export function computeStandardWorkstreamTotals(
     pmHours,
     pmPrice: pmHours * pmRate,
     ...(ws.custom?.retainerMonths ? { retainer: { months, monthlyHours, monthlyPrice } } : {}),
+    phaseSlices,
   };
 }
 
@@ -266,9 +312,23 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
   };
 }
 
+/** One onderdeel's contribution to one phase group - the whole onderdeel, or just the slice of its lines in this phase. */
+export interface PhaseGroupRow {
+  key: string;
+  label: LocalizedString;
+  hours: number;
+  hourlyRate: number;
+  price: number;
+  pmHours: number;
+  pmPrice: number;
+  retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
+  /** True when this onderdeel's own lines span more than one phase, so this row is only part of it. */
+  isPartial: boolean;
+}
+
 export interface PhaseGroup {
   phase: ProjectPhase | null;
-  rows: WorkstreamTotals[];
+  rows: PhaseGroupRow[];
   /** Implementation + PM, the same basis as the per-onderdeel Total (incl. PM) rows. */
   hours: number;
   price: number;
@@ -276,25 +336,58 @@ export interface PhaseGroup {
 
 /**
  * Every included onderdeel (standard workstreams, then the integrations),
- * grouped by delivery phase in phase order. `showPhases` is false when
- * everything sits in one phase, so views can skip phase headings that
- * would only repeat "Phase 1".
+ * grouped by delivery phase in phase order. A standard workstream whose own
+ * lines span multiple phases (see StandardLineItem.phase) contributes one
+ * row per phase, each carrying just that phase's slice of its hours/price/PM
+ * - `isPartial` flags those rows. `showPhases` is false when everything
+ * sits in one phase, so views can skip phase headings that would only
+ * repeat "Phase 1".
  */
 export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; showPhases: boolean } {
-  const onderdelen = [
-    ...totals.workstreams.filter((w) => w.enabled),
-    ...(totals.thirdParty.enabled ? [totals.thirdParty] : []),
-    ...(totals.elixirSync.enabled ? [totals.elixirSync] : []),
-  ];
-  // Onderdelen without a phase ("n.v.t.") come last, as their own group.
+  const rows: (PhaseGroupRow & { phase: ProjectPhase | null })[] = [];
+
+  for (const w of totals.workstreams.filter((ws) => ws.enabled)) {
+    const slices = w.phaseSlices ?? [{ phase: w.phase, hours: w.hours, price: w.price, pmHours: w.pmHours, pmPrice: w.pmPrice }];
+    const isPartial = slices.length > 1;
+    for (const slice of slices) {
+      rows.push({
+        key: w.key,
+        label: w.label,
+        phase: slice.phase,
+        hours: slice.hours,
+        price: slice.price,
+        hourlyRate: slice.hours > 0 ? slice.price / slice.hours : w.hourlyRate,
+        pmHours: slice.pmHours,
+        pmPrice: slice.pmPrice,
+        retainer: w.retainer,
+        isPartial,
+      });
+    }
+  }
+  for (const w of [totals.thirdParty, totals.elixirSync]) {
+    if (!w.enabled) continue;
+    rows.push({
+      key: w.key,
+      label: w.label,
+      phase: w.phase,
+      hours: w.hours,
+      price: w.price,
+      hourlyRate: w.hourlyRate,
+      pmHours: w.pmHours,
+      pmPrice: w.pmPrice,
+      isPartial: false,
+    });
+  }
+
+  // Onderdelen (or slices) without a phase ("n.v.t.") come last, as their own group.
   const groups = ([1, 2, 3, null] as const)
     .map((phase) => {
-      const rows = onderdelen.filter((w) => w.phase === phase);
+      const groupRows: PhaseGroupRow[] = rows.filter((r) => r.phase === phase);
       return {
         phase,
-        rows,
-        hours: rows.reduce((sum, w) => sum + w.hours + w.pmHours, 0),
-        price: rows.reduce((sum, w) => sum + w.price + w.pmPrice, 0),
+        rows: groupRows,
+        hours: groupRows.reduce((sum, w) => sum + w.hours + w.pmHours, 0),
+        price: groupRows.reduce((sum, w) => sum + w.price + w.pmPrice, 0),
       };
     })
     .filter((group) => group.rows.length > 0);

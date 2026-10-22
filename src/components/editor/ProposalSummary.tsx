@@ -6,6 +6,7 @@ import {
   computeEstimationTotals,
   groupByPhase,
   resolvePhase,
+  resolveLinePhase,
   lineItemFinalEffort,
   lineItemPrice,
   lineItemRate,
@@ -66,6 +67,16 @@ function ComplexityPill({ level }: { level: string }) {
   return (
     <span className={`inline-flex items-center whitespace-nowrap rounded px-1 py-0.5 text-[11px] font-medium ${style.badge}`}>
       {level}
+    </span>
+  );
+}
+
+/** Shown next to a line's topic only when its onderdeel's own lines span more than one phase. */
+function PhasePill({ phase, locale }: { phase: ProjectPhase | null; locale: Locale }) {
+  const s = UI_STRINGS.proposalSummary;
+  return (
+    <span className="mt-0.5 inline-flex w-fit items-center whitespace-nowrap rounded bg-brand-indigo/10 px-1 py-0.5 text-[10px] font-medium text-brand-indigo">
+      {phase === null ? t(s.phaseNotApplicable, locale) : `${t(s.phase, locale)} ${phase}`}
     </span>
   );
 }
@@ -205,6 +216,8 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     const wTotals = totals.workstreams.find((w) => w.key === ws.key)!;
     const hours = wTotals.hours;
     const retainer = wTotals.retainer;
+    // Only shown per line when this onderdeel's own sessions actually span more than one phase.
+    const showLinePhases = (wTotals.phaseSlices?.length ?? 1) > 1;
     const typePrefix = ws.custom ? `${t(CUSTOM_WORKSTREAM_TYPE_LABELS[ws.custom.type], locale)} · ` : "";
     const retainerPrefix = retainer ? `${retainerText(retainer)} · ` : "";
     pages.push({
@@ -253,6 +266,9 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                     <td className="px-3 py-1 text-brand-ink">
                       <div className="truncate">{t(item.topic, locale)}</div>
                       <LineItemNote comment={item.comment} locale={locale} />
+                      {showLinePhases && (
+                        <PhasePill phase={resolveLinePhase(item.phase, wTotals.phase)} locale={locale} />
+                      )}
                     </td>
                     {ws.custom ? (
                       // Client-specific lines are priced per line (own rate possible), so show hours, rate and amount.
@@ -529,6 +545,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 <tr key={w.key} className="print:break-inside-avoid">
                   <td className="truncate px-3 py-1 text-brand-ink">
                     {t(w.label, locale)}
+                    {w.isPartial && <span className="text-slate-400"> ({t(s.partialNote, locale)})</span>}
                     {w.retainer && <span className="text-slate-400"> ({retainerText(w.retainer)})</span>}
                   </td>
                   <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours, locale)}</td>

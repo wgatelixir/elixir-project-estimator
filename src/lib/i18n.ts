@@ -179,6 +179,11 @@ export const UI_STRINGS = {
     },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
     total: { en: "Total (incl. PM)", nl: "Totaal (incl. PM)" },
+    linePhaseTitle: {
+      en: "Delivery phase for this line - overrides the workstream's own phase",
+      nl: "Opleverfase voor deze regel - overschrijft de fase van de workstream",
+    },
+    linePhaseDefault: { en: "Default", nl: "Standaard" },
   },
   thirdPartyPanel: {
     includeThirdParty: { en: "Include third party integration", nl: "Third party integration opnemen" },
@@ -290,6 +295,7 @@ export const UI_STRINGS = {
     phaseSubtotal: { en: "Subtotal phase", nl: "Subtotaal fase" },
     phaseNotApplicable: { en: "No phase", nl: "Geen fase" },
     notApplicableShort: { en: "n/a", nl: "n.v.t." },
+    partialNote: { en: "part", nl: "deels" },
     untitledClient: { en: "Untitled client", nl: "Naamloze klant" },
     generated: { en: "Generated", nl: "Gegenereerd op" },
     preparedBy: { en: "Prepared by", nl: "Opgesteld door" },

@@ -7,6 +7,7 @@
 import {
   type WorkstreamTotals,
   computeEstimationTotals,
+  resolveLinePhase,
   totalsByStage,
   elixirSyncStreamHours,
   lineItemFinalEffort,
@@ -203,7 +204,7 @@ export function buildEstimationExport(meta: ExportMeta, data: EstimationState, n
         return {
           workstreamKey: ws.key,
           workstream: name(ws.label),
-          phase: w.phase,
+          phase: resolveLinePhase(item.phase, w.phase),
           lineId: item.id,
           activity: item.activity,
           topic: name(item.topic),

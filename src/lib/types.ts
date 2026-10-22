@@ -56,6 +56,13 @@ export interface StandardLineItem {
   comment?: LocalizedString | null;
   /** Unchecked lines are kept (for re-enabling) but excluded from totals. */
   enabled: boolean;
+  /**
+   * Overrides the workstream's own phase for this one line (e.g. one session
+   * of a workstream delivered in phase 1, another in phase 2). Missing =
+   * inherit the workstream's phase; `null` = this line explicitly has no
+   * phase, regardless of the workstream's.
+   */
+  phase?: ProjectPhase | null;
 }
 
 /**

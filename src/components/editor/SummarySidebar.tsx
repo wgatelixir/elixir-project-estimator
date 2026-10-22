@@ -58,7 +58,12 @@ export function SummarySidebar({
               <dl className="space-y-1.5">
                 {group.rows.map((w) => (
                   <div key={w.key} className="flex items-center justify-between gap-2">
-                    <dt className="truncate text-slate-500">{t(w.label, locale)}</dt>
+                    <dt className="truncate text-slate-500">
+                      {t(w.label, locale)}
+                      {w.isPartial && (
+                        <span className="text-slate-400"> ({t(UI_STRINGS.proposalSummary.partialNote, locale)})</span>
+                      )}
+                    </dt>
                     <dd className="whitespace-nowrap tabular-nums text-slate-700">{formatHours(w.hours, locale)}</dd>
                   </div>
                 ))}
