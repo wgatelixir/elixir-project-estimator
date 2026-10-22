@@ -31,10 +31,18 @@ export const UI_STRINGS = {
   },
   editor: {
     tabCover: { en: "📃 Cover", nl: "📃 Voorblad" },
+    tabOverview: { en: "📊 Overview", nl: "📊 Overzicht" },
     tabHubspotLicense: { en: "💶 HubSpot License", nl: "💶 HubSpot-licentie" },
     tabThirdParty: { en: "Third Party Integration", nl: "Third Party Integration" },
     tabElixirSync: { en: "ElixirSync Integration", nl: "ElixirSync Integration" },
     downloadPdf: { en: "🖨️ Download PDF", nl: "🖨️ PDF downloaden" },
+  },
+  overviewPanel: {
+    title: { en: "Overview by phase", nl: "Overzicht per fase" },
+    intro: {
+      en: "Every included onderdeel, grouped by delivery phase - set per onderdeel on Cover, or per session within a workstream. The same roadmap shown on the Proposal Summary's Overview page.",
+      nl: "Elk opgenomen onderdeel, gegroepeerd per opleverfase - ingesteld per onderdeel op het voorblad, of per sessie binnen een workstream. Dezelfde roadmap als op de Overzicht-pagina van de Proposal Summary.",
+    },
   },
   templateUpgrade: {
     bannerTitle: { en: "Created with the old estimation template (V2)", nl: "Gemaakt met het oude estimation-template (V2)" },

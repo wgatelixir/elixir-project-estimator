@@ -28,6 +28,7 @@ import { TopBar } from "./TopBar";
 import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
 import { TabBar, type TabDef } from "./TabBar";
 import { CoverPage } from "./CoverPage";
+import { OverviewPanel } from "./OverviewPanel";
 import { WorkstreamPanel } from "./WorkstreamPanel";
 import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
@@ -35,6 +36,7 @@ import { HubSpotLicensePanel } from "./HubSpotLicensePanel";
 import { ProposalSummary } from "./ProposalSummary";
 
 const COVER_TAB_ID = "cover";
+const OVERVIEW_TAB_ID = "overview";
 const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
 const PROPOSAL_TAB_ID = "proposal_summary";
 
@@ -96,6 +98,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const tabs: TabDef[] = useMemo(
     () => [
       { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale) },
+      { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale) },
       ...(data.hubspotLicense.enabled
         ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) }]
         : []),
@@ -424,6 +427,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                   locale={locale}
                 />
               )}
+              {activeTab === OVERVIEW_TAB_ID && <OverviewPanel totals={totals} locale={locale} />}
               {activeTab === HUBSPOT_LICENSE_TAB_ID && (
                 <HubSpotLicensePanel state={data.hubspotLicense} onChange={updateHubSpotLicense} locale={locale} />
               )}

@@ -27,6 +27,7 @@ import { t, UI_STRINGS } from "@/lib/i18n";
 import { CUSTOM_WORKSTREAM_TYPE_LABELS } from "@/lib/customWorkstreams";
 import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
+import { PhaseOverviewTable } from "./PhaseOverviewTable";
 
 interface Meta {
   clientName: string;
@@ -41,7 +42,6 @@ interface Meta {
 const WORKSTREAM_COLS = ["13%", "39%", "9%", "22%", "17%"];
 const THIRD_PARTY_COLS = ["10%", "24%", "16%", "16%", "20%", "14%"];
 const ELIXIRSYNC_COLS = ["75%", "25%"];
-const OVERVIEW_COLS = ["40%", "20%", "20%", "20%"];
 
 function ColGroup({ widths }: { widths: string[] }) {
   return (
@@ -78,34 +78,6 @@ function PhasePill({ phase, locale }: { phase: ProjectPhase | null; locale: Loca
     <span className="mt-0.5 inline-flex w-fit items-center whitespace-nowrap rounded bg-brand-indigo/10 px-1 py-0.5 text-[10px] font-medium text-brand-indigo">
       {phase === null ? t(s.phaseNotApplicable, locale) : `${t(s.phase, locale)} ${phase}`}
     </span>
-  );
-}
-
-/** A single onderdeel's own PM contribution, nested under its row in the Overview table. */
-function OverviewPmRow({
-  label,
-  pmPercent,
-  pmHours,
-  pmRate,
-  pmPrice,
-  locale,
-}: {
-  label: string;
-  pmPercent: number;
-  pmHours: number;
-  pmRate: number;
-  pmPrice: number;
-  locale: Locale;
-}) {
-  return (
-    <tr className="print:break-inside-avoid">
-      <td className="truncate py-1 pl-6 pr-3 text-slate-400">
-        {label} ({formatPercent(pmPercent)})
-      </td>
-      <td className="px-3 py-1 text-right tabular-nums text-slate-400">{formatHours(pmHours, locale)}</td>
-      <td className="px-3 py-1 text-right tabular-nums text-slate-400">{formatCurrency(pmRate, locale)}</td>
-      <td className="px-3 py-1 text-right tabular-nums text-slate-500">{formatCurrency(pmPrice, locale)}</td>
-    </tr>
   );
 }
 
@@ -196,15 +168,13 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   const includedStreams = elixirSync.streams.filter((stream) => stream.included);
   const statusLabel = meta.status === "FINAL" ? t(s.statusFinal, locale) : t(s.statusDraft, locale);
 
-  const { groups: phaseGroups, showPhases } = groupByPhase(totals);
+  const { showPhases } = groupByPhase(totals);
   // Phase label in each onderdeel's page header - only once more than one phase is in use.
   const phasePrefix = (phase: ProjectPhase | null | undefined) => {
     if (!showPhases) return "";
     const resolved = resolvePhase(phase);
     return resolved === null ? `${t(s.phaseNotApplicable, locale)} · ` : `${t(s.phase, locale)} ${resolved} · `;
   };
-  /** Heading for a phase group in the Overview (and the sidebar): "Phase 2", or "No phase" for n.v.t. */
-  const phaseLabel = (phase: ProjectPhase | null) => (phase === null ? t(s.phaseNotApplicable, locale) : `${t(s.phase, locale)} ${phase}`);
 
   const retainerText = (r: { months: number; monthlyPrice: number }) =>
     `${formatCurrency(r.monthlyPrice, locale)}/${t(s.monthShort, locale)} × ${r.months} ${t(UI_STRINGS.workstreamPanel.months, locale)}`;
@@ -520,101 +490,7 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     key: "overview",
     content: (
       <SectionCard title={t(s.overview, locale)}>
-        <table className="w-full table-fixed text-left">
-          <ColGroup widths={OVERVIEW_COLS} />
-          <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
-            <tr>
-              <th className="truncate px-3 py-1 font-medium">{t(s.columnWorkstream, locale)}</th>
-              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnHours, locale)}</th>
-              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnRate, locale)}</th>
-              <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnPrice, locale)}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {phaseGroups.flatMap((group) => [
-              ...(showPhases
-                ? [
-                    <tr key={`phase-${group.phase}`} className="bg-slate-50 print:break-inside-avoid">
-                      <td className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo" colSpan={4}>
-                        {phaseLabel(group.phase)}
-                      </td>
-                    </tr>,
-                  ]
-                : []),
-              ...group.rows.flatMap((w) => [
-                <tr key={w.key} className="print:break-inside-avoid">
-                  <td className="truncate px-3 py-1 text-brand-ink">
-                    {t(w.label, locale)}
-                    {w.isPartial && <span className="text-slate-400"> ({t(s.partialNote, locale)})</span>}
-                    {w.retainer && <span className="text-slate-400"> ({retainerText(w.retainer)})</span>}
-                  </td>
-                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">{formatHours(w.hours, locale)}</td>
-                  <td className="px-3 py-1 text-right tabular-nums text-slate-600">
-                    {formatCurrency(w.hourlyRate, locale)}
-                  </td>
-                  <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                    {formatCurrency(w.price, locale)}
-                  </td>
-                </tr>,
-                <OverviewPmRow
-                  key={`${w.key}-pm`}
-                  label={t(s.projectManagement, locale)}
-                  pmPercent={totals.pmPercent}
-                  pmHours={w.pmHours}
-                  pmRate={totals.pmRate}
-                  pmPrice={w.pmPrice}
-                  locale={locale}
-                />,
-              ]),
-              ...(showPhases
-                ? [
-                    <OverviewPmRow
-                      key={`phase-${group.phase}-pm`}
-                      label={t(s.projectManagement, locale)}
-                      pmPercent={totals.pmPercent}
-                      pmHours={group.pmHours}
-                      pmRate={totals.pmRate}
-                      pmPrice={group.pmPrice}
-                      locale={locale}
-                    />,
-                    <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid">
-                      <td className="truncate px-3 py-1">
-                        {t(s.phaseSubtotal, locale)} {group.phase ?? t(s.notApplicableShort, locale)}
-                      </td>
-                      <td className="px-3 py-1 text-right tabular-nums">
-                        {formatHours(group.hours, locale)}
-                      </td>
-                      <td />
-                      <td className="px-3 py-1 text-right tabular-nums">
-                        {formatCurrency(group.price, locale)}
-                      </td>
-                    </tr>,
-                  ]
-                : []),
-            ])}
-            {totals.subscriptions
-              .filter((sub) => sub.qty > 0)
-              .map((sub) => (
-                <tr key={sub.label.en} className="print:break-inside-avoid">
-                  <td className="truncate px-3 py-1 text-brand-ink" colSpan={3}>
-                    {t(sub.label, locale)} ({sub.qty}&times;)
-                  </td>
-                  <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
-                    {formatCurrency(sub.price, locale)}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-        <div className="flex items-center justify-between bg-brand-indigo px-3 py-2 text-white">
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-white/80">{t(s.grandTotal, locale)}</div>
-            <div className="text-[10px] text-white/70">
-              {formatHours(totals.totalEffortHours, locale)} {t(s.totalEffort, locale)}
-            </div>
-          </div>
-          <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
-        </div>
+        <PhaseOverviewTable totals={totals} locale={locale} />
       </SectionCard>
     ),
   });
