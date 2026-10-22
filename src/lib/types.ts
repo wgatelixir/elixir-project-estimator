@@ -249,3 +249,25 @@ export interface EstimationSummary {
 export interface EstimationRecord extends EstimationSummary {
   data: EstimationState;
 }
+
+/** A read-only snapshot taken every time an estimation is created or saved - see EstimationVersion in prisma/schema.prisma. */
+export interface EstimationVersionSummary {
+  id: string;
+  estimationId: string;
+  clientName: string;
+  projectName: string | null;
+  ownerName: string | null;
+  status: EstimationStatus;
+  opportunityPhase: OpportunityPhase;
+  closedWon: boolean;
+  closedWonDeadline: string | null;
+  totalHours: number;
+  totalPrice: number;
+  /** Set only when this snapshot was created by restoring an earlier one. */
+  note: string | null;
+  createdAt: string;
+}
+
+export interface EstimationVersionRecord extends EstimationVersionSummary {
+  data: EstimationState;
+}

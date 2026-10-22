@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { computeEstimationTotals } from "@/lib/calculations";
 import { updateEstimationSchema } from "@/lib/validation";
 import { toRecord } from "@/lib/serialize";
+import { snapshotEstimationVersion } from "@/lib/versioning";
 import type { EstimationState } from "@/lib/types";
 
 interface RouteParams {
@@ -37,27 +38,31 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const nextData = (parsed.data.data ?? existing.data) as unknown as EstimationState;
   const totals = computeEstimationTotals(nextData);
 
-  const row = await prisma.estimation.update({
-    where: { id },
-    data: {
-      clientName: parsed.data.clientName ?? existing.clientName,
-      projectName:
-        parsed.data.projectName !== undefined ? parsed.data.projectName || null : existing.projectName,
-      ownerName:
-        parsed.data.ownerName !== undefined ? parsed.data.ownerName || null : existing.ownerName,
-      status: parsed.data.status ?? existing.status,
-      opportunityPhase: parsed.data.opportunityPhase ?? existing.opportunityPhase,
-      closedWon: parsed.data.closedWon ?? existing.closedWon,
-      closedWonDeadline:
-        parsed.data.closedWonDeadline !== undefined
-          ? parsed.data.closedWonDeadline
-            ? new Date(parsed.data.closedWonDeadline)
-            : null
-          : existing.closedWonDeadline,
-      data: nextData as unknown as Prisma.InputJsonValue,
-      totalHours: totals.totalEffortHours,
-      totalPrice: totals.grandTotalPrice,
-    },
+  const row = await prisma.$transaction(async (tx) => {
+    const updated = await tx.estimation.update({
+      where: { id },
+      data: {
+        clientName: parsed.data.clientName ?? existing.clientName,
+        projectName:
+          parsed.data.projectName !== undefined ? parsed.data.projectName || null : existing.projectName,
+        ownerName:
+          parsed.data.ownerName !== undefined ? parsed.data.ownerName || null : existing.ownerName,
+        status: parsed.data.status ?? existing.status,
+        opportunityPhase: parsed.data.opportunityPhase ?? existing.opportunityPhase,
+        closedWon: parsed.data.closedWon ?? existing.closedWon,
+        closedWonDeadline:
+          parsed.data.closedWonDeadline !== undefined
+            ? parsed.data.closedWonDeadline
+              ? new Date(parsed.data.closedWonDeadline)
+              : null
+            : existing.closedWonDeadline,
+        data: nextData as unknown as Prisma.InputJsonValue,
+        totalHours: totals.totalEffortHours,
+        totalPrice: totals.grandTotalPrice,
+      },
+    });
+    await snapshotEstimationVersion(tx, updated);
+    return updated;
   });
 
   return NextResponse.json(toRecord(row));

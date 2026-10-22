@@ -23,6 +23,7 @@ export const UI_STRINGS = {
     save: { en: "Save", nl: "Opslaan" },
     saveShortcut: { en: "Save (Ctrl/⌘+S)", nl: "Opslaan (Ctrl/⌘+S)" },
     backToDashboard: { en: "← Back to dashboard", nl: "← Terug naar dashboard" },
+    versionHistory: { en: "Version history", nl: "Versiegeschiedenis" },
     language: { en: "Language", nl: "Taal" },
     opportunityPhaseLabel: { en: "Opportunity phase", nl: "Opportunity-fase" },
     closedWon: { en: "Closed Won", nl: "Closed Won" },

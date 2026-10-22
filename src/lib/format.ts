@@ -46,3 +46,14 @@ export function formatDate(iso: string, locale: Locale = "en"): string {
     year: "numeric",
   });
 }
+
+/** Date + time, for version history entries where same-day saves need telling apart. */
+export function formatDateTime(iso: string, locale: Locale = "en"): string {
+  return new Date(iso).toLocaleString(locale === "nl" ? "nl-NL" : "en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

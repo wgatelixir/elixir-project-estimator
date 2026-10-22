@@ -5,6 +5,7 @@ import { createDefaultEstimationState } from "@/lib/templates";
 import { computeEstimationTotals } from "@/lib/calculations";
 import { createEstimationSchema } from "@/lib/validation";
 import { toSummary } from "@/lib/serialize";
+import { snapshotEstimationVersion } from "@/lib/versioning";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim();
@@ -34,16 +35,20 @@ export async function POST(request: NextRequest) {
   const data = createDefaultEstimationState();
   const totals = computeEstimationTotals(data);
 
-  const row = await prisma.estimation.create({
-    data: {
-      clientName: parsed.data.clientName,
-      projectName: parsed.data.projectName || null,
-      ownerName: parsed.data.ownerName || null,
-      status: parsed.data.status ?? "DRAFT",
-      data: data as unknown as Prisma.InputJsonValue,
-      totalHours: totals.totalEffortHours,
-      totalPrice: totals.grandTotalPrice,
-    },
+  const row = await prisma.$transaction(async (tx) => {
+    const created = await tx.estimation.create({
+      data: {
+        clientName: parsed.data.clientName,
+        projectName: parsed.data.projectName || null,
+        ownerName: parsed.data.ownerName || null,
+        status: parsed.data.status ?? "DRAFT",
+        data: data as unknown as Prisma.InputJsonValue,
+        totalHours: totals.totalEffortHours,
+        totalPrice: totals.grandTotalPrice,
+      },
+    });
+    await snapshotEstimationVersion(tx, created);
+    return created;
   });
 
   return NextResponse.json(toSummary(row), { status: 201 });

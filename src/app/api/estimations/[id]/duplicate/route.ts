@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { toSummary } from "@/lib/serialize";
+import { snapshotEstimationVersion } from "@/lib/versioning";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -19,16 +20,20 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const row = await prisma.estimation.create({
-    data: {
-      clientName: existing.clientName,
-      projectName: existing.projectName,
-      ownerName: existing.ownerName,
-      status: "DRAFT",
-      data: existing.data as Prisma.InputJsonValue,
-      totalHours: existing.totalHours,
-      totalPrice: existing.totalPrice,
-    },
+  const row = await prisma.$transaction(async (tx) => {
+    const created = await tx.estimation.create({
+      data: {
+        clientName: existing.clientName,
+        projectName: existing.projectName,
+        ownerName: existing.ownerName,
+        status: "DRAFT",
+        data: existing.data as Prisma.InputJsonValue,
+        totalHours: existing.totalHours,
+        totalPrice: existing.totalPrice,
+      },
+    });
+    await snapshotEstimationVersion(tx, created, `Duplicated from "${existing.clientName}"`);
+    return created;
   });
 
   return NextResponse.json(toSummary(row), { status: 201 });

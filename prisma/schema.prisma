@@ -54,6 +54,36 @@ model Estimation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  versions EstimationVersion[]
+
   @@index([clientName])
   @@index([updatedAt])
+}
+
+// A read-only snapshot of an Estimation, taken every time it's created or
+// saved, so the full save history can be browsed and any earlier point
+// restored. Never updated in place - only inserted and (rarely) deleted
+// along with its parent Estimation.
+model EstimationVersion {
+  id           String     @id @default(cuid())
+  estimationId String
+  estimation   Estimation @relation(fields: [estimationId], references: [id], onDelete: Cascade)
+
+  clientName        String
+  projectName       String?
+  ownerName         String?
+  status            EstimationStatus
+  opportunityPhase  OpportunityPhase
+  closedWon         Boolean
+  closedWonDeadline DateTime?
+  data              Json     @db.JsonB
+  totalHours        Float
+  totalPrice        Float
+
+  /** Set only when this snapshot was created by restoring an earlier one (e.g. "Restored from 19 Oct 2026, 14:32"). */
+  note String?
+
+  createdAt DateTime @default(now())
+
+  @@index([estimationId, createdAt])
 }

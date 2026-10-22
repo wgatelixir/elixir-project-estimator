@@ -18,6 +18,7 @@ interface Meta {
 }
 
 interface TopBarProps {
+  estimationId: string;
   meta: Meta;
   onChange: (next: Partial<Meta>) => void;
   dirty: boolean;
@@ -29,7 +30,7 @@ interface TopBarProps {
   onChangeLocale: (next: Locale) => void;
 }
 
-export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, error, locale, onChangeLocale }: TopBarProps) {
+export function TopBar({ estimationId, meta, onChange, dirty, saving, lastSavedAt, onSave, error, locale, onChangeLocale }: TopBarProps) {
   const s = UI_STRINGS.topBar;
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm print:hidden">
@@ -125,9 +126,15 @@ export function TopBar({ meta, onChange, dirty, saving, lastSavedAt, onSave, err
           />
         </label>
       </div>
-      <div className="mt-2">
+      <div className="mt-2 flex items-center gap-3">
         <Link href="/" className="text-xs text-slate-400 transition-colors hover:text-brand-crimson">
           {t(s.backToDashboard, locale)}
+        </Link>
+        <Link
+          href={`/estimations/${estimationId}/history`}
+          className="text-xs text-slate-400 transition-colors hover:text-brand-crimson"
+        >
+          {t(s.versionHistory, locale)}
         </Link>
       </div>
       {error && <p className="mt-2 text-sm text-brand-crimson">{error}</p>}

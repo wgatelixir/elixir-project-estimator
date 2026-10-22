@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -33,6 +34,12 @@ export function EstimationRowActions({ id, clientName }: { id: string; clientNam
 
   return (
     <div className="flex items-center justify-end gap-1 text-xs">
+      <Link
+        href={`/estimations/${id}/history`}
+        className="rounded px-2 py-1 font-medium text-slate-600 hover:bg-slate-100"
+      >
+        History
+      </Link>
       <button
         onClick={duplicate}
         disabled={busy !== null}
