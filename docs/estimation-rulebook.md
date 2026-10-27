@@ -92,6 +92,15 @@ lines with it, and a prep line can still be switched on its own afterwards.
 Marketing "Key User Training" / "Admin User Training" prep stay unlinked,
 because V3's Marketing tab has no matching training sessions.
 
+Business Assessment's interview/Fit Gap **Setup** lines (the write-up of each
+session) and Technical Assessment's "Understanding situation & processes"
+and "Data mapping I" Setup lines are linked to their same-named session too.
+A session's link also carries its **complexity**: changing the session's
+complexity sets its linked lines to the same level (each line can still be
+changed on its own afterwards). DealHub's same-named Setup lines are not
+linked: there "Playbook Setup" etc. is the build work itself, not
+preparation.
+
 ## Uni-dimensional vs. multi-dimensional projects
 
 A **dimension** = one HubSpot hub in scope (Sales, Service, Marketing, CMS,

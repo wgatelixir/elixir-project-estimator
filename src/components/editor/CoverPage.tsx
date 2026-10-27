@@ -17,6 +17,7 @@ import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
+import { FEATURES } from "@/lib/features";
 import {
   CUSTOM_WORKSTREAM_TYPES,
   CUSTOM_WORKSTREAM_TYPE_LABELS,
@@ -308,15 +309,20 @@ function GroupCard({ title, description, children }: { title: string; descriptio
  */
 function RatesCard({
   pmRate,
+  pmPercent,
   serviceRate,
   locale,
   onChangePmRate,
+  onChangePmPercent,
   onChangeServiceRate,
 }: {
   pmRate: number;
+  /** Stored as a fraction (0.15); edited here as a percentage (15). */
+  pmPercent: number;
   serviceRate: number;
   locale: Locale;
   onChangePmRate: (rate: number) => void;
+  onChangePmPercent: (fraction: number) => void;
   onChangeServiceRate: (rate: number) => void;
 }) {
   const s = UI_STRINGS.coverPage;
@@ -337,6 +343,24 @@ function RatesCard({
               className={field}
             />
             /h
+          </span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <span className="text-slate-500">{t(s.pmPercentInputLabel, locale)}</span>
+          <span className="flex items-center gap-1">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round(pmPercent * 1000) / 10}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                if (value >= 0 && value <= 100) onChangePmPercent(value / 100);
+              }}
+              className={field}
+            />
+            %
           </span>
         </label>
         <label className="flex items-center gap-2 text-sm">
@@ -547,9 +571,11 @@ export function CoverPage({
 
       <RatesCard
         pmRate={data.pmRate}
+        pmPercent={data.pmPercent}
         serviceRate={data.serviceRate}
         locale={locale}
         onChangePmRate={(pmRate) => onChangePm({ pmRate })}
+        onChangePmPercent={(pmPercent) => onChangePm({ pmPercent })}
         onChangeServiceRate={onApplyServiceRate}
       />
 
@@ -650,15 +676,17 @@ export function CoverPage({
         </div>
       </GroupCard>
 
-      <GroupCard title={t(s.hubspotLicenseTitle, locale)} description={t(s.hubspotLicenseDescription, locale)}>
-        <div className="p-1.5">
-          <SimpleToggleRow
-            label={t(UI_STRINGS.editor.tabHubspotLicense, locale)}
-            enabled={data.hubspotLicense.enabled}
-            onChange={(enabled) => onChangeHubSpotLicense({ ...data.hubspotLicense, enabled })}
-          />
-        </div>
-      </GroupCard>
+      {FEATURES.hubspotLicense && (
+        <GroupCard title={t(s.hubspotLicenseTitle, locale)} description={t(s.hubspotLicenseDescription, locale)}>
+          <div className="p-1.5">
+            <SimpleToggleRow
+              label={t(UI_STRINGS.editor.tabHubspotLicense, locale)}
+              enabled={data.hubspotLicense.enabled}
+              onChange={(enabled) => onChangeHubSpotLicense({ ...data.hubspotLicense, enabled })}
+            />
+          </div>
+        </GroupCard>
+      )}
 
       <div className={`${ROW_GRID} rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm`}>
         <span className="text-slate-500">{t(s.pmRateLabel, locale)}</span>

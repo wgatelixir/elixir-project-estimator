@@ -1,7 +1,8 @@
-// Links between line items within a workstream: a Session Prep line points at
-// the Session it prepares (`linkedTo`). Switching the session on or off takes
-// its linked lines with it; a linked line can still be switched on its own
-// afterwards, so the link is a convenience, never a lock.
+// Links between line items within a workstream: a Session Prep line (or a
+// session's write-up line) points at the Session it belongs to (`linkedTo`).
+// Switching the session on or off, or changing its complexity, takes its linked
+// lines with it; a linked line can still be changed on its own afterwards, so
+// the link is a convenience, never a lock.
 
 import { STANDARD_WORKSTREAM_TEMPLATES } from "./templates";
 import type { EstimationState, StandardWorkstream } from "./types";
@@ -42,6 +43,24 @@ export function setLineEnabled(ws: StandardWorkstream, id: string, enabled: bool
     items: ws.items.map((item) =>
       item.id === id || (isSession && item.linkedTo === id) ? { ...item, enabled } : item
     ),
+  };
+}
+
+/**
+ * Sets a line's complexity; for a Session, its linked lines follow - as long as
+ * their own complexity table has that level (session and setup tables share the
+ * same Low/Standard/Medium/High levels in every template workstream).
+ */
+export function setLineComplexity(ws: StandardWorkstream, id: string, complexity: string): StandardWorkstream {
+  const isSession = ws.items.some((item) => item.id === id && item.activity === "Session");
+  return {
+    ...ws,
+    items: ws.items.map((item) => {
+      if (item.id === id) return { ...item, complexity };
+      if (!isSession || item.linkedTo !== id) return item;
+      const table = item.complexityTable === "session" ? ws.sessionComplexity : ws.setupComplexity;
+      return complexity in table ? { ...item, complexity } : item;
+    }),
   };
 }
 

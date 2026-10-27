@@ -1,7 +1,7 @@
 "use client";
 
 import { groupByPhase, totalsByStage, type EstimationTotals } from "@/lib/calculations";
-import { formatCurrency, formatHours } from "@/lib/format";
+import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import type { ComplexityBand } from "@/lib/style";
 import { PanelLegend } from "./Legend";
 import { t, UI_STRINGS } from "@/lib/i18n";
@@ -17,9 +17,6 @@ export interface ActiveComplexityLegend {
 
 interface SummarySidebarProps {
   totals: EstimationTotals;
-  pmRate: number;
-  pmPercent: number;
-  onChangePm: (next: { pmRate?: number; pmPercent?: number }) => void;
   onOpenProposal: () => void;
   /** Downloads the in-scope workstreams, lines, hours and rates for import into other software. */
   onExport: (format: "xlsx" | "json") => void;
@@ -30,9 +27,6 @@ interface SummarySidebarProps {
 
 export function SummarySidebar({
   totals,
-  pmRate,
-  pmPercent,
-  onChangePm,
   onOpenProposal,
   onExport,
   legend,
@@ -45,136 +39,81 @@ export function SummarySidebar({
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-brand-ink">{t(s.summary, locale)}</h2>
-        <div className="mt-3 space-y-3 text-sm">
+
+        {/* One line per onderdeel: name and price. Hours, PM per onderdeel and phase
+            subtotals live on the Overview tab, so this stays readable at a glance. */}
+        <div className="mt-3 space-y-3">
+          {phaseGroups.length === 0 && <p className="text-sm text-slate-400">{t(s.nothingIncluded, locale)}</p>}
           {phaseGroups.map((group) => (
-            <div key={group.phase}>
+            <div key={String(group.phase)}>
               {showPhases && (
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo">
+                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   {group.phase === null
                     ? t(UI_STRINGS.proposalSummary.phaseNotApplicable, locale)
                     : `${t(UI_STRINGS.proposalSummary.phase, locale)} ${group.phase}`}
                 </div>
               )}
-              <dl className="space-y-1.5">
+              <ul className="space-y-1 text-sm">
                 {group.rows.map((w) => (
-                  <div key={w.key} className="flex items-center justify-between gap-2">
-                    <dt className="truncate text-slate-500">
+                  <li key={w.key} className="flex items-baseline justify-between gap-3">
+                    <span className="truncate text-slate-600" title={t(w.label, locale)}>
                       {t(w.label, locale)}
                       {w.isPartial && (
                         <span className="text-slate-400"> ({t(UI_STRINGS.proposalSummary.partialNote, locale)})</span>
                       )}
-                    </dt>
-                    <dd className="whitespace-nowrap tabular-nums text-slate-700">{formatHours(w.hours, locale)}</dd>
-                  </div>
+                    </span>
+                    <span className="whitespace-nowrap tabular-nums text-brand-ink">{formatCurrency(w.price, locale)}</span>
+                  </li>
                 ))}
-              </dl>
-              {showPhases && (
-                <div className="mt-1 flex items-center justify-between gap-2 border-t border-dashed border-slate-200 pt-1 text-xs text-slate-500">
-                  <span>{t(s.projectManagement, locale)}</span>
-                  <span className="whitespace-nowrap tabular-nums">
-                    {formatHours(group.pmHours, locale)} · {formatCurrency(group.pmPrice, locale)}
-                  </span>
-                </div>
-              )}
-              {showPhases && (
-                <div className="mt-1 flex items-center justify-between gap-2 text-xs font-medium text-brand-ink">
-                  <span>
-                    {t(UI_STRINGS.proposalSummary.phaseSubtotal, locale)}{" "}
-                    {group.phase ?? t(UI_STRINGS.proposalSummary.notApplicableShort, locale)}
-                    <span className="font-normal text-slate-400"> {t(s.inclPm, locale)}</span>
-                  </span>
-                  <span className="whitespace-nowrap tabular-nums">
-                    {formatHours(group.hours, locale)} · {formatCurrency(group.price, locale)}
-                  </span>
-                </div>
-              )}
+              </ul>
             </div>
           ))}
         </div>
 
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500">{t(s.billableEffort, locale)}</span>
-            <span className="tabular-nums font-medium text-brand-ink">
-              {formatHours(totals.billableHours, locale)}
-            </span>
+        <dl className="mt-4 space-y-1 border-t border-slate-200 pt-3 text-sm">
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-slate-600">
+              {t(s.implementation, locale)}
+              <span className="ml-1.5 text-xs text-slate-400">{formatHours(totals.billableHours, locale)}</span>
+            </dt>
+            <dd className="tabular-nums text-brand-ink">{formatCurrency(totals.billablePrice, locale)}</dd>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500">{formatCurrency(totals.billablePrice, locale)}</span>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-slate-600" title={t(s.projectManagement, locale)}>
+              {t(s.pmShort, locale)} ({formatPercent(totals.pmPercent)})
+              <span className="ml-1.5 text-xs text-slate-400">{formatHours(totals.pmHours, locale)}</span>
+            </dt>
+            <dd className="tabular-nums text-brand-ink">{formatCurrency(totals.pmPrice, locale)}</dd>
           </div>
-        </div>
+          {totals.subscriptions
+            .filter((sub) => sub.qty > 0)
+            .map((sub) => (
+              <div key={sub.label.en} className="flex items-baseline justify-between gap-3">
+                <dt className="truncate text-slate-600">{t(sub.label, locale)}</dt>
+                <dd className="tabular-nums text-brand-ink">{formatCurrency(sub.price, locale)}</dd>
+              </div>
+            ))}
+        </dl>
 
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-slate-500">{t(s.projectManagement, locale)}</span>
-            <span className="tabular-nums text-slate-700">{formatHours(totals.pmHours, locale)}</span>
+        <div className="mt-3 rounded-md bg-brand-indigo px-3 py-2.5 text-white">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-xs font-semibold uppercase tracking-wide text-white/80">{t(s.grandTotal, locale)}</span>
+            <span className="text-xs text-white/70">{formatHours(totals.totalEffortHours, locale)}</span>
           </div>
-          <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-500">
-            <span>{t(s.pmPercent, locale)}</span>
-            <input
-              type="number"
-              step="0.01"
-              min={0}
-              max={1}
-              value={pmPercent}
-              onChange={(e) => onChangePm({ pmPercent: Number(e.target.value) })}
-              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
-            />
-            <span>{t(s.rate, locale)}</span>
-            <input
-              type="number"
-              min={0}
-              value={pmRate}
-              onChange={(e) => onChangePm({ pmRate: Number(e.target.value) })}
-              className="w-16 rounded border border-slate-300 px-1.5 py-0.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
-            />
-          </div>
-        </div>
-
-        {totals.subscriptions.some((s) => s.qty > 0) && (
-          <div className="mt-3 border-t border-slate-100 pt-3">
-            {totals.subscriptions
-              .filter((sub) => sub.qty > 0)
-              .map((sub) => (
-                <div key={sub.label.en} className="flex items-center justify-between text-sm">
-                  <span className="truncate text-slate-500">{t(sub.label, locale)}</span>
-                  <span className="tabular-nums text-slate-700">{formatCurrency(sub.price, locale)}</span>
-                </div>
-              ))}
-          </div>
-        )}
-
-        <div className="mt-3 border-t border-slate-200 pt-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-brand-ink">{t(s.totalEffort, locale)}</span>
-            <span className="tabular-nums font-medium text-brand-ink">
-              {formatHours(totals.totalEffortHours, locale)}
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-2 rounded-md bg-brand-indigo p-3 text-white">
-          <div className="text-xs font-semibold uppercase tracking-wide text-white/80">{t(s.grandTotal, locale)}</div>
-          <div className="text-xl font-semibold tabular-nums">
-            {formatCurrency(totals.grandTotalPrice, locale)}
-          </div>
-          {/* Split for the forecast: won work vs. work still in the proposal stage. */}
-          <div className="mt-2 space-y-0.5 border-t border-white/20 pt-2 text-xs" title={t(s.stageSplitTitle, locale)}>
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 text-white/80">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                {t(UI_STRINGS.coverPage.stageClosedWon, locale)}
-              </span>
-              <span className="tabular-nums">{formatCurrency(byStage.closed_won.price, locale)}</span>
+          <div className="text-xl font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
+          {/* Forecast split, only once something is actually won - otherwise it would just repeat the total. */}
+          {byStage.closed_won.price > 0 && (
+            <div className="mt-1.5 space-y-0.5 border-t border-white/20 pt-1.5 text-xs" title={t(s.stageSplitTitle, locale)}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white/80">{t(UI_STRINGS.coverPage.stageClosedWon, locale)}</span>
+                <span className="tabular-nums">{formatCurrency(byStage.closed_won.price, locale)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white/80">{t(s.forecastProposal, locale)}</span>
+                <span className="tabular-nums">{formatCurrency(byStage.proposal.price, locale)}</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 text-white/80">
-                <span className="h-2 w-2 rounded-full bg-white/60" />
-                {t(s.forecastProposal, locale)}
-              </span>
-              <span className="tabular-nums">{formatCurrency(byStage.proposal.price, locale)}</span>
-            </div>
-          </div>
+          )}
         </div>
 
         <button
