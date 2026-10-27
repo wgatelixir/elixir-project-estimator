@@ -14,11 +14,13 @@ import type {
 } from './types';
 import { createDefaultHubSpotLicenseState } from './hubspotPricing';
 
+// Every workstream starts unchecked: the estimator ticks on the Cover page what
+// is actually in scope (rule book: only include what the client asks for).
 export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "business_assessment",
     label: { en: "Business Assessment", nl: "Business Assessment" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 150,
     items: [
       {
@@ -95,6 +97,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-1-strategy-interview",
         comment: null,
         enabled: true,
       },
@@ -106,6 +109,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-2-marketing-interview",
         comment: null,
         enabled: true,
       },
@@ -117,6 +121,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-3-sales-interview",
         comment: null,
         enabled: true,
       },
@@ -128,6 +133,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-4-service-interview",
         comment: null,
         enabled: true,
       },
@@ -139,6 +145,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-5-datait-interview-reverse-demo",
         comment: null,
         enabled: true,
       },
@@ -150,6 +157,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "business_assessment-6-fit-gap-analysis-solution-design",
         comment: null,
         enabled: true,
       },
@@ -170,7 +178,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "technical_assessment",
     label: { en: "Technical Assessment", nl: "Technical Assessment" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 150,
     items: [
       {
@@ -247,6 +255,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 1.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "technical_assessment-1-understanding-situation-processes",
         comment: { en: "Customer Infrastructure, Tools in Use now and in future, upcoming sessions & content", nl: "Infrastructuur van de klant, huidige en toekomstige tools, komende sessies & inhoud" },
         enabled: true,
       },
@@ -282,6 +291,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
+        linkedTo: "technical_assessment-4-data-mapping-i",
         comment: { en: "Discuss Mapping, define steps", nl: "Mapping bespreken, stappen bepalen" },
         enabled: true,
       },
@@ -313,7 +323,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "data_migration",
     label: { en: "Data Migration", nl: "Datamigratie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 150,
     items: [
       {
@@ -510,7 +520,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "sales_implementation",
     label: { en: "Sales Implementation", nl: "Sales-implementatie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 135,
     items: [
       {
@@ -812,7 +822,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "service_implementation",
     label: { en: "Service Implementation", nl: "Service-implementatie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 135,
     items: [
       {
@@ -1125,7 +1135,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "marketing_implementation",
     label: { en: "Marketing Implementation", nl: "Marketing-implementatie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 135,
     items: [
       {
@@ -1450,7 +1460,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "cms_implementation",
     label: { en: "CMS Implementation", nl: "CMS-implementatie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 135,
     items: [
       {
@@ -1635,7 +1645,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "dealhub_implementation",
     label: { en: "DealHub Implementation", nl: "DealHub-implementatie" },
-    enabled: true,
+    enabled: false,
     hourlyRate: 135,
     items: [
       {

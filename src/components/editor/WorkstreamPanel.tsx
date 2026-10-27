@@ -16,7 +16,7 @@ import {
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
-import { removeLine, setLineEnabled } from "@/lib/lineLinks";
+import { removeLine, setLineComplexity, setLineEnabled } from "@/lib/lineLinks";
 import { CUSTOM_WORKSTREAM_TYPES, CUSTOM_WORKSTREAM_TYPE_LABELS, DEFAULT_RETAINER_MONTHS } from "@/lib/customWorkstreams";
 import type { CustomWorkstreamType } from "@/lib/types";
 import { PanelLegend } from "./Legend";
@@ -484,7 +484,7 @@ export function WorkstreamPanel({
                   <td className="px-3 py-2">
                     <select
                       value={item.complexity}
-                      onChange={(e) => updateItem(item.id, { complexity: e.target.value })}
+                      onChange={(e) => onChange(setLineComplexity(workstream, item.id, e.target.value))}
                       className={`rounded border px-1.5 py-1 text-sm font-medium ${complexityStyle.select}`}
                     >
                       {complexityOptionsFor(item, workstream).map((level) => (

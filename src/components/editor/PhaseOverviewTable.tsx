@@ -113,20 +113,14 @@ export function PhaseOverviewTable({ totals, locale }: { totals: EstimationTotal
                 locale={locale}
               />,
             ]),
+            // PM is already listed once per onderdeel above; the phase subtotal includes it
+            // (repeating a phase-level PM line here showed the same PM twice).
             ...(showPhases
               ? [
-                  <OverviewPmRow
-                    key={`phase-${group.phase}-pm`}
-                    label={t(s.projectManagement, locale)}
-                    pmPercent={totals.pmPercent}
-                    pmHours={group.pmHours}
-                    pmRate={totals.pmRate}
-                    pmPrice={group.pmPrice}
-                    locale={locale}
-                  />,
                   <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid">
                     <td className="truncate px-3 py-1">
                       {t(s.phaseSubtotal, locale)} {group.phase ?? t(s.notApplicableShort, locale)}
+                      <span className="font-normal text-slate-400"> {t(UI_STRINGS.summarySidebar.inclPm, locale)}</span>
                     </td>
                     <td className="px-3 py-1 text-right tabular-nums">{formatHours(group.hours, locale)}</td>
                     <td />

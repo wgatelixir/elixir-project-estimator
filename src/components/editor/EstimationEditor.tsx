@@ -20,6 +20,7 @@ import { DEFAULT_SERVICE_RATE } from "@/lib/templates";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
 import { backfillTemplateLinks } from "@/lib/lineLinks";
+import { FEATURES } from "@/lib/features";
 import { buildEstimationExport, exportFileBaseName } from "@/lib/export/model";
 import { estimationToJson, estimationToXlsx } from "@/lib/export/exportEstimation";
 import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
@@ -99,7 +100,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
     () => [
       { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale) },
       { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale) },
-      ...(data.hubspotLicense.enabled
+      ...(FEATURES.hubspotLicense && data.hubspotLicense.enabled
         ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) }]
         : []),
       ...data.standardWorkstreams
@@ -466,9 +467,6 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           <div>
             <SummarySidebar
               totals={totals}
-              pmRate={data.pmRate}
-              pmPercent={data.pmPercent}
-              onChangePm={updatePm}
               onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
               onExport={handleExport}
               legend={sidebarLegend}

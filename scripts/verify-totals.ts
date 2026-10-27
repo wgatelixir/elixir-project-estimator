@@ -2,6 +2,9 @@ import { createDefaultEstimationState } from "../src/lib/templates";
 import { computeEstimationTotals } from "../src/lib/calculations";
 
 const state = createDefaultEstimationState();
+// New estimations start with every workstream unchecked; include them all here so
+// this check covers the full template.
+for (const ws of state.standardWorkstreams) ws.enabled = true;
 const totals = computeEstimationTotals(state);
 
 console.log("Per workstream:");
