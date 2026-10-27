@@ -82,7 +82,7 @@ export function PhaseOverviewTable({ totals, locale }: { totals: EstimationTotal
             ...(showPhases
               ? [
                   <tr key={`phase-${group.phase}`} className="bg-slate-50 print:break-inside-avoid">
-                    <td className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-indigo" colSpan={4}>
+                    <td className="px-3 pb-2 pt-4 text-[1.15em] font-semibold text-brand-indigo" colSpan={4}>
                       {phaseLabel(group.phase, locale)}
                     </td>
                   </tr>,
@@ -117,14 +117,14 @@ export function PhaseOverviewTable({ totals, locale }: { totals: EstimationTotal
             // (repeating a phase-level PM line here showed the same PM twice).
             ...(showPhases
               ? [
-                  <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid">
-                    <td className="truncate px-3 py-1">
+                  <tr key={`phase-${group.phase}-total`} className="font-semibold text-brand-ink print:break-inside-avoid [&>td]:pb-3 [&>td]:pt-2">
+                    <td className="truncate px-3">
                       {t(s.phaseSubtotal, locale)} {group.phase ?? t(s.notApplicableShort, locale)}
                       <span className="font-normal text-slate-400"> {t(UI_STRINGS.summarySidebar.inclPm, locale)}</span>
                     </td>
-                    <td className="px-3 py-1 text-right tabular-nums">{formatHours(group.hours, locale)}</td>
+                    <td className="px-3 text-right tabular-nums">{formatHours(group.hours, locale)}</td>
                     <td />
-                    <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(group.price, locale)}</td>
+                    <td className="px-3 text-right tabular-nums">{formatCurrency(group.price, locale)}</td>
                   </tr>,
                 ]
               : []),
