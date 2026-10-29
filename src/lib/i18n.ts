@@ -179,6 +179,7 @@ export const UI_STRINGS = {
     activityConsulting: { en: "Consulting", nl: "Consulting" },
     activityDevelopment: { en: "Development", nl: "Development" },
     activitySupport: { en: "Support", nl: "Support" },
+    activityProjectManagement: { en: "Project management", nl: "Projectmanagement" },
     columnRate: { en: "Rate €/h", nl: "Tarief €/u" },
     columnHours: { en: "Hours", nl: "Uren" },
     columnAmount: { en: "Amount", nl: "Bedrag" },

@@ -26,6 +26,7 @@ const standardLineItemSchema = z.object({
     "Consulting",
     "Development",
     "Support",
+    "Project Management",
   ]),
   hourlyRate: z.number().nonnegative().nullable().optional(),
   topic: localizedStringSchema,

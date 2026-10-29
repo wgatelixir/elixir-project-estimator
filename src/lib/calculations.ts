@@ -103,6 +103,18 @@ export function workstreamMonths(ws: Pick<StandardWorkstream, "custom">): number
   return months && months > 0 ? months : 1;
 }
 
+/** A line planned explicitly as project management: it counts as hours, but gets no PM % on top. */
+export function isProjectManagementLine(item: Pick<StandardLineItem, "activity">): boolean {
+  return item.activity === "Project Management";
+}
+
+/** Per-month hours the PM % applies to: the included lines, minus explicit project management lines. */
+export function pmBaseHours(ws: StandardWorkstream): number {
+  return ws.items
+    .filter((item) => item.enabled && !isProjectManagementLine(item))
+    .reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+}
+
 export function computeStandardWorkstreamTotals(
   ws: StandardWorkstream,
   pmPercent: number,
@@ -114,23 +126,24 @@ export function computeStandardWorkstreamTotals(
   const hasLineRates = lines.some((item) => item.hourlyRate != null && item.hourlyRate !== ws.hourlyRate);
   const months = workstreamMonths(ws);
   const hours = monthlyHours * months;
-  const pmHours = hours * pmPercent;
+  const pmHours = (ws.enabled ? pmBaseHours(ws) : 0) * months * pmPercent;
   const wsPhase = resolvePhase(ws.phase);
 
   // Bucket this onderdeel's own lines by resolved phase, so a workstream whose
   // sessions span multiple phases can contribute to each phase's roadmap total.
-  const buckets = new Map<ProjectPhase | null, { hours: number; price: number }>();
+  const buckets = new Map<ProjectPhase | null, { hours: number; price: number; pmBase: number }>();
   for (const item of lines) {
     const itemPhase = resolveLinePhase(item.phase, wsPhase);
-    const bucket = buckets.get(itemPhase) ?? { hours: 0, price: 0 };
+    const bucket = buckets.get(itemPhase) ?? { hours: 0, price: 0, pmBase: 0 };
     bucket.hours += lineItemFinalEffort(item, ws) * months;
     bucket.price += lineItemPrice(item, ws) * months;
+    if (!isProjectManagementLine(item)) bucket.pmBase += lineItemFinalEffort(item, ws) * months;
     buckets.set(itemPhase, bucket);
   }
   const phaseSlices: WorkstreamPhaseSlice[] =
     buckets.size > 0
       ? [...buckets.entries()].map(([phase, b]) => {
-          const slicePmHours = b.hours * pmPercent;
+          const slicePmHours = b.pmBase * pmPercent;
           return { phase, hours: b.hours, price: b.price, pmHours: slicePmHours, pmPrice: slicePmHours * pmRate };
         })
       : [{ phase: wsPhase, hours: 0, price: 0, pmHours: 0, pmPrice: 0 }];

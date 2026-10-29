@@ -22,10 +22,12 @@ instead of scattered spreadsheet copies.
   links, totals, the Proposal Summary and the export treat it like any other
   workstream. Name, type, billing and removal are edited on the Cover page
   (✎). In these workstreams, lines can also be **Consulting**,
-  **Development** or **Support** and carry their **own hourly rate**
+  **Development**, **Support** or **Project management** and carry their
+  **own hourly rate**
   (`StandardLineItem.hourlyRate`; empty = the workstream's rate). Prices are
   then summed per line, and the workstream shows the effective (blended)
-  rate.
+  rate. A Project management line starts at the PM rate and is left out of
+  the PM % base, so planned PM hours never get PM on top.
 - **Sales stage** &mdash; the Cover page also sets a **Stage** per workstream
   and integration: *Proposal* (default; counts toward the forecast) or
   *Closed won*. The sidebar splits the grand total by stage
