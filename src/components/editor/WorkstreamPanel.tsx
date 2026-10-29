@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort, lineItemPrice, resolvePhase, workstreamMonths } from "@/lib/calculations";
+import { lineItemFinalEffort, lineItemPrice, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_LEGEND,
@@ -192,6 +192,8 @@ export function WorkstreamPanel({
       linkedTo: sameTopicSession?.id ?? null,
       comment: null,
       enabled: true,
+      // A project management line starts at the PM rate (still editable per line).
+      ...(newActivity === "Project Management" ? { hourlyRate: pmRate } : {}),
     };
     // Land the new line at the end of its own activity group (e.g. after the last
     // Session Prep line) rather than at the bottom of the table.
@@ -222,7 +224,7 @@ export function WorkstreamPanel({
   const totalPrice = monthlyPrice * months;
   // Footer label cells span every column up to the one holding the amounts.
   const labelSpan = isCustom ? 7 : 6;
-  const pmHours = totalHours * pmPercent;
+  const pmHours = pmBaseHours(workstream) * months * pmPercent;
   const pmPrice = pmHours * pmRate;
 
   return (
@@ -582,6 +584,7 @@ export function WorkstreamPanel({
               <option value="Consulting">{t(s.activityConsulting, locale)}</option>
               <option value="Development">{t(s.activityDevelopment, locale)}</option>
               <option value="Support">{t(s.activitySupport, locale)}</option>
+              <option value="Project Management">{t(s.activityProjectManagement, locale)}</option>
             </>
           )}
         </select>

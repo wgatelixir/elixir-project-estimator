@@ -119,7 +119,8 @@ export type ActivityBand =
   | "desk-work"
   | "consulting"
   | "development"
-  | "support";
+  | "support"
+  | "project-management";
 
 export function classifyActivity(activity: string): ActivityBand {
   const a = activity.toLowerCase();
@@ -130,6 +131,7 @@ export function classifyActivity(activity: string): ActivityBand {
   if (a === "consulting") return "consulting";
   if (a === "development") return "development";
   if (a === "support") return "support";
+  if (a === "project management") return "project-management";
   return "desk-work";
 }
 
@@ -190,13 +192,19 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     rowBg: "bg-white",
     label: { en: "Support", nl: "Support" },
   },
+  "project-management": {
+    badge: "bg-indigo-100 text-indigo-800",
+    dot: "bg-indigo-500",
+    rowBg: "bg-white",
+    label: { en: "Project management", nl: "Projectmanagement" },
+  },
 };
 
 // "desk-work" is left out: only legacy (V2-template) estimations still use it, and its
 // badge on those rows is self-explanatory.
 export const ACTIVITY_LEGEND: ActivityBand[] = ["session", "session-prep", "setup", "risk-buffer"];
 /** Client-specific workstreams also offer the service activities. */
-export const CUSTOM_ACTIVITY_LEGEND: ActivityBand[] = [...ACTIVITY_LEGEND, "consulting", "development", "support"];
+export const CUSTOM_ACTIVITY_LEGEND: ActivityBand[] = [...ACTIVITY_LEGEND, "consulting", "development", "support", "project-management"];
 
 interface OpportunityPhaseStyle {
   badge: string;

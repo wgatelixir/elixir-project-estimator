@@ -28,7 +28,9 @@ export type LineActivityType =
   // Service activities, offered in client-specific workstreams.
   | "Consulting"
   | "Development"
-  | "Support";
+  | "Support"
+  // Hours planned explicitly as project management; these lines get no PM % on top.
+  | "Project Management";
 
 export interface StandardLineItem {
   id: string;
