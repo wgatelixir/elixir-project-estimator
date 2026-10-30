@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Search, iconProps } from "@/components/ui/icons";
 import { useState, useTransition } from "react";
 
 export function SearchBox({ defaultValue }: { defaultValue: string }) {
@@ -15,7 +16,9 @@ export function SearchBox({ defaultValue }: { defaultValue: string }) {
   }
 
   return (
-    <input
+    <div className="relative w-full max-w-sm">
+      <Search {...iconProps} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <input
       type="search"
       value={value}
       onChange={(e) => {
@@ -23,8 +26,9 @@ export function SearchBox({ defaultValue }: { defaultValue: string }) {
         submit(e.target.value);
       }}
       placeholder="Search by client or project name…"
-      className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo"
-      style={{ opacity: isPending ? 0.7 : 1 }}
-    />
+        className="w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm shadow-sm"
+        style={{ opacity: isPending ? 0.7 : 1 }}
+      />
+    </div>
   );
 }

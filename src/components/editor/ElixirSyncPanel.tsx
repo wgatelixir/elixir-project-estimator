@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { ElixirSyncIntegrationState, ElixirSyncLineItem, ElixirSyncStream, Locale } from "@/lib/types";
 import { elixirSyncStreamHours } from "@/lib/calculations";
@@ -66,7 +67,7 @@ function StreamRow({
           </span>
           <span className="ml-3 flex items-center gap-2 text-slate-400">
             <span className="tabular-nums">{formatHours(hours, locale)}</span>
-            <span>{open ? "−" : "+"}</span>
+            <ChevronDown {...iconProps} className={`transition-transform ${open ? "rotate-180" : ""}`} />
           </span>
         </button>
       </div>
@@ -107,9 +108,9 @@ function StreamRow({
                   <td className="text-right">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-slate-300 hover:text-brand-crimson"
+                      className="rounded p-0.5 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
                     >
-                      &times;
+                      <X {...iconProps} />
                     </button>
                   </td>
                 </tr>
@@ -125,9 +126,10 @@ function StreamRow({
             />
             <button
               onClick={addItem}
-              className="rounded bg-brand-indigo px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+              className="btn btn-sm btn-primary"
             >
-              {t(s.add, locale)}
+              <Plus {...iconProps} />
+          {t(s.add, locale)}
             </button>
           </div>
         </div>

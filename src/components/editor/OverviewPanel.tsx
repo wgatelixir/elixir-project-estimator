@@ -14,7 +14,7 @@ export function OverviewPanel({ totals, locale = "en" }: { totals: EstimationTot
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 p-4">
-        <h2 className="text-sm font-semibold text-brand-ink">{t(s.title, locale)}</h2>
+        <h2 className="text-sm font-bold text-brand-indigo">{t(s.title, locale)}</h2>
         <p className="mt-0.5 text-xs text-slate-500">{t(s.intro, locale)}</p>
       </div>
       <PhaseOverviewTable totals={totals} locale={locale} />

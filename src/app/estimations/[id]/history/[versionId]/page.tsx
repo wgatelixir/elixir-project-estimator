@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, iconProps } from "@/components/ui/icons";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { toVersionRecord } from "@/lib/serialize";
@@ -27,11 +28,12 @@ export default async function EstimationVersionPage({ params }: PageProps) {
         <div>
           <Link
             href={`/estimations/${id}/history`}
-            className="w-fit text-xs text-slate-400 transition-colors hover:text-brand-crimson"
+            className="inline-flex w-fit items-center gap-1 text-xs text-slate-500 transition-colors hover:text-brand-crimson"
           >
-            ← Back to version history
+            <ArrowLeft {...iconProps} size={14} />
+          Back to version history
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-brand-ink">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-brand-indigo">
             v{version.versionNumber}
             <span className="font-normal text-slate-400"> · {savedAt}</span>
           </h1>

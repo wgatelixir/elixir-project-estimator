@@ -118,7 +118,7 @@ function ProposalHeader({
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm">
         <div>
           <Image src="/elixir-logo.png" alt="Elixir" width={72} height={24} className="mb-1.5" />
-          <h2 className="text-base font-semibold text-brand-ink">{meta.clientName || t(s.untitledClient, locale)}</h2>
+          <h2 className="text-base font-bold text-brand-indigo">{meta.clientName || t(s.untitledClient, locale)}</h2>
           {meta.projectName && <p className="text-[11px] text-slate-500">{meta.projectName}</p>}
         </div>
         <div className="text-right text-[11px] text-slate-400">

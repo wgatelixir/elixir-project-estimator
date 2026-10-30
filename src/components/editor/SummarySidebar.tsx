@@ -1,5 +1,6 @@
 "use client";
 
+import { FileJson, FileSpreadsheet, Presentation, iconProps } from "@/components/ui/icons";
 import { groupByPhase, totalsByStage, type EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import type { ComplexityBand } from "@/lib/style";
@@ -38,7 +39,7 @@ export function SummarySidebar({
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-brand-ink">{t(s.summary, locale)}</h2>
+        <h2 className="text-sm font-bold text-brand-indigo">{t(s.summary, locale)}</h2>
 
         {/* One line per onderdeel: name and price. Hours, PM per onderdeel and phase
             subtotals live on the Overview tab, so this stays readable at a glance. */}
@@ -118,8 +119,9 @@ export function SummarySidebar({
 
         <button
           onClick={onOpenProposal}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-brand-indigo px-3 py-2 text-sm font-medium text-brand-indigo transition-colors hover:bg-brand-indigo hover:text-white"
+          className="btn btn-secondary mt-2 w-full"
         >
+          <Presentation {...iconProps} />
           {t(s.viewProposalSummary, locale)}
         </button>
         <div className="mt-2 flex items-center gap-2 text-xs text-slate-500" title={t(s.exportTitle, locale)}>
@@ -128,8 +130,9 @@ export function SummarySidebar({
             <button
               key={format}
               onClick={() => onExport(format)}
-              className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 font-medium text-slate-700 transition-colors hover:border-brand-indigo hover:text-brand-indigo"
+              className="btn btn-sm btn-ghost flex-1 border-slate-200"
             >
+              {format === "xlsx" ? <FileSpreadsheet {...iconProps} /> : <FileJson {...iconProps} />}
               {format === "xlsx" ? t(s.exportExcel, locale) : t(s.exportJson, locale)}
             </button>
           ))}
@@ -139,7 +142,7 @@ export function SummarySidebar({
       {legend && (
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="px-4 pt-3 pb-1">
-            <h2 className="text-sm font-semibold text-brand-ink">{t(legend.label, locale)}</h2>
+            <h2 className="text-sm font-bold text-brand-indigo">{t(legend.label, locale)}</h2>
             <p className="text-xs text-slate-400">{t(s.complexityGuide, locale)}</p>
           </div>
           <PanelLegend

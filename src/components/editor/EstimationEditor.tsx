@@ -35,10 +35,25 @@ import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
 import { HubSpotLicensePanel } from "./HubSpotLicensePanel";
 import { ProposalSummary } from "./ProposalSummary";
+import { FOUNDATION_KEYS } from "@/lib/workstreamGroups";
+import {
+  Blocks,
+  ClipboardList,
+  FileText,
+  LayoutDashboard,
+  Plug,
+  Printer,
+  Receipt,
+  RefreshCw,
+  Save,
+  Wrench,
+  iconProps,
+} from "@/components/ui/icons";
 
 const COVER_TAB_ID = "cover";
 const OVERVIEW_TAB_ID = "overview";
 const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
+const FIXED_TAB_IDS = new Set([COVER_TAB_ID, OVERVIEW_TAB_ID, HUBSPOT_LICENSE_TAB_ID]);
 const PROPOSAL_TAB_ID = "proposal_summary";
 
 // Migrates topic/label/comment fields saved before bilingual support
@@ -91,6 +106,16 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   const totals = useMemo(() => computeEstimationTotals(data), [data]);
 
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const [topBarInView, setTopBarInView] = useState(true);
+  useEffect(() => {
+    const el = topBarRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setTopBarInView(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // The Proposal Summary is reached via a button under the grand total in
   // the sidebar, not through this tab bar - keeping it out of `tabs` keeps
   // the bar to workstreams only. Only workstreams/integrations checked on
@@ -98,10 +123,10 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   const locale = data.locale;
   const tabs: TabDef[] = useMemo(
     () => [
-      { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale) },
-      { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale) },
+      { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale), icon: FileText },
+      { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale), icon: LayoutDashboard },
       ...(FEATURES.hubspotLicense && data.hubspotLicense.enabled
-        ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale) }]
+        ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale), icon: Receipt }]
         : []),
       ...data.standardWorkstreams
         .filter((ws) => ws.enabled)
@@ -109,6 +134,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           id: ws.key,
           label: t(ws.label, locale),
           hint: formatHours(totals.workstreams.find((w) => w.key === ws.key)?.hours ?? 0, locale),
+          icon: ws.custom ? Wrench : FOUNDATION_KEYS.includes(ws.key) ? ClipboardList : Blocks,
         })),
       ...(data.thirdPartyIntegration.enabled
         ? [
@@ -116,6 +142,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               id: "third_party_integration",
               label: t(UI_STRINGS.editor.tabThirdParty, locale),
               hint: formatHours(totals.thirdParty.hours, locale),
+              icon: Plug,
             },
           ]
         : []),
@@ -125,10 +152,15 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               id: "elixirsync_integration",
               label: t(UI_STRINGS.editor.tabElixirSync, locale),
               hint: formatHours(totals.elixirSync.hours, locale),
+              icon: RefreshCw,
             },
           ]
         : []),
-    ],
+    ].map((tab, i, all) => ({
+      ...tab,
+      // Divider between the fixed tabs (Cover, Overview, ...) and the workstream tabs.
+      separatorBefore: i > 0 && !FIXED_TAB_IDS.has(tab.id) && FIXED_TAB_IDS.has(all[i - 1].id),
+    })),
     [
       data.standardWorkstreams,
       data.thirdPartyIntegration.enabled,
@@ -341,18 +373,20 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-      <TopBar
-        estimationId={initial.id}
-        meta={meta}
-        onChange={updateMeta}
-        dirty={dirty}
-        saving={saving}
-        lastSavedAt={lastSavedAt}
-        onSave={handleSave}
-        error={error}
-        locale={locale}
-        onChangeLocale={updateLocale}
-      />
+      <div ref={topBarRef}>
+        <TopBar
+          estimationId={initial.id}
+          meta={meta}
+          onChange={updateMeta}
+          dirty={dirty}
+          saving={saving}
+          lastSavedAt={lastSavedAt}
+          onSave={handleSave}
+          error={error}
+          locale={locale}
+          onChangeLocale={updateLocale}
+        />
+      </div>
 
       {isLegacyTemplate(data) && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 print:hidden">
@@ -362,7 +396,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           </div>
           <button
             onClick={upgradeTemplate}
-            className="flex-shrink-0 rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+            className="btn btn-primary flex-shrink-0"
           >
             {t(UI_STRINGS.templateUpgrade.button, locale)}
           </button>
@@ -381,10 +415,8 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
             <div className="min-w-0 flex-1">
               <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
             </div>
-            <button
-              onClick={() => window.print()}
-              className="flex-shrink-0 rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
-            >
+            <button onClick={() => window.print()} className="btn btn-primary flex-shrink-0">
+              <Printer {...iconProps} />
               {t(UI_STRINGS.editor.downloadPdf, locale)}
             </button>
           </div>
@@ -397,17 +429,19 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           <div className="min-w-0">
             {/* Stays in view while scrolling a long workstream, with Save at hand when there's something to save. */}
             <div className="sticky top-0 z-20 -mx-2 bg-canvas/95 px-2 pt-2 backdrop-blur print:hidden">
-              <div className="flex items-end gap-3">
+              <div className="flex items-center gap-3">
                 <div className="min-w-0 flex-1">
                   <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
                 </div>
-                {dirty && (
+                {/* Only once the top bar (with its own Save) has scrolled away - one Save button on screen at a time. */}
+                {dirty && !topBarInView && (
                   <button
                     onClick={handleSave}
                     disabled={saving}
                     title={t(UI_STRINGS.topBar.saveShortcut, locale)}
-                    className="mb-1.5 flex-shrink-0 rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-indigo-hover disabled:opacity-60"
+                    className="btn btn-primary flex-shrink-0 shadow-sm"
                   >
+                    <Save {...iconProps} />
                     {saving ? t(UI_STRINGS.topBar.saving, locale) : t(UI_STRINGS.topBar.save, locale)}
                   </button>
                 )}

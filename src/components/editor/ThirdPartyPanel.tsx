@@ -1,5 +1,6 @@
 "use client";
 
+import { X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { Locale, ThirdPartyActivityType, ThirdPartyIntegrationState, ThirdPartyLineItem } from "@/lib/types";
 import { thirdPartyLineItemHours } from "@/lib/calculations";
@@ -211,9 +212,9 @@ export function ThirdPartyPanel({
                   <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-slate-300 hover:text-brand-crimson"
+                      className="rounded p-0.5 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
                     >
-                      &times;
+                      <X {...iconProps} />
                     </button>
                   </td>
                 </tr>
@@ -286,8 +287,9 @@ export function ThirdPartyPanel({
         />
         <button
           onClick={addItem}
-          className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+          className="btn btn-primary"
         >
+          <Plus {...iconProps} />
           {t(s.addLine, locale)}
         </button>
       </div>

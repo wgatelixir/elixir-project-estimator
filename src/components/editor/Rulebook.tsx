@@ -1,3 +1,4 @@
+import { ChevronRight, iconProps } from "@/components/ui/icons";
 import { t } from "@/lib/i18n";
 import type { Locale, LocalizedString } from "@/lib/types";
 
@@ -68,10 +69,10 @@ export function Rulebook({ locale }: { locale: Locale }) {
     <details className="group rounded-lg border border-slate-200 bg-white shadow-sm">
       <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
         <span>
-          <span className="text-sm font-semibold text-brand-ink">{t(TITLE, locale)}</span>
+          <span className="text-sm font-bold text-brand-indigo">{t(TITLE, locale)}</span>
           <span className="ml-2 text-xs text-slate-500">{t(INTRO, locale)}</span>
         </span>
-        <span className="text-xs text-slate-400 group-open:rotate-90">&#9656;</span>
+        <ChevronRight {...iconProps} className="flex-shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
       </summary>
       <ol className="list-decimal space-y-1.5 border-t border-slate-100 py-3 pl-9 pr-4 text-sm text-slate-600">
         {RULES.map((rule) => (

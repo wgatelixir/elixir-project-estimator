@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, iconProps } from "@/components/ui/icons";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateTime, formatHours } from "@/lib/format";
@@ -38,11 +39,12 @@ export default async function EstimationHistoryPage({ params }: PageProps) {
       <div className="flex flex-col gap-1">
         <Link
           href={`/estimations/${id}`}
-          className="w-fit text-xs text-slate-400 transition-colors hover:text-brand-crimson"
+          className="inline-flex w-fit items-center gap-1 text-xs text-slate-500 transition-colors hover:text-brand-crimson"
         >
-          ← Back to estimation
+          <ArrowLeft {...iconProps} size={14} />
+          Back to estimation
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-ink">Version history</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-brand-indigo">Version history</h1>
         <p className="mt-1 text-sm text-slate-500">
           {estimation.clientName}
           {estimation.projectName ? ` · ${estimation.projectName}` : ""} — every saved snapshot, oldest to

@@ -1,3 +1,4 @@
+import { Check, iconProps } from "@/components/ui/icons";
 import { prisma } from "@/lib/prisma";
 import { toSummary } from "@/lib/serialize";
 import { formatCurrency, formatDate, formatHours } from "@/lib/format";
@@ -32,7 +33,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-brand-ink">Estimations</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-brand-indigo">Estimations</h1>
           <p className="mt-1 text-sm text-slate-500">
             Every saved project estimation, kept as a snapshot you can reopen, duplicate for a
             new version, or pull numbers from for a proposal.
@@ -47,9 +48,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <OpportunityPhaseLegend />
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-200 bg-brand-mist text-[11px] uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-4 py-3 font-medium">Client</th>
               <th className="px-4 py-3 font-medium">Project</th>
@@ -72,11 +73,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               </tr>
             )}
             {estimations.map((e) => (
-              <tr key={e.id} className="hover:bg-slate-50">
+              <tr key={e.id} className="transition-colors hover:bg-brand-indigo/[0.03]">
                 <td className="px-4 py-3">
                   <a
                     href={`/estimations/${e.id}`}
-                    className="font-medium text-brand-ink transition-colors hover:text-brand-crimson hover:underline"
+                    className="font-semibold text-brand-indigo transition-colors hover:text-brand-crimson"
                   >
                     {e.clientName}
                   </a>
@@ -91,8 +92,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <td className="px-4 py-3">
                   {e.closedWon ? (
                     <span className="inline-flex flex-col text-xs">
-                      <span className="inline-flex w-fit items-center rounded bg-emerald-50 px-1.5 py-0.5 font-medium text-emerald-700 border border-emerald-200">
-                        ✓ Closed Won
+                      <span className="inline-flex w-fit items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 font-medium text-emerald-700">
+                        <Check {...iconProps} size={12} />
+                        Closed Won
                       </span>
                       {e.closedWonDeadline && (
                         <span className="mt-0.5 text-slate-400">{formatDate(e.closedWonDeadline)}</span>
