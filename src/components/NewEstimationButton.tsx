@@ -1,5 +1,7 @@
 "use client";
 
+import { Plus, iconProps } from "@/components/ui/icons";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -39,9 +41,10 @@ export function NewEstimationButton() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-indigo-hover"
+        className="btn btn-primary shadow-sm"
       >
-        + New estimation
+        <Plus {...iconProps} />
+        New estimation
       </button>
     );
   }
@@ -52,7 +55,7 @@ export function NewEstimationButton() {
         onSubmit={handleCreate}
         className="w-full max-w-sm rounded-lg bg-white p-5 shadow-xl"
       >
-        <h2 className="text-base font-semibold text-brand-ink">New estimation</h2>
+        <h2 className="text-base font-bold text-brand-indigo">New estimation</h2>
         <p className="mt-1 text-xs text-slate-500">
           Starts from the standard Elixir estimation template. You can adjust or remove anything
           afterwards.
@@ -92,14 +95,14 @@ export function NewEstimationButton() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+            className="btn btn-ghost"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover disabled:opacity-60"
+            className="btn btn-primary"
           >
             {submitting ? "Creating…" : "Create"}
           </button>

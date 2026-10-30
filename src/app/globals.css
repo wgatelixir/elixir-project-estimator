@@ -36,6 +36,97 @@
   --font-sans: var(--font-poppins);
 }
 
+/*
+ * Shared controls, in the spirit of HubSpot's UI (calm, flat, one clear primary
+ * action per area) but in Elixir colours: indigo for actions, crimson only as an
+ * accent (active tab, hover on links). Use these instead of re-styling buttons
+ * per component, so every screen behaves the same.
+ */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  transition: background-color 120ms, border-color 120ms, color 120ms, box-shadow 120ms;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(19 0 120 / 0.2);
+  }
+  & svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+@utility btn-sm {
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.8125rem;
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+
+/* Primary: the one main action in an area (Save, Add, New estimation). */
+@utility btn-primary {
+  background-color: var(--color-brand-indigo);
+  color: white;
+  &:hover:not(:disabled) {
+    background-color: var(--color-brand-indigo-hover);
+  }
+}
+
+/* Secondary: white with an indigo outline (open, export, print). */
+@utility btn-secondary {
+  background-color: white;
+  border-color: rgb(19 0 120 / 0.35);
+  color: var(--color-brand-indigo);
+  &:hover:not(:disabled) {
+    background-color: rgb(19 0 120 / 0.05);
+    border-color: var(--color-brand-indigo);
+  }
+}
+
+/* Ghost: low-emphasis actions in lists and toolbars. */
+@utility btn-ghost {
+  color: rgb(71 85 105);
+  font-weight: 500;
+  &:hover:not(:disabled) {
+    background-color: rgb(19 0 120 / 0.06);
+    color: var(--color-brand-indigo);
+  }
+}
+
+@layer base {
+  /* One focus style for every field: a soft indigo ring instead of the browser default. */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    &:focus-visible {
+      outline: none;
+      border-color: var(--color-brand-indigo);
+      box-shadow: 0 0 0 3px rgb(19 0 120 / 0.15);
+    }
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-brand-indigo);
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

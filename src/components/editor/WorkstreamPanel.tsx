@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight, GripVertical, Link2, X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort, lineItemPrice, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
@@ -52,8 +53,8 @@ function LineLink({
     const count = workstream.items.filter((it) => it.linkedTo === item.id).length;
     if (count === 0) return null;
     return (
-      <p className="mt-0.5 text-[11px] text-sky-700" title={t(s.linkedSessionTitle, locale)}>
-        &#128279; {count} {t(s.linkedCount, locale)}
+      <p className="mt-0.5 flex items-center gap-1 text-[11px] text-sky-700" title={t(s.linkedSessionTitle, locale)}>
+        <Link2 {...iconProps} size={12} /> {count} {t(s.linkedCount, locale)}
       </p>
     );
   }
@@ -61,7 +62,7 @@ function LineLink({
   const sessions = workstream.items.filter((it) => it.activity === "Session");
   return (
     <label className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-500" title={t(s.linkTitle, locale)}>
-      <span aria-hidden>&#128279;</span>
+      <Link2 {...iconProps} size={12} />
       <select
         value={item.linkedTo ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
@@ -236,10 +237,10 @@ export function WorkstreamPanel({
               value={workstream.label[locale]}
               onChange={(e) => onChange({ ...workstream, label: { en: e.target.value, nl: e.target.value } })}
               aria-label={t(s.workstreamName, locale)}
-              className="-ml-1.5 w-full rounded border border-transparent px-1.5 py-0.5 text-base font-semibold text-brand-ink hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+              className="-ml-1.5 w-full rounded border border-transparent px-1.5 py-0.5 text-base font-bold text-brand-indigo hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
             />
           ) : (
-            <h2 className="truncate text-base font-semibold text-brand-ink">{t(workstream.label, locale)}</h2>
+            <h2 className="truncate text-base font-bold text-brand-indigo">{t(workstream.label, locale)}</h2>
           )}
           <label className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
             <input
@@ -412,9 +413,9 @@ export function WorkstreamPanel({
                         }}
                         onDragEnd={endDrag}
                         title={t(s.dragToReorder, locale)}
-                        className="cursor-grab select-none px-0.5 text-base leading-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+                        className="cursor-grab select-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
                       >
-                        &#x2807;
+                        <GripVertical {...iconProps} />
                       </span>
                       <input
                         type="checkbox"
@@ -507,10 +508,10 @@ export function WorkstreamPanel({
                   <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-slate-300 hover:text-brand-crimson"
+                      className="rounded p-0.5 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
                       title={t(s.removeLine, locale)}
                     >
-                      &times;
+                      <X {...iconProps} />
                     </button>
                   </td>
                 </tr>
@@ -612,8 +613,9 @@ export function WorkstreamPanel({
         </select>
         <button
           onClick={addItem}
-          className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+          className="btn btn-primary"
         >
+          <Plus {...iconProps} />
           {t(s.addLine, locale)}
         </button>
       </div>
@@ -621,9 +623,10 @@ export function WorkstreamPanel({
       <div className="border-t border-slate-100 p-3">
         <button
           onClick={() => setShowTables((v) => !v)}
-          className="text-xs font-medium text-slate-500 hover:text-brand-indigo"
+          className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-brand-indigo"
         >
-          {showTables ? "−" : "+"} {t(s.complexityTablesAdvanced, locale)}
+          <ChevronRight {...iconProps} size={14} className={`transition-transform ${showTables ? "rotate-90" : ""}`} />
+          {t(s.complexityTablesAdvanced, locale)}
         </button>
         {showTables && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">

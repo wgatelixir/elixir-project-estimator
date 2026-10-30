@@ -41,7 +41,7 @@ export function RestoreVersionButton({
     <button
       onClick={restore}
       disabled={busy}
-      className="rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover disabled:opacity-50 print:hidden"
+      className="btn btn-primary print:hidden"
     >
       {busy ? "Restoring…" : "Restore this version"}
     </button>

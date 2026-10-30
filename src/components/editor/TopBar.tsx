@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeft, History, Save, iconProps } from "@/components/ui/icons";
 import type { EstimationStatus, Locale, OpportunityPhase } from "@/lib/types";
 import { OPPORTUNITY_PHASES } from "@/lib/types";
 import { OPPORTUNITY_PHASE_STYLES } from "@/lib/style";
@@ -86,8 +87,9 @@ export function TopBar({ estimationId, meta, onChange, dirty, saving, lastSavedA
           <button
             onClick={onSave}
             disabled={saving || !dirty}
-            className="rounded-md bg-brand-indigo px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover disabled:opacity-50"
+            className="btn btn-primary"
           >
+            <Save {...iconProps} />
             {saving ? t(s.saving, locale) : t(s.save, locale)}
           </button>
         </div>
@@ -126,14 +128,16 @@ export function TopBar({ estimationId, meta, onChange, dirty, saving, lastSavedA
           />
         </label>
       </div>
-      <div className="mt-2 flex items-center gap-3">
-        <Link href="/" className="text-xs text-slate-400 transition-colors hover:text-brand-crimson">
+      <div className="mt-2 flex items-center gap-4">
+        <Link href="/" className="inline-flex items-center gap-1 text-xs text-slate-500 transition-colors hover:text-brand-crimson">
+          <ArrowLeft {...iconProps} size={14} />
           {t(s.backToDashboard, locale)}
         </Link>
         <Link
           href={`/estimations/${estimationId}/history`}
-          className="text-xs text-slate-400 transition-colors hover:text-brand-crimson"
+          className="inline-flex items-center gap-1 text-xs text-slate-500 transition-colors hover:text-brand-crimson"
         >
+          <History {...iconProps} size={14} />
           {t(s.versionHistory, locale)}
         </Link>
       </div>

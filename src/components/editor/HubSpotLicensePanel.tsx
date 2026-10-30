@@ -172,7 +172,7 @@ export function HubSpotLicensePanel({
       </div>
 
       <div className="border-b border-slate-100 p-4">
-        <h3 className="text-sm font-semibold text-brand-ink">{t(s.applicabilityTitle, locale)}</h3>
+        <h3 className="text-sm font-bold text-brand-indigo">{t(s.applicabilityTitle, locale)}</h3>
         <p className="mt-0.5 text-xs text-slate-500">{t(s.applicabilityIntro, locale)}</p>
         <div className="mt-3 space-y-2">
           {APPLICABILITY_QUESTIONS.map((q) => (
@@ -267,7 +267,7 @@ export function HubSpotLicensePanel({
       </div>
 
       <div className="p-4">
-        <h3 className="text-sm font-semibold text-brand-ink">{t(s.monthlyCostsTitle, locale)}</h3>
+        <h3 className="text-sm font-bold text-brand-indigo">{t(s.monthlyCostsTitle, locale)}</h3>
         <dl className="mt-2 space-y-1.5 text-sm">
           <div className="flex items-center justify-between">
             <dt className="text-slate-500">

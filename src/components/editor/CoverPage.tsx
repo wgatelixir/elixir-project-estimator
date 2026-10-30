@@ -1,5 +1,6 @@
 "use client";
 
+import { Pencil, Plus, iconProps } from "@/components/ui/icons";
 import type {
   ElixirSyncIntegrationState,
   EstimationState,
@@ -27,17 +28,7 @@ import {
 } from "@/lib/customWorkstreams";
 import { useState } from "react";
 import { Rulebook } from "./Rulebook";
-
-// "deployment_golive" is no longer in the template (V3 moved trainings and go-live into
-// each hub tab) but older estimations still have it, so keep listing it when present.
-const FOUNDATION_KEYS = ["business_assessment", "technical_assessment", "data_migration", "deployment_golive"];
-const HUB_KEYS = [
-  "sales_implementation",
-  "service_implementation",
-  "marketing_implementation",
-  "cms_implementation",
-  "dealhub_implementation",
-];
+import { FOUNDATION_KEYS, HUB_KEYS } from "@/lib/workstreamGroups";
 
 // One fixed column template shared by the header and every row, so Rate/Hours/Budget
 // never drift out of alignment regardless of label length or whether a row has a result yet.
@@ -294,7 +285,7 @@ function GroupCard({ title, description, children }: { title: string; descriptio
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-4 py-3">
-        <h3 className="text-sm font-semibold text-brand-ink">{title}</h3>
+        <h3 className="text-sm font-bold text-brand-indigo">{title}</h3>
         {description && <p className="mt-0.5 text-xs text-slate-500">{description}</p>}
       </div>
       {children}
@@ -437,9 +428,9 @@ function CustomWorkstreamRow({
             onClick={() => setEditing((v) => !v)}
             aria-expanded={editing}
             title={t(s.editWorkstream, locale)}
-            className={`flex-shrink-0 rounded px-1.5 text-sm ${editing ? "bg-brand-indigo text-white" : "text-slate-400 hover:text-brand-indigo"}`}
+            className={`flex-shrink-0 rounded p-1 ${editing ? "bg-brand-indigo text-white" : "text-slate-400 hover:bg-brand-indigo/5 hover:text-brand-indigo"}`}
           >
-            &#9998;
+            <Pencil {...iconProps} size={14} />
           </button>
         }
       />
@@ -530,9 +521,10 @@ function AddCustomWorkstream({ locale, onAdd }: { locale: Locale; onAdd: (ws: St
       </select>
       <button
         onClick={add}
-        className="rounded-md bg-brand-indigo px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-indigo-hover"
+        className="btn btn-primary"
       >
-        {t(s.addCustomWorkstream, locale)}
+        <Plus {...iconProps} />
+          {t(s.addCustomWorkstream, locale)}
       </button>
     </div>
   );
@@ -563,7 +555,7 @@ export function CoverPage({
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-semibold text-brand-ink">{t(s.heading, locale)}</h2>
+        <h2 className="text-base font-bold text-brand-indigo">{t(s.heading, locale)}</h2>
         <p className="mt-1 text-sm text-slate-500">{t(s.intro, locale)}</p>
       </div>
 
