@@ -1,10 +1,11 @@
 "use client";
 
-import { FileJson, FileSpreadsheet, Presentation, iconProps } from "@/components/ui/icons";
+import { useEffect, useState } from "react";
+import { ChevronDown, FileJson, FileSpreadsheet, Presentation, iconProps } from "@/components/ui/icons";
 import { groupByPhase, totalsByStage, type EstimationTotals } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import type { ComplexityBand } from "@/lib/style";
-import { PanelLegend } from "./Legend";
+import { ComplexityGuide } from "./Legend";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import type { Locale, LocalizedString } from "@/lib/types";
 
@@ -26,6 +27,31 @@ interface SummarySidebarProps {
   locale?: Locale;
 }
 
+const GUIDE_OPEN_KEY = "estimator.complexityGuideOpen";
+
+/** Open/closed state of the complexity guide, remembered per browser (a convenience; open when unknown). */
+function useGuideOpen(): [boolean, (open: boolean) => void] {
+  const [open, setOpen] = useState(true);
+  useEffect(() => {
+    try {
+      // Read after mount so the server render (always open) and the first client render match.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (window.localStorage.getItem(GUIDE_OPEN_KEY) === "false") setOpen(false);
+    } catch {
+      // Storage blocked (private mode etc.): just stay open.
+    }
+  }, []);
+  function update(next: boolean) {
+    setOpen(next);
+    try {
+      window.localStorage.setItem(GUIDE_OPEN_KEY, String(next));
+    } catch {
+      // Not remembered, but the toggle still works for this page view.
+    }
+  }
+  return [open, update];
+}
+
 export function SummarySidebar({
   totals,
   onOpenProposal,
@@ -36,6 +62,7 @@ export function SummarySidebar({
   const s = UI_STRINGS.summarySidebar;
   const { groups: phaseGroups, showPhases } = groupByPhase(totals);
   const byStage = totalsByStage(totals);
+  const [guideOpen, setGuideOpen] = useGuideOpen();
   return (
     <div className="sticky top-4 space-y-4">
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -141,19 +168,34 @@ export function SummarySidebar({
 
       {legend && (
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="px-4 pt-3 pb-1">
-            <h2 className="text-sm font-bold text-brand-indigo">{t(legend.label, locale)}</h2>
-            <p className="text-xs text-slate-400">{t(s.complexityGuide, locale)}</p>
-          </div>
-          <PanelLegend
-            variant={legend.variant}
-            showActivity={legend.variant === "standard"}
-            sessionHours={legend.sessionHours}
-            setupHours={legend.setupHours}
-            comments={legend.comments}
-            layout="compact"
-            locale={locale}
-          />
+          <button
+            type="button"
+            onClick={() => setGuideOpen(!guideOpen)}
+            aria-expanded={guideOpen}
+            title={t(guideOpen ? UI_STRINGS.legend.hideGuide : UI_STRINGS.legend.showGuide, locale)}
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+          >
+            <span className="min-w-0">
+              <span className="block text-sm font-bold text-brand-indigo">{t(s.complexityGuide, locale)}</span>
+              <span className="block truncate text-xs text-slate-400">{t(legend.label, locale)}</span>
+            </span>
+            <ChevronDown
+              {...iconProps}
+              className={`flex-shrink-0 text-slate-400 transition-transform ${guideOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {guideOpen && (
+            <div className="border-t border-slate-100 px-4 py-3">
+              <ComplexityGuide
+                variant={legend.variant}
+                sessionHours={legend.sessionHours}
+                setupHours={legend.setupHours}
+                comments={legend.comments}
+                layout="compact"
+                locale={locale}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

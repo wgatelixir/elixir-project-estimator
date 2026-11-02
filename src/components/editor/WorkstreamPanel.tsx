@@ -109,7 +109,7 @@ function LinePhaseSelect({
         onChange(v === "default" ? undefined : v === "na" ? null : (Number(v) as ProjectPhase));
       }}
       title={t(s.linePhaseTitle, locale)}
-      className={`mt-0.5 max-w-[180px] truncate rounded border border-transparent bg-transparent py-0 pl-0.5 pr-5 text-[11px] hover:border-slate-200 focus:border-brand-indigo focus:outline-none ${
+      className={`-ml-[7px] mt-0.5 max-w-[180px] truncate rounded border border-transparent bg-transparent py-0 pl-0.5 pr-5 text-[11px] hover:border-slate-200 focus:border-brand-indigo focus:outline-none ${
         phase !== undefined ? "text-brand-indigo" : "text-slate-400"
       }`}
     >
@@ -337,6 +337,7 @@ export function WorkstreamPanel({
         setupHours={complexityHoursByBand(workstream.setupComplexity)}
         comments={complexityCommentsByBand(workstream.sessionComplexity)}
         activityBands={isCustom ? CUSTOM_ACTIVITY_LEGEND : ACTIVITY_LEGEND}
+        showComplexity={false}
         locale={locale}
       />
 
@@ -436,7 +437,7 @@ export function WorkstreamPanel({
                     <input
                       value={item.topic[locale]}
                       onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
-                      className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      className="-ml-[7px] w-[calc(100%+7px)] rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                     <LineItemNote comment={item.comment} locale={locale} />
                     <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />

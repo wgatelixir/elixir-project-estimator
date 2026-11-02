@@ -130,6 +130,7 @@ export function ThirdPartyPanel({
         sessionHours={complexityHoursByBand(state.sessionComplexity)}
         setupHours={complexityHoursByBand(state.setupComplexity)}
         comments={complexityCommentsByBand(state.sessionComplexity)}
+        showComplexity={false}
         locale={locale}
       />
 
@@ -176,7 +177,7 @@ export function ThirdPartyPanel({
                     <input
                       value={item.topic[locale]}
                       onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
-                      className="w-full rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      className="-ml-[7px] w-[calc(100%+7px)] rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   <td className="px-3 py-2">

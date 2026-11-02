@@ -231,6 +231,14 @@ export const UI_STRINGS = {
   },
   legend: {
     activityLabel: { en: "Activity:", nl: "Activiteit:" },
+    complexityIntro: {
+      en: "Hours added or removed per line, compared with Standard.",
+      nl: "Uren erbij of eraf per regel, ten opzichte van Standaard.",
+    },
+    complexityIntroThirdParty: { en: "Hours per line at each level.", nl: "Uren per regel per niveau." },
+    basis: { en: "Basis", nl: "Uitgangspunt" },
+    showGuide: { en: "Show complexity guide", nl: "Complexiteitsgids tonen" },
+    hideGuide: { en: "Hide complexity guide", nl: "Complexiteitsgids verbergen" },
   },
   summarySidebar: {
     inclPm: { en: "(incl. PM)", nl: "(incl. PM)" },
