@@ -151,9 +151,6 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
                 </span>
                 <span className="shrink-0 text-[11px] text-slate-400">{columnItems.length}</span>
               </div>
-              <div className="rounded-md border border-slate-200 bg-brand-mist px-2 py-1.5 text-xs font-semibold text-slate-600">
-                {formatCurrency(total)}
-              </div>
               <div
                 onDragOver={(ev) => {
                   if (!dragId) return;
@@ -208,30 +205,19 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
                   ))
                 )}
               </div>
+              <div className="mt-2 rounded-md border border-slate-200 bg-brand-mist px-2 py-1.5 text-xs font-semibold text-slate-600">
+                {formatCurrency(total)}
+              </div>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
-        {OPPORTUNITY_PHASES.map((phase) => {
-          const style = OPPORTUNITY_PHASE_STYLES[phase];
-          const columnItems = byPhase.get(phase) ?? [];
-          const total = columnItems.reduce((sum, e) => sum + e.totalPrice, 0);
-          return (
-            <div key={phase} className="flex items-center gap-1.5 text-sm">
-              <span className={`h-2 w-2 shrink-0 rounded-full ${style.dot}`} />
-              <span className="text-slate-500">{style.label.en}</span>
-              <span className="font-semibold text-brand-ink">{formatCurrency(total)}</span>
-            </div>
-          );
-        })}
-        <div className="ml-auto flex items-center gap-1.5 border-l border-slate-200 pl-4 text-sm">
-          <span className="text-slate-500">Total pipeline ({items.length})</span>
-          <span className="font-bold text-brand-indigo">
-            {formatCurrency(items.reduce((sum, e) => sum + e.totalPrice, 0))}
-          </span>
-        </div>
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-sm">
+        <span className="text-slate-500">Total pipeline ({items.length})</span>
+        <span className="font-bold text-brand-indigo">
+          {formatCurrency(items.reduce((sum, e) => sum + e.totalPrice, 0))}
+        </span>
       </div>
 
       {previewEstimation && (
