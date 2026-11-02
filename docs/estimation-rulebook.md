@@ -75,6 +75,23 @@ Dutch translation. Its **Duration** column (session length in hours) is
 stored as `duration` and shown in the editor only — informational, not
 used in any total.
 
+### Data Migration descriptions (2026-11-02)
+
+All 16 Data Migration lines got new descriptions (`comment`, EN + NL) that
+spell out the concrete steps and outputs (export review, mapping file,
+test/full load order, error file), replacing V3's short Content text. They
+are longer than the one-sentence rule above; that was the requested copy.
+Default assumption in the text: the client extracts, cleans and transforms;
+Elixir loads ("Data Transformation & Formatting" says "Only if Elixir owns
+this step"). Note that V3's "IF we own this part" on Data Load in Test/Prod
+was dropped by this copy. Hours are unchanged.
+
+Saved estimations keep their own copy of each line, so the new texts reach
+them through `refreshTemplateComments` (`src/lib/templateComments.ts`) when
+an estimation is opened: a line is updated only while it still carries the
+exact previous template text. Reword a template text again later by adding
+the old text there too. Saved version snapshots are not touched.
+
 ### Session Prep vs. Setup
 
 Preparation lines use the activity **Session Prep** (light-blue row), not

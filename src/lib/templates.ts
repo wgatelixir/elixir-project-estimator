@@ -334,7 +334,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Show our best practices and tips to the client", nl: "Onze best practices en tips aan de klant laten zien" },
+        comment: { en: "Walk through our migration approach (extract, transform, load) and our cleaning guidelines. Agree on which data is migrated per object (e.g. active companies, contacts with activity in the last 3 years, open deals only), who owns each source and who is responsible on the client side.", nl: "Onze migratieaanpak (extract, transform, load) en onze opschoonrichtlijnen doorlopen. Per object afspreken welke data wordt gemigreerd (bijv. actieve bedrijven, contacten met activiteit in de laatste 3 jaar, alleen openstaande deals), wie eigenaar is van elke bron en wie aan klantzijde verantwoordelijk is." },
         enabled: true,
       },
       {
@@ -345,7 +345,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 3.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Provide Data Mapping and discuss field mappings based on Exports", nl: "Datamapping aanleveren en veldmappings bespreken op basis van exports" },
+        comment: { en: "Review the data mapping file together: which source fields map to which HubSpot properties, which fields are left behind, and which dropdown values are created or aligned. Output: agreed mapping, finalized after this alignment.", nl: "Samen het datamappingbestand doornemen: welke bronvelden naar welke HubSpot-properties gaan, welke velden achterblijven en welke dropdownwaarden worden aangemaakt of gelijkgetrokken. Resultaat: afgestemde mapping, definitief na deze afstemming." },
         enabled: true,
       },
       {
@@ -356,7 +356,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Check on exports and clean ups the client did already, define next steps", nl: "Exports en opschoonacties van de klant controleren, vervolgstappen bepalen" },
+        comment: { en: "Review the client’s first exports: one source per object, duplicates, obsolete or opted-out contacts, invalid or generic email addresses, owner assignment. Agree on fixes and next steps.", nl: "De eerste exports van de klant doornemen: één bron per object, dubbelingen, verouderde of afgemelde contacten, ongeldige of generieke e-mailadressen, toewijzing van eigenaren. Correcties en vervolgstappen afspreken." },
         enabled: true,
       },
       {
@@ -367,7 +367,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Check on exports and clean ups the client did already, define next steps", nl: "Exports en opschoonacties van de klant controleren, vervolgstappen bepalen" },
+        comment: { en: "Review the cleaned files in HubSpot format: dropdown values, phone format, owner emails, company IDs for associations. Sign off the files for the test load.", nl: "De opgeschoonde bestanden in HubSpot-formaat doornemen: dropdownwaarden, telefoonnummerformaat, e-mailadressen van eigenaren, bedrijfs-ID's voor associaties. De bestanden goedkeuren voor het laden in test." },
         enabled: true,
       },
       {
@@ -378,7 +378,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Check on imports the client did, clarify issues", nl: "Imports van de klant controleren, issues uitzoeken" },
+        comment: { en: "Walk through the test import results with the client: error file, record counts, invalid dropdown values, missing associations. Agree on fixes and approval for the full load.", nl: "De resultaten van de testimport met de klant doorlopen: foutenbestand, aantallen records, ongeldige dropdownwaarden, ontbrekende associaties. Correcties en akkoord voor de volledige load afspreken." },
         enabled: true,
       },
       {
@@ -389,7 +389,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "session",
         complexity: "Standard",
-        comment: { en: "Check on imports the client did, clarify issues", nl: "Imports van de klant controleren, issues uitzoeken" },
+        comment: { en: "Validate the production test batch and full load together with the client, and do a final data review in HubSpot.", nl: "De testbatch en de volledige load in productie samen met de klant valideren, en een laatste controle van de data in HubSpot doen." },
         enabled: true,
       },
       {
@@ -401,7 +401,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         complexityTable: "setup",
         complexity: "Standard",
         linkedTo: "data_migration-1-best-practices-customer-input",
-        comment: { en: "Prepare Miro and Deck for Best Practices", nl: "Miro en deck voor de best practices voorbereiden" },
+        comment: { en: "Prepare the Miro board and deck: approach, selection criteria, cleaning guidelines and mapping file.", nl: "Miro-board en deck voorbereiden: aanpak, selectiecriteria, opschoonrichtlijnen en mappingbestand." },
         enabled: true,
       },
       {
@@ -412,7 +412,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Answer questions, give feedback to approach, advise on the run", nl: "Vragen beantwoorden, feedback geven op de aanpak, adviseren tijdens de uitvoering" },
+        comment: { en: "Support the client during extraction and cleaning: answer questions, give feedback on their approach (duplicate detection, VLOOKUPs, dropdown validation in Excel), and advise on edge cases.", nl: "De klant ondersteunen tijdens extractie en opschoning: vragen beantwoorden, feedback geven op hun aanpak (dubbelingen opsporen, VLOOKUPs, dropdownvalidatie in Excel) en adviseren bij uitzonderingen." },
         enabled: true,
       },
       {
@@ -423,7 +423,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Check Data and Issues for the client, export analysis (dependent on amount of objects, files)", nl: "Data en issues voor de klant controleren, exportanalyse (afhankelijk van het aantal objecten en bestanden)" },
+        comment: { en: "Review the client’s first import files per object: structure, duplicates, invalid emails, owners, dropdown values, phone format, company ID. Written feedback to the client.", nl: "De eerste importbestanden van de klant per object controleren: structuur, dubbelingen, ongeldige e-mailadressen, eigenaren, dropdownwaarden, telefoonnummerformaat, bedrijfs-ID. Schriftelijke feedback aan de klant." },
         enabled: true,
       },
       {
@@ -434,7 +434,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 2.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Check Data and Issues for the client, export analysis (dependent on amount of objects, files)", nl: "Data en issues voor de klant controleren, exportanalyse (afhankelijk van het aantal objecten en bestanden)" },
+        comment: { en: "Re-check the files after the client’s fixes and confirm they are import-ready.", nl: "De bestanden na de correcties van de klant opnieuw controleren en bevestigen dat ze klaar zijn voor import." },
         enabled: true,
       },
       {
@@ -445,7 +445,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 12.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Order, transform, clean & format customer data IF we own this part", nl: "Klantdata ordenen, transformeren, opschonen & opmaken, ALS wij dit deel uitvoeren" },
+        comment: { en: "Only if Elixir owns this step: clean the data and transform it into the HubSpot import template (mapping, dropdown values, lifecycle stage, legal basis, owner emails). Default assumption: the client does this.", nl: "Alleen als Elixir deze stap uitvoert: de data opschonen en omzetten naar het HubSpot-importtemplate (mapping, dropdownwaarden, lifecycle stage, legal basis, e-mailadressen van eigenaren). Uitgangspunt: de klant doet dit." },
         enabled: true,
       },
       {
@@ -456,7 +456,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Effort to Load Testdata into Sandbox IF we own this part", nl: "Inspanning om testdata in de sandbox te laden, ALS wij dit deel uitvoeren" },
+        comment: { en: "Import a test batch into the sandbox, analyze the error file and fix the issues. Then run the full sandbox load: companies first, then contacts and deals with associations.", nl: "Een testbatch in de sandbox importeren, het foutenbestand analyseren en de issues oplossen. Daarna de volledige load in de sandbox: eerst bedrijven, dan contacten en deals met associaties." },
         enabled: true,
       },
       {
@@ -467,7 +467,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Effort to load the data into production IF we own this part", nl: "Inspanning om de data in productie te laden, ALS wij dit deel uitvoeren" },
+        comment: { en: "Import a test batch into production, fix the issues, then run the full load (companies, contacts, deals, associations). Includes the post-load check.", nl: "Een testbatch in productie importeren, de issues oplossen en daarna de volledige load uitvoeren (bedrijven, contacten, deals, associaties). Inclusief de controle na het laden." },
         enabled: true,
       },
       {
@@ -478,7 +478,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 4.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Extremely high amount of objects, data and files", nl: "Extreem veel objecten, data en bestanden" },
+        comment: { en: "Applies when volumes are exceptionally high or sources are many: extra cleaning cycles, split imports, longer validation.", nl: "Van toepassing bij uitzonderlijk grote volumes of veel bronnen: extra opschoonrondes, gesplitste imports, langere validatie." },
         enabled: true,
       },
       {
@@ -489,7 +489,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Migration of Files attached to Mail or overall Files", nl: "Migratie van bestanden bij e-mails of bestanden in het algemeen" },
+        comment: { en: "Applies when files attached to emails or records must be migrated. Not part of the standard approach.", nl: "Van toepassing als bestanden bij e-mails of records gemigreerd moeten worden. Geen onderdeel van de standaardaanpak." },
         enabled: true,
       },
       {
@@ -500,7 +500,7 @@ export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
         standardEffort: 8.0,
         complexityTable: "setup",
         complexity: "Standard",
-        comment: { en: "Technical fetching of data needed / Export not easily possible", nl: "Data moet technisch opgehaald worden / export niet eenvoudig mogelijk" },
+        comment: { en: "Applies when the source system has no usable export and data must be fetched technically (API or middleware). Not part of the standard approach.", nl: "Van toepassing als het bronsysteem geen bruikbare export heeft en de data technisch opgehaald moet worden (API of middleware). Geen onderdeel van de standaardaanpak." },
         enabled: true,
       },
     ],
