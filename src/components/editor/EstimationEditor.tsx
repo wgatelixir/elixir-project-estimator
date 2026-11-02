@@ -20,6 +20,7 @@ import { DEFAULT_SERVICE_RATE } from "@/lib/templates";
 import { migrateLegacyLocaleFields } from "@/lib/migrateLegacyLocale";
 import { isLegacyTemplate, upgradeToCurrentTemplate } from "@/lib/upgradeTemplate";
 import { backfillTemplateLinks } from "@/lib/lineLinks";
+import { refreshTemplateComments } from "@/lib/templateComments";
 import { FEATURES } from "@/lib/features";
 import { buildEstimationExport, exportFileBaseName } from "@/lib/export/model";
 import { estimationToJson, estimationToXlsx } from "@/lib/export/exportEstimation";
@@ -64,7 +65,7 @@ const PROPOSAL_TAB_ID = "proposal_summary";
 // / "English" anyway.
 function normalizeEstimationState(data: EstimationState): EstimationState {
   return {
-    ...backfillTemplateLinks(migrateLegacyLocaleFields(data)),
+    ...refreshTemplateComments(backfillTemplateLinks(migrateLegacyLocaleFields(data))),
     hubspotLicense: data.hubspotLicense ?? createDefaultHubSpotLicenseState(),
     locale: data.locale ?? "en",
     serviceRate: data.serviceRate ?? DEFAULT_SERVICE_RATE,
