@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { EstimationSummary, OpportunityPhase } from "@/lib/types";
 import { OPPORTUNITY_PHASES } from "@/lib/types";
 import { OPPORTUNITY_PHASE_STYLES } from "@/lib/style";
@@ -18,24 +19,26 @@ function PipelineCard({
   dragging,
   onDragStart,
   onDragEnd,
-  onOpen,
+  onNavigate,
+  onPreview,
 }: {
   e: EstimationSummary;
   dragging: boolean;
   onDragStart: (ev: React.DragEvent) => void;
   onDragEnd: () => void;
-  onOpen: () => void;
+  onNavigate: () => void;
+  onPreview: () => void;
 }) {
   return (
     <div
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={onOpen}
+      onClick={onNavigate}
       role="button"
       tabIndex={0}
       onKeyDown={(ev) => {
-        if (ev.key === "Enter" || ev.key === " ") onOpen();
+        if (ev.key === "Enter" || ev.key === " ") onNavigate();
       }}
       className={`cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
         dragging ? "opacity-40" : ""
@@ -46,12 +49,17 @@ function PipelineCard({
           <div className="truncate text-sm font-semibold text-brand-ink">{e.clientName}</div>
           <div className="truncate text-xs text-slate-500">{e.projectName || "—"}</div>
         </div>
-        <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-indigo/10 text-[11px] font-semibold text-brand-indigo"
-          title={e.ownerName ? `Owner: ${e.ownerName}` : "No owner set"}
+        <button
+          type="button"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onPreview();
+          }}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-indigo/10 text-[11px] font-semibold text-brand-indigo transition-colors hover:bg-brand-indigo/20"
+          title="Quick preview"
         >
           {initial(e.ownerName)}
-        </span>
+        </button>
       </div>
 
       {e.closedWon && (
@@ -84,10 +92,12 @@ function PipelineCard({
  * Cards can be dragged to another column to change their opportunity phase
  * (optimistic update, reverted if the save fails) - this only ever touches
  * opportunityPhase, never closedWon, so dropping a card on "Closed won"
- * does not silently flip that separate flag. Clicking (without dragging)
- * opens a HubSpot-style quick-view panel instead of navigating away.
+ * does not silently flip that separate flag. Clicking the card itself goes
+ * straight to the estimation; clicking the round owner-initial icon instead
+ * opens a HubSpot-style quick-view panel without navigating away.
  */
 export function PipelineBoard({ estimations }: { estimations: EstimationSummary[] }) {
+  const router = useRouter();
   const [items, setItems] = useState(estimations);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverPhase, setDragOverPhase] = useState<OpportunityPhase | null>(null);
@@ -194,13 +204,14 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
                         setDragId(null);
                         setDragOverPhase(null);
                       }}
-                      onOpen={() => {
+                      onNavigate={() => {
                         if (suppressClickRef.current) {
                           suppressClickRef.current = false;
                           return;
                         }
-                        setPreviewId(e.id);
+                        router.push(`/estimations/${e.id}`);
                       }}
+                      onPreview={() => setPreviewId(e.id)}
                     />
                   ))
                 )}
