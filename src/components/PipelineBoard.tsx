@@ -90,11 +90,12 @@ function PipelineCard({
  * in, since that flag is tracked independently of phase (see types.ts).
  *
  * Cards can be dragged to another column to change their opportunity phase
- * (optimistic update, reverted if the save fails) - this only ever touches
- * opportunityPhase, never closedWon, so dropping a card on "Closed won"
- * does not silently flip that separate flag. Clicking the card itself goes
- * straight to the estimation; clicking the round owner-initial icon instead
- * opens a HubSpot-style quick-view panel without navigating away.
+ * (optimistic update, reverted if the save fails). Dropping a card on
+ * "Closed won" also checks its Closed Won flag (see movePhase) - moving it
+ * to any other phase leaves that flag as last set, it's never cleared
+ * automatically. Clicking the card itself goes straight to the estimation;
+ * clicking the round owner-initial icon instead opens a HubSpot-style
+ * quick-view panel without navigating away.
  */
 export function PipelineBoard({ estimations }: { estimations: EstimationSummary[] }) {
   const router = useRouter();
@@ -118,16 +119,23 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
   async function movePhase(id: string, phase: OpportunityPhase) {
     const current = items.find((e) => e.id === id);
     if (!current || current.opportunityPhase === phase) return;
-    setItems((prev) => prev.map((e) => (e.id === id ? { ...e, opportunityPhase: phase } : e)));
+    // Dropping a card on "Closed won" also checks the Closed Won flag itself
+    // (and turns the card green), since landing it in that column is exactly
+    // what that flag means. Moving it to any other phase leaves the flag as
+    // the user last set it - this never un-checks it on its own.
+    const closedWon = phase === "CLOSED_WON" ? true : current.closedWon;
+    setItems((prev) => prev.map((e) => (e.id === id ? { ...e, opportunityPhase: phase, closedWon } : e)));
     try {
       const res = await fetch(`/api/estimations/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ opportunityPhase: phase }),
+        body: JSON.stringify({ opportunityPhase: phase, closedWon }),
       });
       if (!res.ok) throw new Error("Failed to move estimation");
     } catch {
-      setItems((prev) => prev.map((e) => (e.id === id ? { ...e, opportunityPhase: current.opportunityPhase } : e)));
+      setItems((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, opportunityPhase: current.opportunityPhase, closedWon: current.closedWon } : e))
+      );
       alert("Couldn't move this estimation to that phase - please try again.");
     }
   }
