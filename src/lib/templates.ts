@@ -19,7 +19,7 @@ import { createDefaultHubSpotLicenseState } from './hubspotPricing';
 export const STANDARD_WORKSTREAM_TEMPLATES: StandardWorkstream[] = [
   {
     key: "business_assessment",
-    label: { en: "Business Assessment", nl: "Business Assessment" },
+    label: { en: "Assessment & Scoping", nl: "Assessment & Scoping" },
     enabled: false,
     hourlyRate: 150,
     items: [

@@ -118,6 +118,23 @@ changed on its own afterwards). DealHub's same-named Setup lines are not
 linked: there "Playbook Setup" etc. is the build work itself, not
 preparation.
 
+### Workstream label: "Business Assessment" → "Assessment & Scoping" (2026-11-06)
+
+The `business_assessment` workstream's label changed from "Business
+Assessment" to "Assessment & Scoping" (`label` on the workstream in
+`src/lib/templates.ts`, identical in `en`/`nl` — same convention as
+"Technical Assessment"). Earlier sections of this document still say
+"Business Assessment" where they describe decisions made under that name;
+that history isn't rewritten, only this file's own usage going forward.
+The key (`business_assessment`), line item ids, and all comment/topic text
+are unchanged — only the workstream's own display label moved. Already
+saved estimations get the new label through the one-time
+`/api/admin/backfill-workstream-label` route (same pattern as the
+Sales/Marketing workshop-title backfill): it patches a workstream's label
+only while it's still exactly the old text, so an estimation whose label
+was manually edited is left alone. Delete that route once it's been run
+against production.
+
 ## Uni-dimensional vs. multi-dimensional projects
 
 A **dimension** = one HubSpot hub in scope (Sales, Service, Marketing, CMS,
