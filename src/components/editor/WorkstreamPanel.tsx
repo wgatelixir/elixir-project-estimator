@@ -3,24 +3,22 @@
 import { ChevronRight, GripVertical, Link2, X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort, lineItemPrice, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
+import { lineItemFinalEffort, lineItemPrice, lineItemRangeHours, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_LEGEND,
   ACTIVITY_STYLES,
+  COMPLEXITY_STYLES,
   CUSTOM_ACTIVITY_LEGEND,
   classifyActivity,
   classifyComplexity,
-  complexityCommentsByBand,
-  complexityHoursByBand,
-  COMPLEXITY_STYLES,
+  type ActivityBand,
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { removeLine, setLineComplexity, setLineEnabled } from "@/lib/lineLinks";
 import { CUSTOM_WORKSTREAM_TYPES, CUSTOM_WORKSTREAM_TYPE_LABELS, DEFAULT_RETAINER_MONTHS } from "@/lib/customWorkstreams";
 import type { CustomWorkstreamType } from "@/lib/types";
-import { PanelLegend } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
 
@@ -140,6 +138,7 @@ function LineItemGroup({
   workstream,
   isCustom,
   locale,
+  activityFilter,
   dragId,
   dropTarget,
   setDragId,
@@ -155,6 +154,8 @@ function LineItemGroup({
   workstream: StandardWorkstream;
   isCustom: boolean;
   locale: Locale;
+  /** While set, pins the tab matching this activity instead of the manually-picked one. */
+  activityFilter: ActivityBand | "all";
   dragId: string | null;
   dropTarget: { id: string; after: boolean } | null;
   setDragId: (id: string | null) => void;
@@ -169,9 +170,11 @@ function LineItemGroup({
   const groupId = main.id;
   const tabs = childItems.length > 0 ? [main, ...childItems] : [main];
   const [activeId, setActiveId] = useState(groupId);
-  const active = tabs.find((it) => it.id === activeId) ?? main;
+  const filterMatch = activityFilter !== "all" ? tabs.find((it) => classifyActivity(it.activity) === activityFilter) : undefined;
+  const active = filterMatch ?? tabs.find((it) => it.id === activeId) ?? main;
   const activityStyle = ACTIVITY_STYLES[classifyActivity(active.activity)];
   const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(active.complexity)];
+  const range = lineItemRangeHours(active, workstream);
 
   return (
     <div
@@ -199,7 +202,7 @@ function LineItemGroup({
           : ""
       }`}
     >
-      {tabs.length > 1 && (
+      {tabs.length > 1 && activityFilter === "all" && (
         <div className="mb-2 inline-flex gap-0.5 rounded-full bg-slate-100 p-0.5">
           {tabs.map((it) => {
             const tabStyle = ACTIVITY_STYLES[classifyActivity(it.activity)];
@@ -277,6 +280,11 @@ function LineItemGroup({
           <div className="text-sm font-semibold tabular-nums text-brand-ink">
             {formatHours(lineItemFinalEffort(active, workstream), locale)}
           </div>
+          {range && (
+            <div className="text-[11px] tabular-nums text-slate-400" title={t(s.rangeTitle, locale)}>
+              {formatHours(range.low, locale)}&ndash;{formatHours(range.high, locale)}
+            </div>
+          )}
           {isCustom && (
             <div className="text-xs tabular-nums text-slate-500">
               {formatCurrency(lineItemPrice(active, workstream), locale)}
@@ -336,6 +344,36 @@ function LineItemGroup({
             ))}
           </select>
         </label>
+        <label className="flex items-center gap-1.5" title={t(s.rangeTitle, locale)}>
+          {t(s.rangeLow, locale)}
+          <select
+            value={active.rangeLow ?? ""}
+            onChange={(e) => updateItem(active.id, { rangeLow: e.target.value || null })}
+            className="rounded border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+          >
+            <option value="">{t(s.rangeUnset, locale)}</option>
+            {complexityOptionsFor(active, workstream).map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5" title={t(s.rangeTitle, locale)}>
+          {t(s.rangeHigh, locale)}
+          <select
+            value={active.rangeHigh ?? ""}
+            onChange={(e) => updateItem(active.id, { rangeHigh: e.target.value || null })}
+            className="rounded border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+          >
+            <option value="">{t(s.rangeUnset, locale)}</option>
+            {complexityOptionsFor(active, workstream).map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           onClick={() => removeItem(active.id)}
           className="ml-auto rounded p-1 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
@@ -344,6 +382,59 @@ function LineItemGroup({
           <X {...iconProps} />
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The activity colour key, made clickable: pick one to show only groups with
+ * that activity somewhere in them (a session stays visible if its linked
+ * line matches, pinned to that line's tab - see LineItemGroup). Click the
+ * same one again, or "All", to clear it.
+ */
+function ActivityFilterBar({
+  bands,
+  active,
+  onChange,
+  locale,
+}: {
+  bands: ActivityBand[];
+  active: ActivityBand | "all";
+  onChange: (band: ActivityBand | "all") => void;
+  locale: Locale;
+}) {
+  const s = UI_STRINGS.workstreamPanel;
+  return (
+    <div
+      className="flex flex-wrap items-center gap-1.5 border-b border-slate-100 bg-slate-50/60 px-3 py-2.5"
+      title={t(s.filterActivityTitle, locale)}
+    >
+      <span className="mr-1 text-[11px] font-medium text-slate-400">{t(UI_STRINGS.legend.activityLabel, locale)}</span>
+      <button
+        type="button"
+        onClick={() => onChange("all")}
+        className={`rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${
+          active === "all" ? "bg-brand-indigo text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+        }`}
+      >
+        {t(s.filterAll, locale)}
+      </button>
+      {bands.map((band) => {
+        const style = ACTIVITY_STYLES[band];
+        const isActive = active === band;
+        return (
+          <button
+            key={band}
+            type="button"
+            onClick={() => onChange(isActive ? "all" : band)}
+            className={`rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${style.badge} ${
+              isActive ? "ring-2 ring-offset-1 ring-brand-indigo/50" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            {t(style.label, locale)}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -371,6 +462,7 @@ export function WorkstreamPanel({
   // Drag-to-reorder: the row being dragged, and where it would land (above or below which row).
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{ id: string; after: boolean } | null>(null);
+  const [activityFilter, setActivityFilter] = useState<ActivityBand | "all">("all");
 
   function updateItem(id: string, patch: Partial<StandardLineItem>) {
     onChange({
@@ -473,6 +565,14 @@ export function WorkstreamPanel({
   const lineGroups = workstream.items
     .filter((it) => !(it.linkedTo && mainIds.has(it.linkedTo)))
     .map((main) => ({ main, childItems: childrenByMain.get(main.id) ?? [] }));
+  // A group shows while filtered only if the session or something linked to
+  // it is of the filtered activity - LineItemGroup then pins that tab.
+  const visibleGroups =
+    activityFilter === "all"
+      ? lineGroups
+      : lineGroups.filter(({ main, childItems }) =>
+          [main, ...childItems].some((it) => classifyActivity(it.activity) === activityFilter)
+        );
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -578,17 +678,15 @@ export function WorkstreamPanel({
         </div>
       )}
 
-      <PanelLegend
-        sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
-        setupHours={complexityHoursByBand(workstream.setupComplexity)}
-        comments={complexityCommentsByBand(workstream.sessionComplexity)}
-        activityBands={isCustom ? CUSTOM_ACTIVITY_LEGEND : ACTIVITY_LEGEND}
-        showComplexity={false}
+      <ActivityFilterBar
+        bands={isCustom ? CUSTOM_ACTIVITY_LEGEND : ACTIVITY_LEGEND}
+        active={activityFilter}
+        onChange={setActivityFilter}
         locale={locale}
       />
 
       <div className="space-y-2 p-3">
-        {lineGroups.map(({ main, childItems }) => (
+        {visibleGroups.map(({ main, childItems }) => (
           <LineItemGroup
             key={main.id}
             main={main}
@@ -596,6 +694,7 @@ export function WorkstreamPanel({
             workstream={workstream}
             isCustom={isCustom}
             locale={locale}
+            activityFilter={activityFilter}
             dragId={dragId}
             dropTarget={dropTarget}
             setDragId={setDragId}

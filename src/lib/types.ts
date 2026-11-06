@@ -49,6 +49,14 @@ export interface StandardLineItem {
   /** Key into that table (e.g. "Standard", "High"). */
   complexity: string;
   /**
+   * Optional low/high bound, each a key into the same complexity table as
+   * `complexity` (or missing/null = not set - no range shown for this line).
+   * Purely a discussion aid shown next to the final effort; never counted in
+   * any total, budget or export.
+   */
+  rangeLow?: string | null;
+  rangeHigh?: string | null;
+  /**
    * The Session line this line belongs to (e.g. a Session Prep line's session).
    * Switching that session on/off switches this line with it; this line can still be
    * toggled on its own afterwards. `null` = deliberately unlinked; missing = take the

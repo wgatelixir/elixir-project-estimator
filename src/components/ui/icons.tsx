@@ -8,6 +8,7 @@ import type { LucideIcon, LucideProps } from "lucide-react";
 export {
   ArrowLeft,
   Blocks,
+  Calculator,
   Check,
   ChevronDown,
   ChevronRight,

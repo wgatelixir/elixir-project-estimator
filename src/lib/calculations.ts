@@ -37,6 +37,23 @@ export function lineItemFinalEffort(
   return item.standardEffort + complexityHours(table, item.complexity);
 }
 
+/**
+ * A line's optional low/high effort bound, each resolved the same way as
+ * `complexity` itself (standard effort + that level's delta) - or null when
+ * neither bound is set. Purely a discussion aid: never fed into any total.
+ */
+export function lineItemRangeHours(
+  item: StandardLineItem,
+  workstream: Pick<StandardWorkstream, "sessionComplexity" | "setupComplexity">
+): { low: number; high: number } | null {
+  if (item.rangeLow == null && item.rangeHigh == null) return null;
+  const table = item.complexityTable === "session" ? workstream.sessionComplexity : workstream.setupComplexity;
+  return {
+    low: item.standardEffort + complexityHours(table, item.rangeLow ?? item.complexity),
+    high: item.standardEffort + complexityHours(table, item.rangeHigh ?? item.complexity),
+  };
+}
+
 /** The rate a line is priced at: its own, or else the workstream's. */
 export function lineItemRate(item: StandardLineItem, workstream: Pick<StandardWorkstream, "hourlyRate">): number {
   return item.hourlyRate ?? workstream.hourlyRate;

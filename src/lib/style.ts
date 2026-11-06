@@ -147,7 +147,7 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
   session: {
     badge: "bg-brand-indigo/10 text-brand-indigo",
     dot: "bg-brand-indigo",
-    rowBg: "bg-white",
+    rowBg: "bg-indigo-50/50",
     label: { en: "Session", nl: "Sessie" },
   },
   "session-prep": {
@@ -165,7 +165,7 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
   "risk-buffer": {
     badge: "bg-amber-100 text-amber-800",
     dot: "bg-amber-500",
-    rowBg: "bg-white",
+    rowBg: "bg-amber-50/60",
     label: { en: "Risk Buffer", nl: "Risicobuffer" },
   },
   "desk-work": {

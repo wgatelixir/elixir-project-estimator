@@ -18,6 +18,8 @@ import { formatCurrency, formatHours } from "@/lib/format";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { RateHint } from "./RateHint";
+import { GroupCard } from "./GroupCard";
+import { RatesCard } from "./RatesCard";
 import { FEATURES } from "@/lib/features";
 import {
   CUSTOM_WORKSTREAM_TYPES,
@@ -278,98 +280,6 @@ function SimpleToggleRow({
       />
       <span className={`truncate text-sm font-medium ${enabled ? "text-brand-ink" : "text-slate-400"}`}>{label}</span>
     </label>
-  );
-}
-
-function GroupCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-4 py-3">
-        <h3 className="text-sm font-bold text-brand-indigo">{title}</h3>
-        {description && <p className="mt-0.5 text-xs text-slate-500">{description}</p>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/**
- * One place to set this estimation's two rates: PM (direct) and the bulk
- * "service rate" for everything else (direct too, but it also reprices
- * every onderdeel still following it - see applyServiceRate).
- */
-function RatesCard({
-  pmRate,
-  pmPercent,
-  serviceRate,
-  locale,
-  onChangePmRate,
-  onChangePmPercent,
-  onChangeServiceRate,
-}: {
-  pmRate: number;
-  /** Stored as a fraction (0.15); edited here as a percentage (15). */
-  pmPercent: number;
-  serviceRate: number;
-  locale: Locale;
-  onChangePmRate: (rate: number) => void;
-  onChangePmPercent: (fraction: number) => void;
-  onChangeServiceRate: (rate: number) => void;
-}) {
-  const s = UI_STRINGS.coverPage;
-  const field =
-    "w-20 rounded border border-slate-300 bg-white px-2 py-1.5 text-right tabular-nums focus:border-brand-indigo focus:outline-none";
-  return (
-    <GroupCard title={t(s.ratesTitle, locale)} description={t(s.ratesDescription, locale)}>
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-3 p-4">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">{t(s.pmRateInputLabel, locale)}</span>
-          <span className="flex items-center gap-1">
-            &euro;
-            <input
-              type="number"
-              min={0}
-              value={pmRate}
-              onChange={(e) => onChangePmRate(Number(e.target.value))}
-              className={field}
-            />
-            /h
-          </span>
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">{t(s.pmPercentInputLabel, locale)}</span>
-          <span className="flex items-center gap-1">
-            <input
-              type="number"
-              min={0}
-              max={100}
-              step={1}
-              value={Math.round(pmPercent * 1000) / 10}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                if (value >= 0 && value <= 100) onChangePmPercent(value / 100);
-              }}
-              className={field}
-            />
-            %
-          </span>
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">{t(s.serviceRateInputLabel, locale)}</span>
-          <span className="flex items-center gap-1">
-            &euro;
-            <input
-              type="number"
-              min={0}
-              value={serviceRate}
-              onChange={(e) => onChangeServiceRate(Number(e.target.value))}
-              className={field}
-            />
-            /h
-          </span>
-        </label>
-      </div>
-    </GroupCard>
   );
 }
 
