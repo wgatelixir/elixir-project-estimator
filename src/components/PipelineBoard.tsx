@@ -8,10 +8,10 @@ import { OPPORTUNITY_PHASE_STYLES } from "@/lib/style";
 import { formatCurrency, formatDate, formatHours } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { EstimationPreviewPanel } from "@/components/EstimationPreviewPanel";
-import { Check, iconProps } from "@/components/ui/icons";
+import { Check, User, iconProps } from "@/components/ui/icons";
 
 function initial(name: string | null) {
-  return name?.trim().charAt(0).toUpperCase() || "?";
+  return name?.trim().charAt(0).toUpperCase() || "";
 }
 
 function PipelineCard({
@@ -56,9 +56,9 @@ function PipelineCard({
             onPreview();
           }}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-indigo/10 text-[11px] font-semibold text-brand-indigo transition-colors hover:bg-brand-indigo/20"
-          title="Quick preview"
+          title={e.ownerName ? `${e.ownerName} · Quick preview` : "Quick preview"}
         >
-          {initial(e.ownerName)}
+          {e.ownerName ? initial(e.ownerName) : <User {...iconProps} size={12} />}
         </button>
       </div>
 
@@ -154,8 +154,12 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
 
   return (
     <>
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        {OPPORTUNITY_PHASES.map((phase) => {
+      <div className="relative">
+        {/* Hints that more phase columns sit off to the right - the board is
+            wider than most screens and has no other scroll affordance. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-r from-transparent to-canvas" />
+        <div className="flex gap-4 overflow-x-auto pb-2">
+          {OPPORTUNITY_PHASES.map((phase) => {
           const style = OPPORTUNITY_PHASE_STYLES[phase];
           const columnItems = byPhase.get(phase) ?? [];
           const total = columnItems.reduce((sum, e) => sum + e.totalPrice, 0);
@@ -229,7 +233,8 @@ export function PipelineBoard({ estimations }: { estimations: EstimationSummary[
               </div>
             </div>
           );
-        })}
+          })}
+        </div>
       </div>
 
       <div className="mt-3 flex items-center justify-end gap-1.5 text-sm">

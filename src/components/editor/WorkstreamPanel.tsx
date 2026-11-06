@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, GripVertical, Link2, X, Plus, iconProps } from "@/components/ui/icons";
+import { ChevronRight, Filter, GripVertical, Link2, X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import { lineItemFinalEffort, lineItemPrice, lineItemRangeHours, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
@@ -345,34 +345,36 @@ function LineItemGroup({
           </select>
         </label>
         <label className="flex items-center gap-1.5" title={t(s.rangeTitle, locale)}>
-          {t(s.rangeLow, locale)}
-          <select
-            value={active.rangeLow ?? ""}
-            onChange={(e) => updateItem(active.id, { rangeLow: e.target.value || null })}
-            className="rounded border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
-          >
-            <option value="">{t(s.rangeUnset, locale)}</option>
-            {complexityOptionsFor(active, workstream).map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-1.5" title={t(s.rangeTitle, locale)}>
-          {t(s.rangeHigh, locale)}
-          <select
-            value={active.rangeHigh ?? ""}
-            onChange={(e) => updateItem(active.id, { rangeHigh: e.target.value || null })}
-            className="rounded border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-600 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
-          >
-            <option value="">{t(s.rangeUnset, locale)}</option>
-            {complexityOptionsFor(active, workstream).map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
+          {t(s.rangeGroupLabel, locale)}
+          <span className="flex items-center rounded border border-slate-200 bg-white">
+            <select
+              value={active.rangeLow ?? ""}
+              onChange={(e) => updateItem(active.id, { rangeLow: e.target.value || null })}
+              title={t(s.rangeLow, locale)}
+              className="rounded-l border-0 bg-transparent px-1.5 py-1 text-xs font-medium text-slate-600 focus:outline-none"
+            >
+              <option value="">{t(s.rangeUnset, locale)}</option>
+              {complexityOptionsFor(active, workstream).map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+            <span className="text-slate-300">&ndash;</span>
+            <select
+              value={active.rangeHigh ?? ""}
+              onChange={(e) => updateItem(active.id, { rangeHigh: e.target.value || null })}
+              title={t(s.rangeHigh, locale)}
+              className="rounded-r border-0 bg-transparent px-1.5 py-1 text-xs font-medium text-slate-600 focus:outline-none"
+            >
+              <option value="">{t(s.rangeUnset, locale)}</option>
+              {complexityOptionsFor(active, workstream).map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          </span>
         </label>
         <button
           onClick={() => removeItem(active.id)}
@@ -409,12 +411,17 @@ function ActivityFilterBar({
       className="flex flex-wrap items-center gap-1.5 border-b border-slate-100 bg-slate-50/60 px-3 py-2.5"
       title={t(s.filterActivityTitle, locale)}
     >
-      <span className="mr-1 text-[11px] font-medium text-slate-400">{t(UI_STRINGS.legend.activityLabel, locale)}</span>
+      <span className="mr-1 flex items-center gap-1 text-[11px] font-medium text-slate-500">
+        <Filter {...iconProps} size={12} />
+        {t(s.filterActivityLabel, locale)}
+      </span>
       <button
         type="button"
         onClick={() => onChange("all")}
-        className={`rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${
-          active === "all" ? "bg-brand-indigo text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+        className={`rounded border px-1.5 py-0.5 text-[11px] font-medium transition-colors ${
+          active === "all"
+            ? "border-brand-indigo bg-brand-indigo text-white"
+            : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-100"
         }`}
       >
         {t(s.filterAll, locale)}
@@ -427,8 +434,9 @@ function ActivityFilterBar({
             key={band}
             type="button"
             onClick={() => onChange(isActive ? "all" : band)}
-            className={`rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${style.badge} ${
-              isActive ? "ring-2 ring-offset-1 ring-brand-indigo/50" : "opacity-60 hover:opacity-100"
+            aria-pressed={isActive}
+            className={`rounded border px-1.5 py-0.5 text-[11px] font-medium transition-colors ${style.badge} ${
+              isActive ? "border-brand-indigo" : "border-transparent opacity-70 hover:opacity-100"
             }`}
           >
             {t(style.label, locale)}
@@ -614,11 +622,15 @@ export function WorkstreamPanel({
             defaultRate={DEFAULT_HOURLY_RATES[workstream.key] ?? workstream.hourlyRate}
             locale={locale}
           />
-          <span className="font-medium text-brand-ink">
+          <span className={`font-medium ${workstream.enabled ? "text-brand-ink" : "text-slate-400"}`}>
             {formatHours(totalHours, locale)} &middot; {formatCurrency(totalPrice, locale)}
           </span>
         </div>
       </div>
+
+      {!workstream.enabled && (
+        <p className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">{t(s.excludedNotice, locale)}</p>
+      )}
 
       {workstream.custom && (
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-200 bg-violet-50/60 px-4 py-2.5 text-sm text-slate-600">
@@ -684,6 +696,9 @@ export function WorkstreamPanel({
         onChange={setActivityFilter}
         locale={locale}
       />
+      <p className="border-b border-slate-100 bg-slate-50/60 px-3 py-2 text-[11px] leading-snug text-slate-400">
+        {t(s.rangeIntro, locale)}
+      </p>
 
       <div className="space-y-2 p-3">
         {visibleGroups.map(({ main, childItems }) => (

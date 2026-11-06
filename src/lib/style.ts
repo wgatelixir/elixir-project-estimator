@@ -150,10 +150,14 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     rowBg: "bg-indigo-50/50",
     label: { en: "Session", nl: "Sessie" },
   },
+  // Blue, not sky - sky is Complexity's "Low" color (see COMPLEXITY_STYLES
+  // below). Activity type and complexity level are two unrelated axes on the
+  // same card; sharing a hue between them made "what kind of line is this"
+  // and "how complex is it" look like the same signal at a glance.
   "session-prep": {
-    badge: "bg-sky-100 text-sky-700",
-    dot: "bg-sky-400",
-    rowBg: "bg-sky-50",
+    badge: "bg-blue-100 text-blue-700",
+    dot: "bg-blue-400",
+    rowBg: "bg-blue-50",
     label: { en: "Session Prep", nl: "Voorbereiding" },
   },
   setup: {
@@ -162,10 +166,11 @@ export const ACTIVITY_STYLES: Record<ActivityBand, ActivityStyle> = {
     rowBg: "bg-slate-100",
     label: { en: "Setup", nl: "Setup" },
   },
+  // Orange, not amber - amber is Complexity's "Medium" color, same reasoning.
   "risk-buffer": {
-    badge: "bg-amber-100 text-amber-800",
-    dot: "bg-amber-500",
-    rowBg: "bg-amber-50/60",
+    badge: "bg-orange-100 text-orange-800",
+    dot: "bg-orange-500",
+    rowBg: "bg-orange-50/60",
     label: { en: "Risk Buffer", nl: "Risicobuffer" },
   },
   "desk-work": {

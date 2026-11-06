@@ -135,6 +135,10 @@ export const UI_STRINGS = {
   },
   workstreamPanel: {
     includeWorkstream: { en: "Include this workstream", nl: "Deze workstream opnemen" },
+    excludedNotice: {
+      en: "Not included - these hours and this budget don't count toward the total. Check \"Include this workstream\" above to add it.",
+      nl: "Niet opgenomen - deze uren en dit budget tellen niet mee in het totaal. Vink \"Deze workstream opnemen\" hierboven aan om het toe te voegen.",
+    },
     hourlyRate: { en: "Hourly rate €", nl: "Uurtarief €" },
     columnActivity: { en: "Activity", nl: "Activiteit" },
     columnTopic: { en: "Topic", nl: "Onderwerp" },
@@ -144,13 +148,19 @@ export const UI_STRINGS = {
     columnComplexity: { en: "Complexity", nl: "Complexiteit" },
     rangeLow: { en: "Low range", nl: "Ondergrens" },
     rangeHigh: { en: "High range", nl: "Bovengrens" },
+    rangeGroupLabel: { en: "Range", nl: "Bandbreedte" },
     rangeUnset: { en: "—", nl: "—" },
     rangeTitle: {
       en: "Optional low/high bound shown next to the final effort, for discussing a range - never counted in totals.",
       nl: "Optionele onder-/bovengrens naast de uiteindelijke inspanning, om een bandbreedte te bespreken - telt nooit mee in de totalen.",
     },
+    rangeIntro: {
+      en: "Low range / High range are optional - set either one to show a discussion band next to a line's hours. They never change the total; Complexity alone drives the budget.",
+      nl: "Ondergrens / bovengrens zijn optioneel - stel er een in om een bandbreedte te tonen naast de uren van een regel. Ze veranderen nooit het totaal; alleen Complexiteit bepaalt het budget.",
+    },
     columnFinalEffort: { en: "Final effort", nl: "Uiteindelijke inspanning" },
     filterAll: { en: "All", nl: "Alles" },
+    filterActivityLabel: { en: "Filter by activity:", nl: "Filteren op activiteit:" },
     filterActivityTitle: { en: "Filter by activity", nl: "Filteren op activiteit" },
     removeLine: { en: "Remove line", nl: "Regel verwijderen" },
     dragToReorder: { en: "Drag to reorder", nl: "Sleep om te verplaatsen" },
@@ -223,12 +233,20 @@ export const UI_STRINGS = {
     addLine: { en: "Add line", nl: "Regel toevoegen" },
     totalHours: { en: "Total hours", nl: "Totaal uren" },
     budget: { en: "Budget", nl: "Budget" },
+    excludedNotice: {
+      en: "Not included - these hours and this budget don't count toward the total. Check \"Include third party integration\" above to add it.",
+      nl: "Niet opgenomen - deze uren en dit budget tellen niet mee in het totaal. Vink \"Third party integration opnemen\" hierboven aan om het toe te voegen.",
+    },
   },
   elixirSyncPanel: {
     includeElixirSync: { en: "Include ElixirSync integration", nl: "ElixirSync integration opnemen" },
     hourlyRate: { en: "Hourly rate €", nl: "Uurtarief €" },
     subscriptionQty: { en: "Subscription qty", nl: "Aantal abonnementen" },
     unitPrice: { en: "Unit price €", nl: "Stukprijs €" },
+    excludedNotice: {
+      en: "Not included - these hours and this budget don't count toward the total. Check \"Include ElixirSync integration\" above to add it.",
+      nl: "Niet opgenomen - deze uren en dit budget tellen niet mee in het totaal. Vink \"ElixirSync integration opnemen\" hierboven aan om het toe te voegen.",
+    },
     instructions: {
       en: 'Check the streams this project needs. Each stream\'s hours use the "Realistic" estimate; click a stream to see or edit its tasks.',
       nl: 'Vink de streams aan die dit project nodig heeft. De uren per stream zijn de "Realistic"-schatting; klik op een stream om de taken te bekijken of bewerken.',

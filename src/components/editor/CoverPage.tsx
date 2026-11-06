@@ -34,7 +34,13 @@ import { FOUNDATION_KEYS, HUB_KEYS } from "@/lib/workstreamGroups";
 
 // One fixed column template shared by the header and every row, so Rate/Hours/Budget
 // never drift out of alignment regardless of label length or whether a row has a result yet.
-const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_92px_124px_190px_90px_120px] items-center gap-3";
+// Fixed columns stay just wide enough for their own content (checked against
+// the longest real value in each: "Closed Won", "€150/h" + RateHint's always-on
+// "standard €150/h", "108h", "€28,800") so the workstream name - the one thing
+// that actually varies and that a reader needs to recognize at a glance - gets
+// whatever's left, not 30px of leftover space next to a left nav and summary
+// sidebar that weren't here when these widths were first picked.
+const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_85px_105px_145px_58px_90px] items-center gap-3";
 
 const PHASES: ProjectPhase[] = [1, 2, 3];
 

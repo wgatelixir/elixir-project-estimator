@@ -209,11 +209,15 @@ export function ElixirSyncPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
             />
           </label>
-          <span className="font-medium text-brand-ink">
+          <span className={`font-medium ${state.enabled ? "text-brand-ink" : "text-slate-400"}`}>
             {formatHours(includedHours, locale)} &middot; {formatCurrency(includedHours * hourlyRate, locale)}
           </span>
         </div>
       </div>
+
+      {!state.enabled && (
+        <p className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">{t(s.excludedNotice, locale)}</p>
+      )}
 
       <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-xs text-slate-600">
         <span>

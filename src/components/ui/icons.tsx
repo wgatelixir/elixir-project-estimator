@@ -15,6 +15,7 @@ export {
   ClipboardList,
   Copy,
   FileJson,
+  Filter,
   FileSpreadsheet,
   FileText,
   GripVertical,
@@ -33,6 +34,7 @@ export {
   Save,
   Search,
   Trash2,
+  User,
   Wrench,
   X,
 } from "lucide-react";

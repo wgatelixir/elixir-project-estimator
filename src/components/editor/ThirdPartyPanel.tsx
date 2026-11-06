@@ -119,11 +119,15 @@ export function ThirdPartyPanel({
               className="w-20 rounded border border-slate-300 px-1.5 py-1 text-right tabular-nums"
             />
           </label>
-          <span className="font-medium text-brand-ink">
+          <span className={`font-medium ${state.enabled ? "text-brand-ink" : "text-slate-400"}`}>
             {formatHours(totalHours, locale)} &middot; {formatCurrency(totalHours * state.hourlyRate, locale)}
           </span>
         </div>
       </div>
+
+      {!state.enabled && (
+        <p className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">{t(s.excludedNotice, locale)}</p>
+      )}
 
       <PanelLegend
         variant="thirdParty"
@@ -135,7 +139,7 @@ export function ThirdPartyPanel({
       />
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[820px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="w-8 px-3 py-2" />
@@ -177,7 +181,7 @@ export function ThirdPartyPanel({
                     <input
                       value={item.topic[locale]}
                       onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
-                      className="-ml-[7px] w-[calc(100%+7px)] rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      className="-ml-[7px] w-[calc(100%+7px)] min-w-[180px] rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
                   </td>
                   <td className="px-3 py-2">
