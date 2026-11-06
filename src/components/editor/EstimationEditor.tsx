@@ -28,7 +28,7 @@ import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
 import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
-import { TabBar, type TabDef } from "./TabBar";
+import { EditorNav, type NavGroup } from "./EditorNav";
 import { CoverPage } from "./CoverPage";
 import { OverviewPanel } from "./OverviewPanel";
 import { WorkstreamPanel } from "./WorkstreamPanel";
@@ -36,7 +36,8 @@ import { ThirdPartyPanel } from "./ThirdPartyPanel";
 import { ElixirSyncPanel } from "./ElixirSyncPanel";
 import { HubSpotLicensePanel } from "./HubSpotLicensePanel";
 import { ProposalSummary } from "./ProposalSummary";
-import { FOUNDATION_KEYS } from "@/lib/workstreamGroups";
+import { FOUNDATION_KEYS, HUB_KEYS } from "@/lib/workstreamGroups";
+import { isCustomWorkstream } from "@/lib/customWorkstreams";
 import {
   Blocks,
   ClipboardList,
@@ -54,7 +55,6 @@ import {
 const COVER_TAB_ID = "cover";
 const OVERVIEW_TAB_ID = "overview";
 const HUBSPOT_LICENSE_TAB_ID = "hubspot_license";
-const FIXED_TAB_IDS = new Set([COVER_TAB_ID, OVERVIEW_TAB_ID, HUBSPOT_LICENSE_TAB_ID]);
 const PROPOSAL_TAB_ID = "proposal_summary";
 
 // Migrates topic/label/comment fields saved before bilingual support
@@ -118,60 +118,92 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
   }, []);
 
   // The Proposal Summary is reached via a button under the grand total in
-  // the sidebar, not through this tab bar - keeping it out of `tabs` keeps
-  // the bar to workstreams only. Only workstreams/integrations checked on
-  // the Cover page get a tab, so the bar always matches what's in scope.
+  // the sidebar, not through this nav - keeping it out of `navGroups` keeps
+  // the nav to Cover/Overview and workstreams only. Every standard
+  // workstream and integration gets a row regardless of whether it's
+  // currently in scope - its own checkbox includes/excludes it without
+  // leaving the tab you're on - so the nav never changes shape, unlike the
+  // old tab bar which only showed what Cover had already checked.
   const locale = data.locale;
-  const tabs: TabDef[] = useMemo(
-    () => [
-      { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale), icon: FileText },
-      { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale), icon: LayoutDashboard },
-      ...(FEATURES.hubspotLicense && data.hubspotLicense.enabled
-        ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale), icon: Receipt }]
-        : []),
-      ...data.standardWorkstreams
-        .filter((ws) => ws.enabled)
-        .map((ws) => ({
+  const byKey = (key: string) => data.standardWorkstreams.find((ws) => ws.key === key);
+  // Not memoized: it closes over updateWorkstream/updateThirdParty/updateElixirSync,
+  // which are plain functions redefined every render anyway (see below), so a
+  // dependency array here would recompute on every render regardless.
+  const navGroups: NavGroup[] = [
+      {
+        id: "fixed",
+        items: [
+          { id: COVER_TAB_ID, label: t(UI_STRINGS.editor.tabCover, locale), icon: FileText },
+          { id: OVERVIEW_TAB_ID, label: t(UI_STRINGS.editor.tabOverview, locale), icon: LayoutDashboard },
+          ...(FEATURES.hubspotLicense && data.hubspotLicense.enabled
+            ? [{ id: HUBSPOT_LICENSE_TAB_ID, label: t(UI_STRINGS.editor.tabHubspotLicense, locale), icon: Receipt }]
+            : []),
+        ],
+      },
+      {
+        id: "foundation",
+        title: t(UI_STRINGS.coverPage.foundationTitle, locale),
+        items: FOUNDATION_KEYS.map(byKey)
+          .filter((ws): ws is StandardWorkstream => !!ws)
+          .map((ws) => ({
+            id: ws.key,
+            label: t(ws.label, locale),
+            hint: formatHours(totals.workstreams.find((w) => w.key === ws.key)?.hours ?? 0, locale),
+            icon: ClipboardList,
+            enabled: ws.enabled,
+            onToggle: () => updateWorkstream(ws.key, { ...ws, enabled: !ws.enabled }),
+          })),
+      },
+      {
+        id: "hubs",
+        title: t(UI_STRINGS.coverPage.hubsTitle, locale),
+        items: HUB_KEYS.map(byKey)
+          .filter((ws): ws is StandardWorkstream => !!ws)
+          .map((ws) => ({
+            id: ws.key,
+            label: t(ws.label, locale),
+            hint: formatHours(totals.workstreams.find((w) => w.key === ws.key)?.hours ?? 0, locale),
+            icon: Blocks,
+            enabled: ws.enabled,
+            onToggle: () => updateWorkstream(ws.key, { ...ws, enabled: !ws.enabled }),
+          })),
+      },
+      {
+        id: "custom",
+        title: t(UI_STRINGS.coverPage.customTitle, locale),
+        items: data.standardWorkstreams.filter(isCustomWorkstream).map((ws) => ({
           id: ws.key,
           label: t(ws.label, locale),
           hint: formatHours(totals.workstreams.find((w) => w.key === ws.key)?.hours ?? 0, locale),
-          icon: ws.custom ? Wrench : FOUNDATION_KEYS.includes(ws.key) ? ClipboardList : Blocks,
+          icon: Wrench,
+          enabled: ws.enabled,
+          onToggle: () => updateWorkstream(ws.key, { ...ws, enabled: !ws.enabled }),
         })),
-      ...(data.thirdPartyIntegration.enabled
-        ? [
-            {
-              id: "third_party_integration",
-              label: t(UI_STRINGS.editor.tabThirdParty, locale),
-              hint: formatHours(totals.thirdParty.hours, locale),
-              icon: Plug,
-            },
-          ]
-        : []),
-      ...(data.elixirSyncIntegration.enabled
-        ? [
-            {
-              id: "elixirsync_integration",
-              label: t(UI_STRINGS.editor.tabElixirSync, locale),
-              hint: formatHours(totals.elixirSync.hours, locale),
-              icon: RefreshCw,
-            },
-          ]
-        : []),
-    ].map((tab, i, all) => ({
-      ...tab,
-      // Divider between the fixed tabs (Cover, Overview, ...) and the workstream tabs.
-      separatorBefore: i > 0 && !FIXED_TAB_IDS.has(tab.id) && FIXED_TAB_IDS.has(all[i - 1].id),
-    })),
-    [
-      data.standardWorkstreams,
-      data.thirdPartyIntegration.enabled,
-      data.elixirSyncIntegration.enabled,
-      data.hubspotLicense.enabled,
-      totals,
-      locale,
-    ]
-  );
-  const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "");
+      },
+      {
+        id: "integrations",
+        title: t(UI_STRINGS.coverPage.integrationsTitle, locale),
+        items: [
+          {
+            id: "third_party_integration",
+            label: t(UI_STRINGS.editor.tabThirdParty, locale),
+            hint: formatHours(totals.thirdParty.hours, locale),
+            icon: Plug,
+            enabled: data.thirdPartyIntegration.enabled,
+            onToggle: () => updateThirdParty({ ...data.thirdPartyIntegration, enabled: !data.thirdPartyIntegration.enabled }),
+          },
+          {
+            id: "elixirsync_integration",
+            label: t(UI_STRINGS.editor.tabElixirSync, locale),
+            hint: formatHours(totals.elixirSync.hours, locale),
+            icon: RefreshCw,
+            enabled: data.elixirSyncIntegration.enabled,
+            onToggle: () => updateElixirSync({ ...data.elixirSyncIntegration, enabled: !data.elixirSyncIntegration.enabled }),
+          },
+        ],
+      },
+    ];
+  const [activeTab, setActiveTab] = useState(COVER_TAB_ID);
 
   function markDirty() {
     setDirty(true);
@@ -411,44 +443,43 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
       )}
 
       {activeTab === PROPOSAL_TAB_ID ? (
-        <div className="mt-6">
-          <div className="flex items-center justify-between gap-3 print:hidden">
-            <div className="min-w-0 flex-1">
-              <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
-            </div>
-            <button onClick={() => window.print()} className="btn btn-primary flex-shrink-0">
-              <Printer {...iconProps} />
-              {t(UI_STRINGS.editor.downloadPdf, locale)}
-            </button>
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[252px_minmax(0,1fr)]">
+          <div className="print:hidden">
+            <EditorNav groups={navGroups} active={activeTab} onChange={setActiveTab} />
           </div>
-          <div className="mt-4">
-            <ProposalSummary meta={meta} data={data} />
+          <div className="min-w-0">
+            <div className="flex justify-end print:hidden">
+              <button onClick={() => window.print()} className="btn btn-primary flex-shrink-0">
+                <Printer {...iconProps} />
+                {t(UI_STRINGS.editor.downloadPdf, locale)}
+              </button>
+            </div>
+            <div className="mt-4">
+              <ProposalSummary meta={meta} data={data} />
+            </div>
           </div>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[252px_minmax(0,1fr)_320px]">
+          <div className="print:hidden">
+            <EditorNav groups={navGroups} active={activeTab} onChange={setActiveTab} />
+          </div>
           <div className="min-w-0">
-            {/* Stays in view while scrolling a long workstream, with Save at hand when there's something to save. */}
-            <div className="sticky top-0 z-20 -mx-2 bg-canvas/95 px-2 pt-2 backdrop-blur print:hidden">
-              <div className="flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
-                </div>
-                {/* Only once the top bar (with its own Save) has scrolled away - one Save button on screen at a time. */}
-                {dirty && !topBarInView && (
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    title={t(UI_STRINGS.topBar.saveShortcut, locale)}
-                    className="btn btn-primary flex-shrink-0 shadow-sm"
-                  >
-                    <Save {...iconProps} />
-                    {saving ? t(UI_STRINGS.topBar.saving, locale) : t(UI_STRINGS.topBar.save, locale)}
-                  </button>
-                )}
+            {/* Floats in once there's something unsaved and the top bar (with its own Save) has scrolled away. */}
+            {dirty && !topBarInView && (
+              <div className="sticky top-0 z-20 mb-3 flex justify-end print:hidden">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  title={t(UI_STRINGS.topBar.saveShortcut, locale)}
+                  className="btn btn-primary flex-shrink-0 shadow-sm"
+                >
+                  <Save {...iconProps} />
+                  {saving ? t(UI_STRINGS.topBar.saving, locale) : t(UI_STRINGS.topBar.save, locale)}
+                </button>
               </div>
-            </div>
-            <div className="mt-4">
+            )}
+            <div>
               {activeTab === COVER_TAB_ID && (
                 <CoverPage
                   data={data}

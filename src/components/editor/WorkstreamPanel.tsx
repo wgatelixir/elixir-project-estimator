@@ -223,8 +223,6 @@ export function WorkstreamPanel({
   const isRetainer = Boolean(workstream.custom?.retainerMonths);
   const totalHours = monthlyHours * months;
   const totalPrice = monthlyPrice * months;
-  // Footer label cells span every column up to the one holding the amounts.
-  const labelSpan = isCustom ? 7 : 6;
   const pmHours = pmBaseHours(workstream) * months * pmPercent;
   const pmPrice = pmHours * pmRate;
 
@@ -341,105 +339,75 @@ export function WorkstreamPanel({
         locale={locale}
       />
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-left text-sm">
-          <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
-            <tr>
-              <th className="w-14 px-3 py-2" />
-              <th className="px-3 py-2 font-medium">{t(s.columnActivity, locale)}</th>
-              <th className="px-3 py-2 font-medium">{t(s.columnTopic, locale)}</th>
-              {isCustom ? (
-                <th className="px-3 py-2 text-right font-medium" title={t(s.lineRateTitle, locale)}>
-                  {t(s.columnRate, locale)}
-                </th>
-              ) : (
-                <th className="px-3 py-2 text-right font-medium" title={t(s.durationTitle, locale)}>
-                  {t(s.columnDuration, locale)}
-                </th>
-              )}
-              <th className="px-3 py-2 text-right font-medium">{t(isCustom ? s.columnHours : s.columnStandard, locale)}</th>
-              <th className="px-3 py-2 font-medium">{t(s.columnComplexity, locale)}</th>
-              <th className="px-3 py-2 text-right font-medium">
-                {t(s.columnFinalEffort, locale)}
-                {isRetainer && <span className="block normal-case text-violet-600">{t(s.finalEffortPerMonth, locale)}</span>}
-              </th>
-              {isCustom && (
-                <th className="px-3 py-2 text-right font-medium">
-                  {t(s.columnAmount, locale)}
-                  {isRetainer && <span className="block normal-case text-violet-600">{t(s.finalEffortPerMonth, locale)}</span>}
-                </th>
-              )}
-              <th className="w-8 px-3 py-2" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {workstream.items.map((item) => {
-              const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
-              const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
-              return (
-                <tr
-                  key={item.id}
-                  className={`${activityStyle.rowBg} ${item.enabled ? "" : "opacity-40"} ${dragId === item.id ? "opacity-30" : ""} ${
-                    dropTarget?.id === item.id && dragId !== item.id
-                      ? dropTarget.after
-                        ? "shadow-[inset_0_-2px_0_0_var(--color-brand-indigo)]"
-                        : "shadow-[inset_0_2px_0_0_var(--color-brand-indigo)]"
-                      : ""
-                  }`}
-                  onDragOver={(e) => {
-                    if (!dragId) return;
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = "move";
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const after = e.clientY > rect.top + rect.height / 2;
-                    if (dropTarget?.id !== item.id || dropTarget.after !== after) setDropTarget({ id: item.id, after });
+      <div className="space-y-2 p-3">
+        {workstream.items.map((item) => {
+          const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
+          const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
+          return (
+            <div
+              key={item.id}
+              data-line-card
+              onDragOver={(e) => {
+                if (!dragId) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                const rect = e.currentTarget.getBoundingClientRect();
+                const after = e.clientY > rect.top + rect.height / 2;
+                if (dropTarget?.id !== item.id || dropTarget.after !== after) setDropTarget({ id: item.id, after });
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragId && dropTarget) moveItem(dragId, dropTarget.id, dropTarget.after);
+                endDrag();
+              }}
+              className={`rounded-lg border p-3 transition-opacity ${activityStyle.rowBg} ${
+                item.enabled ? "border-slate-200" : "border-slate-100 opacity-40"
+              } ${dragId === item.id ? "opacity-30" : ""} ${
+                dropTarget?.id === item.id && dragId !== item.id
+                  ? dropTarget.after
+                    ? "shadow-[inset_0_-2px_0_0_var(--color-brand-indigo)]"
+                    : "shadow-[inset_0_2px_0_0_var(--color-brand-indigo)]"
+                  : ""
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                {/* Only the handle is draggable, so text in the card's inputs stays selectable. */}
+                <span
+                  draggable
+                  onDragStart={(e) => {
+                    setDragId(item.id);
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", item.id);
+                    const card = e.currentTarget.closest("[data-line-card]");
+                    if (card) e.dataTransfer.setDragImage(card, 16, 16);
                   }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (dragId && dropTarget) moveItem(dragId, dropTarget.id, dropTarget.after);
-                    endDrag();
-                  }}
+                  onDragEnd={endDrag}
+                  title={t(s.dragToReorder, locale)}
+                  className="mt-1 cursor-grab select-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
                 >
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-1.5">
-                      {/* Only the handle is draggable, so text in the row's inputs stays selectable. */}
-                      <span
-                        draggable
-                        onDragStart={(e) => {
-                          setDragId(item.id);
-                          e.dataTransfer.effectAllowed = "move";
-                          e.dataTransfer.setData("text/plain", item.id);
-                          const row = e.currentTarget.closest("tr");
-                          if (row) e.dataTransfer.setDragImage(row, 16, 16);
-                        }}
-                        onDragEnd={endDrag}
-                        title={t(s.dragToReorder, locale)}
-                        className="cursor-grab select-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
-                      >
-                        <GripVertical {...iconProps} />
-                      </span>
-                      <input
-                        type="checkbox"
-                        checked={item.enabled}
-                        onChange={(e) => onChange(setLineEnabled(workstream, item.id, e.target.checked))}
-                        className="h-4 w-4 rounded border-slate-300 accent-brand-indigo"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-3 py-2">
+                  <GripVertical {...iconProps} />
+                </span>
+                <input
+                  type="checkbox"
+                  checked={item.enabled}
+                  onChange={(e) => onChange(setLineEnabled(workstream, item.id, e.target.checked))}
+                  className="mt-1.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
                     >
                       {t(activityStyle.label, locale)}
                     </span>
-                  </td>
-                  <td className="px-3 py-2">
                     <input
                       value={item.topic[locale]}
                       onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
-                      className="-ml-[7px] w-[calc(100%+7px)] rounded border border-transparent px-1.5 py-1 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      className="min-w-[160px] flex-1 rounded border border-transparent px-1.5 py-0.5 text-sm font-medium text-brand-ink hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
-                    <LineItemNote comment={item.comment} locale={locale} />
+                  </div>
+                  <LineItemNote comment={item.comment} locale={locale} />
+                  <div className="mt-1 flex flex-wrap items-center gap-3">
                     <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />
                     <LinePhaseSelect
                       phase={item.phase}
@@ -447,124 +415,115 @@ export function WorkstreamPanel({
                       locale={locale}
                       onChange={(phase) => updateItem(item.id, { phase })}
                     />
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    {isCustom ? (
-                      // Empty = the workstream's rate (shown as placeholder); a value overrides it for this line.
-                      <input
-                        type="number"
-                        min={0}
-                        value={item.hourlyRate ?? ""}
-                        placeholder={String(workstream.hourlyRate)}
-                        onChange={(e) =>
-                          updateItem(item.id, { hourlyRate: e.target.value === "" ? null : Number(e.target.value) })
-                        }
-                        title={t(s.lineRateTitle, locale)}
-                        className="w-20 rounded border border-slate-200 px-1.5 py-1 text-right tabular-nums placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
-                      />
-                    ) : (
-                      <input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        value={item.duration ?? ""}
-                        onChange={(e) =>
-                          updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
-                        }
-                        title={t(s.durationTitle, locale)}
-                        className="w-14 rounded border border-transparent px-1.5 py-1 text-right tabular-nums text-slate-500 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                      />
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-right">
+                  </div>
+                </div>
+                <div className="flex-shrink-0 text-right">
+                  <div className="text-sm font-semibold tabular-nums text-brand-ink">
+                    {formatHours(lineItemFinalEffort(item, workstream), locale)}
+                  </div>
+                  {isCustom && (
+                    <div className="text-xs tabular-nums text-slate-500">
+                      {formatCurrency(lineItemPrice(item, workstream), locale)}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-slate-200/70 pt-2 text-xs text-slate-500">
+                {isCustom ? (
+                  <label className="flex items-center gap-1.5" title={t(s.lineRateTitle, locale)}>
+                    {t(s.columnRate, locale)}
+                    {/* Empty = the workstream's rate (shown as placeholder); a value overrides it for this line. */}
+                    <input
+                      type="number"
+                      min={0}
+                      value={item.hourlyRate ?? ""}
+                      placeholder={String(workstream.hourlyRate)}
+                      onChange={(e) =>
+                        updateItem(item.id, { hourlyRate: e.target.value === "" ? null : Number(e.target.value) })
+                      }
+                      className="w-20 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+                    />
+                  </label>
+                ) : (
+                  <label className="flex items-center gap-1.5" title={t(s.durationTitle, locale)}>
+                    {t(s.columnDuration, locale)}
                     <input
                       type="number"
                       step="0.5"
-                      value={item.standardEffort}
-                      onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
-                      className="w-16 rounded border border-transparent px-1.5 py-1 text-right tabular-nums hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                      min={0}
+                      value={item.duration ?? ""}
+                      onChange={(e) =>
+                        updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
+                      }
+                      className="w-14 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
                     />
-                  </td>
-                  <td className="px-3 py-2">
-                    <select
-                      value={item.complexity}
-                      onChange={(e) => onChange(setLineComplexity(workstream, item.id, e.target.value))}
-                      className={`rounded border px-1.5 py-1 text-sm font-medium ${complexityStyle.select}`}
-                    >
-                      {complexityOptionsFor(item, workstream).map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums font-medium text-brand-ink">
-                    {formatHours(lineItemFinalEffort(item, workstream), locale)}
-                  </td>
-                  {isCustom && (
-                    <td className="px-3 py-2 text-right tabular-nums text-brand-ink">
-                      {formatCurrency(lineItemPrice(item, workstream), locale)}
-                    </td>
-                  )}
-                  <td className="px-3 py-2 text-right">
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="rounded p-0.5 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
-                      title={t(s.removeLine, locale)}
-                    >
-                      <X {...iconProps} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            {isRetainer && (
-              <tr className="border-t border-slate-200 bg-violet-50/60 text-brand-ink">
-                <td className="px-3 py-2" colSpan={labelSpan}>
-                  {t(s.perMonth, locale)} &middot; {formatHours(monthlyHours, locale)}
-                </td>
-                <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                  {formatCurrency(monthlyPrice, locale)}
-                </td>
-                <td className="px-3 py-2" />
-              </tr>
-            )}
-            <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={labelSpan}>
-                {isRetainer ? `${t(s.totalOverMonths, locale)} ${months} ${t(s.months, locale)}` : t(s.totalFinalEffort, locale)}
-              </td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatHours(totalHours, locale)}</td>
-              <td className="px-3 py-2" />
-            </tr>
-            <tr className="bg-slate-50 text-brand-ink">
-              <td className="px-3 py-2" colSpan={labelSpan}>
-                {t(s.budget, locale)}
-              </td>
-              <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                {formatCurrency(totalPrice, locale)}
-              </td>
-              <td className="px-3 py-2" />
-            </tr>
-            <tr className="bg-slate-50 text-slate-600">
-              <td className="px-3 py-2" colSpan={labelSpan}>
-                {t(s.projectManagement, locale)} ({formatPercent(pmPercent)} &middot; {formatHours(pmHours, locale)})
-              </td>
-              <td className="px-3 py-2 text-right tabular-nums">{formatCurrency(pmPrice, locale)}</td>
-              <td className="px-3 py-2" />
-            </tr>
-            <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
-              <td className="px-3 py-2" colSpan={labelSpan}>
-                {t(s.total, locale)}
-              </td>
-              <td className="px-3 py-2 text-right tabular-nums">
-                {formatCurrency(totalPrice + pmPrice, locale)}
-              </td>
-              <td className="px-3 py-2" />
-            </tr>
-          </tfoot>
-        </table>
+                  </label>
+                )}
+                <label className="flex items-center gap-1.5">
+                  {t(isCustom ? s.columnHours : s.columnStandard, locale)}
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={item.standardEffort}
+                    onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
+                    className="w-16 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5">
+                  {t(s.columnComplexity, locale)}
+                  <select
+                    value={item.complexity}
+                    onChange={(e) => onChange(setLineComplexity(workstream, item.id, e.target.value))}
+                    className={`rounded border px-1.5 py-1 text-xs font-medium ${complexityStyle.select}`}
+                  >
+                    {complexityOptionsFor(item, workstream).map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  onClick={() => removeItem(item.id)}
+                  className="ml-auto rounded p-1 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
+                  title={t(s.removeLine, locale)}
+                >
+                  <X {...iconProps} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="space-y-1 border-t border-slate-200 bg-slate-50 px-4 py-3 text-sm">
+        {isRetainer && (
+          <div className="flex items-center justify-between gap-3 text-violet-700">
+            <span>
+              {t(s.perMonth, locale)} &middot; {formatHours(monthlyHours, locale)}
+            </span>
+            <span className="font-semibold tabular-nums">{formatCurrency(monthlyPrice, locale)}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-3 font-semibold text-brand-ink">
+          <span>{isRetainer ? `${t(s.totalOverMonths, locale)} ${months} ${t(s.months, locale)}` : t(s.totalFinalEffort, locale)}</span>
+          <span className="tabular-nums">{formatHours(totalHours, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 text-brand-ink">
+          <span>{t(s.budget, locale)}</span>
+          <span className="font-semibold tabular-nums">{formatCurrency(totalPrice, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 text-slate-600">
+          <span>
+            {t(s.projectManagement, locale)} ({formatPercent(pmPercent)} &middot; {formatHours(pmHours, locale)})
+          </span>
+          <span className="tabular-nums">{formatCurrency(pmPrice, locale)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-1.5 font-semibold text-brand-ink">
+          <span>{t(s.total, locale)}</span>
+          <span className="tabular-nums">{formatCurrency(totalPrice + pmPrice, locale)}</span>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-end gap-2 border-t border-slate-100 p-3">
