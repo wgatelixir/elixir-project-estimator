@@ -34,8 +34,19 @@ interface TopBarProps {
 export function TopBar({ estimationId, meta, onChange, dirty, saving, lastSavedAt, onSave, error, locale, onChangeLocale }: TopBarProps) {
   const s = UI_STRINGS.topBar;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm print:hidden">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="print:hidden">
+      {/* A slim band of the mockup's indigo hero, condensed to an identity strip - the
+          form underneath has too many fields (and is opened dozens of times a day, not
+          once per sales call) to repaint the whole thing in saturated color. */}
+      <div className="flex items-baseline gap-2.5 rounded-t-lg bg-brand-indigo px-4 py-2">
+        <span className="flex-shrink-0 text-[11px] font-semibold uppercase tracking-wide text-white/60">
+          {t(s.eyebrow, locale)}
+        </span>
+        <span className="truncate text-sm font-bold text-white">{meta.clientName || t(s.clientPlaceholder, locale)}</span>
+        {meta.projectName && <span className="truncate text-sm text-white/70">&middot; {meta.projectName}</span>}
+      </div>
+      <div className="rounded-b-lg border border-t-0 border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-1 flex-wrap gap-3">
           <input
             value={meta.clientName}
@@ -141,7 +152,8 @@ export function TopBar({ estimationId, meta, onChange, dirty, saving, lastSavedA
           {t(s.versionHistory, locale)}
         </Link>
       </div>
-      {error && <p className="mt-2 text-sm text-brand-crimson">{error}</p>}
+        {error && <p className="mt-2 text-sm text-brand-crimson">{error}</p>}
+      </div>
     </div>
   );
 }

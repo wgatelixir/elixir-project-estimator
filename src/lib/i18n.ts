@@ -12,6 +12,7 @@ export function t(value: LocalizedString, locale: Locale): string {
 
 export const UI_STRINGS = {
   topBar: {
+    eyebrow: { en: "Project scope", nl: "Projectscope" },
     clientPlaceholder: { en: "Client / prospect name", nl: "Klant / prospect naam" },
     projectPlaceholder: { en: "Project name", nl: "Projectnaam" },
     ownerPlaceholder: { en: "Your name", nl: "Jouw naam" },
