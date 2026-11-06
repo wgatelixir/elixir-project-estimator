@@ -35,21 +35,26 @@ function complexityOptionsFor(item: StandardLineItem, ws: StandardWorkstream): s
 
 /**
  * Session rows show how many lines follow them on/off; prep rows (and any other
- * linked row) get a compact picker to change or remove their session link.
+ * linked row) get a compact picker to change or remove their session link. The
+ * "N linked" badge is dropped once a session already shows that in its own
+ * tab row (see LineItemGroup) - no point saying it twice.
  */
 function LineLink({
   item,
   workstream,
   locale,
   onChange,
+  hideSessionBadge = false,
 }: {
   item: StandardLineItem;
   workstream: StandardWorkstream;
   locale: Locale;
   onChange: (linkedTo: string | null) => void;
+  hideSessionBadge?: boolean;
 }) {
   const s = UI_STRINGS.workstreamPanel;
   if (item.activity === "Session") {
+    if (hideSessionBadge) return null;
     const count = workstream.items.filter((it) => it.linkedTo === item.id).length;
     if (count === 0) return null;
     return (
@@ -122,6 +127,227 @@ function LinePhaseSelect({
   );
 }
 
+/**
+ * A session and the line(s) linked to it (its write-up/prep) as one card,
+ * switched between with a small tab row - so a session's content and its
+ * prep's content are both one click away instead of two separate cards
+ * apart elsewhere in the list. A session with nothing linked to it (or any
+ * other standalone line) just renders itself, no tabs.
+ */
+function LineItemGroup({
+  main,
+  childItems,
+  workstream,
+  isCustom,
+  locale,
+  dragId,
+  dropTarget,
+  setDragId,
+  setDropTarget,
+  moveGroup,
+  endDrag,
+  onChange,
+  updateItem,
+  removeItem,
+}: {
+  main: StandardLineItem;
+  childItems: StandardLineItem[];
+  workstream: StandardWorkstream;
+  isCustom: boolean;
+  locale: Locale;
+  dragId: string | null;
+  dropTarget: { id: string; after: boolean } | null;
+  setDragId: (id: string | null) => void;
+  setDropTarget: (target: { id: string; after: boolean } | null) => void;
+  moveGroup: (fromMainId: string, toMainId: string, after: boolean) => void;
+  endDrag: () => void;
+  onChange: (next: StandardWorkstream) => void;
+  updateItem: (id: string, patch: Partial<StandardLineItem>) => void;
+  removeItem: (id: string) => void;
+}) {
+  const s = UI_STRINGS.workstreamPanel;
+  const groupId = main.id;
+  const tabs = childItems.length > 0 ? [main, ...childItems] : [main];
+  const [activeId, setActiveId] = useState(groupId);
+  const active = tabs.find((it) => it.id === activeId) ?? main;
+  const activityStyle = ACTIVITY_STYLES[classifyActivity(active.activity)];
+  const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(active.complexity)];
+
+  return (
+    <div
+      data-line-card
+      onDragOver={(e) => {
+        if (!dragId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const rect = e.currentTarget.getBoundingClientRect();
+        const after = e.clientY > rect.top + rect.height / 2;
+        if (dropTarget?.id !== groupId || dropTarget.after !== after) setDropTarget({ id: groupId, after });
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (dragId && dropTarget) moveGroup(dragId, dropTarget.id, dropTarget.after);
+        endDrag();
+      }}
+      className={`rounded-lg border p-3 transition-opacity ${activityStyle.rowBg} ${
+        active.enabled ? "border-slate-200" : "border-slate-100 opacity-40"
+      } ${dragId === groupId ? "opacity-30" : ""} ${
+        dropTarget?.id === groupId && dragId !== groupId
+          ? dropTarget.after
+            ? "shadow-[inset_0_-2px_0_0_var(--color-brand-indigo)]"
+            : "shadow-[inset_0_2px_0_0_var(--color-brand-indigo)]"
+          : ""
+      }`}
+    >
+      {tabs.length > 1 && (
+        <div className="mb-2 inline-flex gap-0.5 rounded-full bg-slate-100 p-0.5">
+          {tabs.map((it) => {
+            const tabStyle = ACTIVITY_STYLES[classifyActivity(it.activity)];
+            const isActive = it.id === active.id;
+            return (
+              <button
+                key={it.id}
+                type="button"
+                onClick={() => setActiveId(it.id)}
+                className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ${
+                  isActive ? "bg-white text-brand-indigo shadow-sm" : "text-slate-500 hover:text-brand-indigo"
+                }`}
+              >
+                {t(tabStyle.label, locale)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="flex items-start gap-2">
+        {/* Only the handle is draggable, so text in the card's inputs stays selectable. */}
+        <span
+          draggable
+          onDragStart={(e) => {
+            setDragId(groupId);
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", groupId);
+            const card = e.currentTarget.closest("[data-line-card]");
+            if (card) e.dataTransfer.setDragImage(card, 16, 16);
+          }}
+          onDragEnd={endDrag}
+          title={t(s.dragToReorder, locale)}
+          className="mt-1 cursor-grab select-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+        >
+          <GripVertical {...iconProps} />
+        </span>
+        <input
+          type="checkbox"
+          checked={active.enabled}
+          onChange={(e) => onChange(setLineEnabled(workstream, active.id, e.target.checked))}
+          className="mt-1.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
+            >
+              {t(activityStyle.label, locale)}
+            </span>
+            <input
+              value={active.topic[locale]}
+              onChange={(e) => updateItem(active.id, { topic: { ...active.topic, [locale]: e.target.value } })}
+              className="min-w-[160px] flex-1 rounded border border-transparent px-1.5 py-0.5 text-sm font-medium text-brand-ink hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+            />
+          </div>
+          <LineItemNote comment={active.comment} locale={locale} />
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <LineLink
+              item={active}
+              workstream={workstream}
+              locale={locale}
+              onChange={(linkedTo) => updateItem(active.id, { linkedTo })}
+              hideSessionBadge={tabs.length > 1}
+            />
+            <LinePhaseSelect
+              phase={active.phase}
+              workstreamPhase={resolvePhase(workstream.phase)}
+              locale={locale}
+              onChange={(phase) => updateItem(active.id, { phase })}
+            />
+          </div>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          <div className="text-sm font-semibold tabular-nums text-brand-ink">
+            {formatHours(lineItemFinalEffort(active, workstream), locale)}
+          </div>
+          {isCustom && (
+            <div className="text-xs tabular-nums text-slate-500">
+              {formatCurrency(lineItemPrice(active, workstream), locale)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-slate-200/70 pt-2 text-xs text-slate-500">
+        {isCustom ? (
+          <label className="flex items-center gap-1.5" title={t(s.lineRateTitle, locale)}>
+            {t(s.columnRate, locale)}
+            {/* Empty = the workstream's rate (shown as placeholder); a value overrides it for this line. */}
+            <input
+              type="number"
+              min={0}
+              value={active.hourlyRate ?? ""}
+              placeholder={String(workstream.hourlyRate)}
+              onChange={(e) => updateItem(active.id, { hourlyRate: e.target.value === "" ? null : Number(e.target.value) })}
+              className="w-20 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+            />
+          </label>
+        ) : (
+          <label className="flex items-center gap-1.5" title={t(s.durationTitle, locale)}>
+            {t(s.columnDuration, locale)}
+            <input
+              type="number"
+              step="0.5"
+              min={0}
+              value={active.duration ?? ""}
+              onChange={(e) => updateItem(active.id, { duration: e.target.value === "" ? null : Number(e.target.value) })}
+              className="w-14 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+            />
+          </label>
+        )}
+        <label className="flex items-center gap-1.5">
+          {t(isCustom ? s.columnHours : s.columnStandard, locale)}
+          <input
+            type="number"
+            step="0.5"
+            value={active.standardEffort}
+            onChange={(e) => updateItem(active.id, { standardEffort: Number(e.target.value) })}
+            className="w-16 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
+          />
+        </label>
+        <label className="flex items-center gap-1.5">
+          {t(s.columnComplexity, locale)}
+          <select
+            value={active.complexity}
+            onChange={(e) => onChange(setLineComplexity(workstream, active.id, e.target.value))}
+            className={`rounded border px-1.5 py-1 text-xs font-medium ${complexityStyle.select}`}
+          >
+            {complexityOptionsFor(active, workstream).map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          onClick={() => removeItem(active.id)}
+          className="ml-auto rounded p-1 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
+          title={t(s.removeLine, locale)}
+        >
+          <X {...iconProps} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function WorkstreamPanel({
   workstream,
   onChange,
@@ -157,14 +383,21 @@ export function WorkstreamPanel({
     onChange(removeLine(workstream, id));
   }
 
-  function moveItem(fromId: string, toId: string, after: boolean) {
-    if (fromId === toId) return;
-    const items = [...workstream.items];
-    const [moved] = items.splice(items.findIndex((it) => it.id === fromId), 1);
-    const target = items.findIndex((it) => it.id === toId);
-    if (!moved || target < 0) return;
-    items.splice(after ? target + 1 : target, 0, moved);
-    onChange({ ...workstream, items });
+  // A session and its linked line(s) move together as one block, so dragging
+  // a session's card can't leave its prep behind (or vice versa).
+  function groupMemberIds(mainId: string): string[] {
+    return [mainId, ...workstream.items.filter((it) => it.linkedTo === mainId).map((it) => it.id)];
+  }
+
+  function moveGroup(fromMainId: string, toMainId: string, after: boolean) {
+    if (fromMainId === toMainId) return;
+    const movingIds = new Set(groupMemberIds(fromMainId));
+    const moving = workstream.items.filter((it) => movingIds.has(it.id));
+    const remaining = workstream.items.filter((it) => !movingIds.has(it.id));
+    const targetIndex = remaining.findIndex((it) => it.id === toMainId);
+    if (targetIndex < 0) return;
+    remaining.splice(after ? targetIndex + 1 : targetIndex, 0, ...moving);
+    onChange({ ...workstream, items: remaining });
   }
 
   function endDrag() {
@@ -225,6 +458,21 @@ export function WorkstreamPanel({
   const totalPrice = monthlyPrice * months;
   const pmHours = pmBaseHours(workstream) * months * pmPercent;
   const pmPrice = pmHours * pmRate;
+
+  // Groups each session with whatever's linked to it (its prep/write-up), so
+  // they render as one card with a tab between them - see LineItemGroup.
+  // Everything else (including an orphaned link whose session no longer
+  // exists) renders as its own standalone group.
+  const mainIds = new Set(workstream.items.map((it) => it.id));
+  const childrenByMain = new Map<string, StandardLineItem[]>();
+  for (const it of workstream.items) {
+    if (it.linkedTo && mainIds.has(it.linkedTo)) {
+      childrenByMain.set(it.linkedTo, [...(childrenByMain.get(it.linkedTo) ?? []), it]);
+    }
+  }
+  const lineGroups = workstream.items
+    .filter((it) => !(it.linkedTo && mainIds.has(it.linkedTo)))
+    .map((main) => ({ main, childItems: childrenByMain.get(main.id) ?? [] }));
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -340,161 +588,25 @@ export function WorkstreamPanel({
       />
 
       <div className="space-y-2 p-3">
-        {workstream.items.map((item) => {
-          const activityStyle = ACTIVITY_STYLES[classifyActivity(item.activity)];
-          const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(item.complexity)];
-          return (
-            <div
-              key={item.id}
-              data-line-card
-              onDragOver={(e) => {
-                if (!dragId) return;
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "move";
-                const rect = e.currentTarget.getBoundingClientRect();
-                const after = e.clientY > rect.top + rect.height / 2;
-                if (dropTarget?.id !== item.id || dropTarget.after !== after) setDropTarget({ id: item.id, after });
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragId && dropTarget) moveItem(dragId, dropTarget.id, dropTarget.after);
-                endDrag();
-              }}
-              className={`rounded-lg border p-3 transition-opacity ${activityStyle.rowBg} ${
-                item.enabled ? "border-slate-200" : "border-slate-100 opacity-40"
-              } ${dragId === item.id ? "opacity-30" : ""} ${
-                dropTarget?.id === item.id && dragId !== item.id
-                  ? dropTarget.after
-                    ? "shadow-[inset_0_-2px_0_0_var(--color-brand-indigo)]"
-                    : "shadow-[inset_0_2px_0_0_var(--color-brand-indigo)]"
-                  : ""
-              }`}
-            >
-              <div className="flex items-start gap-2">
-                {/* Only the handle is draggable, so text in the card's inputs stays selectable. */}
-                <span
-                  draggable
-                  onDragStart={(e) => {
-                    setDragId(item.id);
-                    e.dataTransfer.effectAllowed = "move";
-                    e.dataTransfer.setData("text/plain", item.id);
-                    const card = e.currentTarget.closest("[data-line-card]");
-                    if (card) e.dataTransfer.setDragImage(card, 16, 16);
-                  }}
-                  onDragEnd={endDrag}
-                  title={t(s.dragToReorder, locale)}
-                  className="mt-1 cursor-grab select-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
-                >
-                  <GripVertical {...iconProps} />
-                </span>
-                <input
-                  type="checkbox"
-                  checked={item.enabled}
-                  onChange={(e) => onChange(setLineEnabled(workstream, item.id, e.target.checked))}
-                  className="mt-1.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 accent-brand-indigo"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium ${activityStyle.badge}`}
-                    >
-                      {t(activityStyle.label, locale)}
-                    </span>
-                    <input
-                      value={item.topic[locale]}
-                      onChange={(e) => updateItem(item.id, { topic: { ...item.topic, [locale]: e.target.value } })}
-                      className="min-w-[160px] flex-1 rounded border border-transparent px-1.5 py-0.5 text-sm font-medium text-brand-ink hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                    />
-                  </div>
-                  <LineItemNote comment={item.comment} locale={locale} />
-                  <div className="mt-1 flex flex-wrap items-center gap-3">
-                    <LineLink item={item} workstream={workstream} locale={locale} onChange={(linkedTo) => updateItem(item.id, { linkedTo })} />
-                    <LinePhaseSelect
-                      phase={item.phase}
-                      workstreamPhase={resolvePhase(workstream.phase)}
-                      locale={locale}
-                      onChange={(phase) => updateItem(item.id, { phase })}
-                    />
-                  </div>
-                </div>
-                <div className="flex-shrink-0 text-right">
-                  <div className="text-sm font-semibold tabular-nums text-brand-ink">
-                    {formatHours(lineItemFinalEffort(item, workstream), locale)}
-                  </div>
-                  {isCustom && (
-                    <div className="text-xs tabular-nums text-slate-500">
-                      {formatCurrency(lineItemPrice(item, workstream), locale)}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-slate-200/70 pt-2 text-xs text-slate-500">
-                {isCustom ? (
-                  <label className="flex items-center gap-1.5" title={t(s.lineRateTitle, locale)}>
-                    {t(s.columnRate, locale)}
-                    {/* Empty = the workstream's rate (shown as placeholder); a value overrides it for this line. */}
-                    <input
-                      type="number"
-                      min={0}
-                      value={item.hourlyRate ?? ""}
-                      placeholder={String(workstream.hourlyRate)}
-                      onChange={(e) =>
-                        updateItem(item.id, { hourlyRate: e.target.value === "" ? null : Number(e.target.value) })
-                      }
-                      className="w-20 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
-                    />
-                  </label>
-                ) : (
-                  <label className="flex items-center gap-1.5" title={t(s.durationTitle, locale)}>
-                    {t(s.columnDuration, locale)}
-                    <input
-                      type="number"
-                      step="0.5"
-                      min={0}
-                      value={item.duration ?? ""}
-                      onChange={(e) =>
-                        updateItem(item.id, { duration: e.target.value === "" ? null : Number(e.target.value) })
-                      }
-                      className="w-14 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                    />
-                  </label>
-                )}
-                <label className="flex items-center gap-1.5">
-                  {t(isCustom ? s.columnHours : s.columnStandard, locale)}
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={item.standardEffort}
-                    onChange={(e) => updateItem(item.id, { standardEffort: Number(e.target.value) })}
-                    className="w-16 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
-                  />
-                </label>
-                <label className="flex items-center gap-1.5">
-                  {t(s.columnComplexity, locale)}
-                  <select
-                    value={item.complexity}
-                    onChange={(e) => onChange(setLineComplexity(workstream, item.id, e.target.value))}
-                    className={`rounded border px-1.5 py-1 text-xs font-medium ${complexityStyle.select}`}
-                  >
-                    {complexityOptionsFor(item, workstream).map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="ml-auto rounded p-1 text-slate-300 hover:bg-brand-crimson/5 hover:text-brand-crimson"
-                  title={t(s.removeLine, locale)}
-                >
-                  <X {...iconProps} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {lineGroups.map(({ main, childItems }) => (
+          <LineItemGroup
+            key={main.id}
+            main={main}
+            childItems={childItems}
+            workstream={workstream}
+            isCustom={isCustom}
+            locale={locale}
+            dragId={dragId}
+            dropTarget={dropTarget}
+            setDragId={setDragId}
+            setDropTarget={setDropTarget}
+            moveGroup={moveGroup}
+            endDrag={endDrag}
+            onChange={onChange}
+            updateItem={updateItem}
+            removeItem={removeItem}
+          />
+        ))}
       </div>
 
       <div className="space-y-1 border-t border-slate-200 bg-slate-50 px-4 py-3 text-sm">
