@@ -67,6 +67,35 @@ export function lineItemPrice(
   return lineItemFinalEffort(item, workstream) * lineItemRate(item, workstream);
 }
 
+/**
+ * A workstream-wide low/high band: each line contributes its own range when
+ * it has one, or its single final-effort value (to both ends) when it
+ * doesn't - so the band collapses to the committed total while nothing has a
+ * range set, and widens exactly where a range is. Excludes disabled lines,
+ * same as every other total; per-month for a retainer, same as the rest.
+ */
+export function workstreamRangeTotals(
+  workstream: Pick<StandardWorkstream, "items" | "sessionComplexity" | "setupComplexity" | "hourlyRate">
+): { lowHours: number; highHours: number; lowPrice: number; highPrice: number } {
+  let lowHours = 0;
+  let highHours = 0;
+  let lowPrice = 0;
+  let highPrice = 0;
+  for (const item of workstream.items) {
+    if (!item.enabled) continue;
+    const range = lineItemRangeHours(item, workstream);
+    const standard = lineItemFinalEffort(item, workstream);
+    const rate = lineItemRate(item, workstream);
+    const low = range ? range.low : standard;
+    const high = range ? range.high : standard;
+    lowHours += low;
+    highHours += high;
+    lowPrice += low * rate;
+    highPrice += high * rate;
+  }
+  return { lowHours, highHours, lowPrice, highPrice };
+}
+
 /** null = no phase ("n.v.t."); a missing value is phase 1 (saved before phases existed). */
 export function resolvePhase(phase: ProjectPhase | null | undefined): ProjectPhase | null {
   return phase === undefined ? 1 : phase;

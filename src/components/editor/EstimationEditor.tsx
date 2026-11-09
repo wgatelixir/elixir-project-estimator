@@ -24,10 +24,9 @@ import { refreshTemplateComments } from "@/lib/templateComments";
 import { FEATURES } from "@/lib/features";
 import { buildEstimationExport, exportFileBaseName } from "@/lib/export/model";
 import { estimationToJson, estimationToXlsx } from "@/lib/export/exportEstimation";
-import { complexityCommentsByBand, complexityHoursByBand } from "@/lib/style";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { TopBar } from "./TopBar";
-import { SummarySidebar, type ActiveComplexityLegend } from "./SummarySidebar";
+import { SummarySidebar } from "./SummarySidebar";
 import { EditorNav, type NavGroup } from "./EditorNav";
 import { CoverPage } from "./CoverPage";
 import { RatesPanel } from "./RatesPanel";
@@ -386,28 +385,6 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
 
   const activeWorkstream = data.standardWorkstreams.find((ws) => ws.key === activeTab);
 
-  // Drives the "Complexity guide" block in the sticky sidebar, so it stays
-  // visible while scrolling a long workstream. Undefined on tabs with no
-  // complexity system of their own (Cover, ElixirSync).
-  let sidebarLegend: ActiveComplexityLegend | undefined;
-  if (activeWorkstream) {
-    sidebarLegend = {
-      label: activeWorkstream.label,
-      variant: "standard",
-      sessionHours: complexityHoursByBand(activeWorkstream.sessionComplexity),
-      setupHours: complexityHoursByBand(activeWorkstream.setupComplexity),
-      comments: complexityCommentsByBand(activeWorkstream.sessionComplexity),
-    };
-  } else if (activeTab === "third_party_integration") {
-    sidebarLegend = {
-      label: UI_STRINGS.editor.tabThirdParty,
-      variant: "thirdParty",
-      sessionHours: complexityHoursByBand(data.thirdPartyIntegration.sessionComplexity),
-      setupHours: complexityHoursByBand(data.thirdPartyIntegration.setupComplexity),
-      comments: complexityCommentsByBand(data.thirdPartyIntegration.sessionComplexity),
-    };
-  }
-
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
       <div ref={topBarRef}>
@@ -464,9 +441,10 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
           </div>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[252px_minmax(0,1fr)_320px]">
-          <div className="print:hidden">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <div className="space-y-4 print:hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <EditorNav groups={navGroups} active={activeTab} onChange={setActiveTab} />
+            <SummarySidebar totals={totals} onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)} onExport={handleExport} locale={locale} />
           </div>
           <div className="min-w-0">
             {/* Floats in once there's something unsaved and the top bar (with its own Save) has scrolled away. */}
@@ -543,16 +521,6 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
                 />
               )}
             </div>
-          </div>
-
-          <div>
-            <SummarySidebar
-              totals={totals}
-              onOpenProposal={() => setActiveTab(PROPOSAL_TAB_ID)}
-              onExport={handleExport}
-              legend={sidebarLegend}
-              locale={locale}
-            />
           </div>
         </div>
       )}

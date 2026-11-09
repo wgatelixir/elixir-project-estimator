@@ -37,7 +37,7 @@ export function EditorNav({
   return (
     <nav
       aria-label="Estimation sections"
-      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-2 shadow-sm lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"
+      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
     >
       {groups.map((group, i) => (
         <div key={group.id} className={`flex flex-col gap-0.5 ${i > 0 ? "border-t border-slate-100 pt-3" : ""}`}>

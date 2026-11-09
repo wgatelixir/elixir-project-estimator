@@ -3,7 +3,15 @@
 import { ChevronRight, Filter, GripVertical, Link2, X, Plus, iconProps } from "@/components/ui/icons";
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
-import { lineItemFinalEffort, lineItemPrice, lineItemRangeHours, pmBaseHours, resolvePhase, workstreamMonths } from "@/lib/calculations";
+import {
+  lineItemFinalEffort,
+  lineItemPrice,
+  lineItemRangeHours,
+  pmBaseHours,
+  resolvePhase,
+  workstreamMonths,
+  workstreamRangeTotals,
+} from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
   ACTIVITY_LEGEND,
@@ -12,6 +20,8 @@ import {
   CUSTOM_ACTIVITY_LEGEND,
   classifyActivity,
   classifyComplexity,
+  complexityCommentsByBand,
+  complexityHoursByBand,
   type ActivityBand,
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
@@ -19,6 +29,7 @@ import { t, UI_STRINGS } from "@/lib/i18n";
 import { removeLine, setLineComplexity, setLineEnabled } from "@/lib/lineLinks";
 import { CUSTOM_WORKSTREAM_TYPES, CUSTOM_WORKSTREAM_TYPE_LABELS, DEFAULT_RETAINER_MONTHS } from "@/lib/customWorkstreams";
 import type { CustomWorkstreamType } from "@/lib/types";
+import { CollapsibleComplexityGuide } from "./Legend";
 import { LineItemNote } from "./LineItemNote";
 import { RateHint } from "./RateHint";
 
@@ -559,6 +570,15 @@ export function WorkstreamPanel({
   const pmHours = pmBaseHours(workstream) * months * pmPercent;
   const pmPrice = pmHours * pmRate;
 
+  // Only shown once something actually has a range set - otherwise it would
+  // just repeat the total above it for no reason.
+  const hasAnyRange = workstream.items.some((it) => it.enabled && (it.rangeLow != null || it.rangeHigh != null));
+  const rangeMonthly = workstreamRangeTotals(workstream);
+  const rangeLowHours = rangeMonthly.lowHours * months;
+  const rangeHighHours = rangeMonthly.highHours * months;
+  const rangeLowPrice = rangeMonthly.lowPrice * months;
+  const rangeHighPrice = rangeMonthly.highPrice * months;
+
   // Groups each session with whatever's linked to it (its prep/write-up), so
   // they render as one card with a tab between them - see LineItemGroup.
   // Everything else (including an orphaned link whose session no longer
@@ -627,6 +647,13 @@ export function WorkstreamPanel({
           </span>
         </div>
       </div>
+
+      <CollapsibleComplexityGuide
+        sessionHours={complexityHoursByBand(workstream.sessionComplexity)}
+        setupHours={complexityHoursByBand(workstream.setupComplexity)}
+        comments={complexityCommentsByBand(workstream.sessionComplexity)}
+        locale={locale}
+      />
 
       {!workstream.enabled && (
         <p className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">{t(s.excludedNotice, locale)}</p>
@@ -740,6 +767,16 @@ export function WorkstreamPanel({
           <span>{t(s.budget, locale)}</span>
           <span className="font-semibold tabular-nums">{formatCurrency(totalPrice, locale)}</span>
         </div>
+        {hasAnyRange && (
+          <div className="flex items-center justify-between gap-3 text-slate-500" title={t(s.rangeTitle, locale)}>
+            <span>
+              {t(s.rangeGroupLabel, locale)} ({formatHours(rangeLowHours, locale)}&ndash;{formatHours(rangeHighHours, locale)})
+            </span>
+            <span className="tabular-nums">
+              {formatCurrency(rangeLowPrice, locale)}&ndash;{formatCurrency(rangeHighPrice, locale)}
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3 text-slate-600">
           <span>
             {t(s.projectManagement, locale)} ({formatPercent(pmPercent)} &middot; {formatHours(pmHours, locale)})

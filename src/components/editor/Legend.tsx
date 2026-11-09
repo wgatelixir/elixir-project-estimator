@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ActivityBand, ComplexityBand } from "@/lib/style";
 import {
   ACTIVITY_LEGEND,
@@ -10,6 +13,7 @@ import {
 import { formatHours, formatHoursDelta } from "@/lib/format";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import type { Locale, LocalizedString } from "@/lib/types";
+import { ChevronRight, iconProps } from "@/components/ui/icons";
 
 type BandHours = Partial<Record<ComplexityBand, number>>;
 
@@ -156,6 +160,33 @@ export function ComplexityGuide({
           );
         })}
       </ul>
+    </div>
+  );
+}
+
+/**
+ * The complexity scale, tucked behind a small toggle instead of shown open -
+ * a reference someone checks occasionally while picking a line's complexity,
+ * not something that needs to sit open and take up room the rest of the time.
+ */
+export function CollapsibleComplexityGuide(props: ComplexityGuideProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-slate-100 px-4 py-2">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-brand-indigo"
+      >
+        <ChevronRight {...iconProps} size={14} className={`transition-transform ${open ? "rotate-90" : ""}`} />
+        {t(UI_STRINGS.summarySidebar.complexityGuide, props.locale ?? "en")}
+      </button>
+      {open && (
+        <div className="mt-2">
+          <ComplexityGuide {...props} layout="wide" />
+        </div>
+      )}
     </div>
   );
 }

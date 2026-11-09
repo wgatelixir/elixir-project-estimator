@@ -15,7 +15,7 @@ import {
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
-import { PanelLegend } from "./Legend";
+import { CollapsibleComplexityGuide, PanelLegend } from "./Legend";
 import { RateHint } from "./RateHint";
 
 function slugId() {
@@ -124,6 +124,14 @@ export function ThirdPartyPanel({
           </span>
         </div>
       </div>
+
+      <CollapsibleComplexityGuide
+        variant="thirdParty"
+        sessionHours={complexityHoursByBand(state.sessionComplexity)}
+        setupHours={complexityHoursByBand(state.setupComplexity)}
+        comments={complexityCommentsByBand(state.sessionComplexity)}
+        locale={locale}
+      />
 
       {!state.enabled && (
         <p className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">{t(s.excludedNotice, locale)}</p>
