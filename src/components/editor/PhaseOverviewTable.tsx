@@ -152,6 +152,19 @@ export function PhaseOverviewTable({ totals, locale }: { totals: EstimationTotal
         </div>
         <div className="text-lg font-semibold tabular-nums">{formatCurrency(totals.grandTotalPrice, locale)}</div>
       </div>
+      {totals.range && (
+        <div
+          className="flex items-center justify-between bg-slate-50 px-3 py-1.5 text-[11px] text-slate-500"
+          title={t(UI_STRINGS.workstreamPanel.rangeTitle, locale)}
+        >
+          <span>
+            {t(s.budgetRange, locale)} ({formatHours(totals.range.lowHours, locale)}&ndash;{formatHours(totals.range.highHours, locale)})
+          </span>
+          <span className="tabular-nums">
+            {formatCurrency(totals.range.lowPrice, locale)}&ndash;{formatCurrency(totals.range.highPrice, locale)}
+          </span>
+        </div>
+      )}
     </>
   );
 }

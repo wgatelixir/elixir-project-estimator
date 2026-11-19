@@ -141,6 +141,12 @@ export interface WorkstreamTotals {
    * single phase for the whole onderdeel.
    */
   phaseSlices?: WorkstreamPhaseSlice[];
+  /**
+   * Set only while at least one of this workstream's lines has a range bound
+   * - see workstreamRangeTotals. Already scaled by retainer months, same as
+   * hours/price above.
+   */
+  range?: { lowHours: number; highHours: number; lowPrice: number; highPrice: number };
 }
 
 /** Months a workstream's line hours are multiplied by: the retainer length, or 1 for one-off work. */
@@ -194,6 +200,9 @@ export function computeStandardWorkstreamTotals(
         })
       : [{ phase: wsPhase, hours: 0, price: 0, pmHours: 0, pmPrice: 0 }];
 
+  const hasRange = lines.some((item) => item.rangeLow != null || item.rangeHigh != null);
+  const rangeMonthly = hasRange ? workstreamRangeTotals(ws) : null;
+
   return {
     key: ws.key,
     label: ws.label,
@@ -207,6 +216,16 @@ export function computeStandardWorkstreamTotals(
     pmPrice: pmHours * pmRate,
     ...(ws.custom?.retainerMonths ? { retainer: { months, monthlyHours, monthlyPrice } } : {}),
     phaseSlices,
+    ...(rangeMonthly
+      ? {
+          range: {
+            lowHours: rangeMonthly.lowHours * months,
+            highHours: rangeMonthly.highHours * months,
+            lowPrice: rangeMonthly.lowPrice * months,
+            highPrice: rangeMonthly.highPrice * months,
+          },
+        }
+      : {}),
   };
 }
 
@@ -310,6 +329,14 @@ export interface EstimationTotals {
   subscriptions: SubscriptionTotals[];
   subscriptionsPrice: number;
   grandTotalPrice: number;
+  /**
+   * Set only while at least one standard workstream has a range bound set.
+   * Each workstream contributes its own range (or its single value to both
+   * ends, when it has none); PM and subscriptions are added unranged to
+   * both ends, same as the per-workstream Budget-vs-Range split, so this
+   * brackets grandTotalPrice rather than replacing it.
+   */
+  range?: { lowHours: number; highHours: number; lowPrice: number; highPrice: number };
 }
 
 export function computeEstimationTotals(state: EstimationState): EstimationTotals {
@@ -353,6 +380,34 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
   ];
   const subscriptionsPrice = subscriptions.reduce((sum, s) => sum + s.price, 0);
 
+  const hasAnyRange = workstreams.some((w) => w.range);
+  const range = hasAnyRange
+    ? {
+        lowHours:
+          workstreams.reduce((sum, w) => sum + (w.range ? w.range.lowHours : w.hours), 0) +
+          thirdParty.hours +
+          elixirSync.hours +
+          pmHours,
+        highHours:
+          workstreams.reduce((sum, w) => sum + (w.range ? w.range.highHours : w.hours), 0) +
+          thirdParty.hours +
+          elixirSync.hours +
+          pmHours,
+        lowPrice:
+          workstreams.reduce((sum, w) => sum + (w.range ? w.range.lowPrice : w.price), 0) +
+          thirdParty.price +
+          elixirSync.price +
+          pmPrice +
+          subscriptionsPrice,
+        highPrice:
+          workstreams.reduce((sum, w) => sum + (w.range ? w.range.highPrice : w.price), 0) +
+          thirdParty.price +
+          elixirSync.price +
+          pmPrice +
+          subscriptionsPrice,
+      }
+    : undefined;
+
   return {
     workstreams,
     thirdParty,
@@ -368,6 +423,7 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
     subscriptions,
     subscriptionsPrice,
     grandTotalPrice: totalEffortPrice + subscriptionsPrice,
+    range,
   };
 }
 

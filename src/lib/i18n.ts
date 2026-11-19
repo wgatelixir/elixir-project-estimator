@@ -381,5 +381,6 @@ export const UI_STRINGS = {
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
     grandTotal: { en: "Grand total", nl: "Totaalbedrag" },
     totalEffort: { en: "total effort", nl: "totale inspanning" },
+    budgetRange: { en: "Budget range", nl: "Budgetbandbreedte" },
   },
 } satisfies Record<string, Record<string, LocalizedString>>;

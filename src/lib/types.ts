@@ -51,8 +51,10 @@ export interface StandardLineItem {
   /**
    * Optional low/high bound, each a key into the same complexity table as
    * `complexity` (or missing/null = not set - no range shown for this line).
-   * Purely a discussion aid shown next to the final effort; never counted in
-   * any total, budget or export.
+   * Purely a discussion aid shown next to the final effort: it never changes
+   * the committed total or budget figure itself, but does surface as its own
+   * separate range row - in the editor, and in the client-facing Proposal
+   * Summary/PDF - alongside that total.
    */
   rangeLow?: string | null;
   rangeHigh?: string | null;

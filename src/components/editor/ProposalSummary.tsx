@@ -298,6 +298,17 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
                 </td>
                 <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(wTotals.price, locale)}</td>
               </tr>
+              {wTotals.range && (
+                <tr className="bg-slate-50 text-slate-500" title={t(UI_STRINGS.workstreamPanel.rangeTitle, locale)}>
+                  <td className="px-3 py-1" colSpan={4}>
+                    {t(UI_STRINGS.workstreamPanel.rangeGroupLabel, locale)} ({formatHours(wTotals.range.lowHours, locale)}
+                    &ndash;{formatHours(wTotals.range.highHours, locale)})
+                  </td>
+                  <td className="px-3 py-1 text-right tabular-nums">
+                    {formatCurrency(wTotals.range.lowPrice, locale)}&ndash;{formatCurrency(wTotals.range.highPrice, locale)}
+                  </td>
+                </tr>
+              )}
               <tr className="bg-slate-50 text-slate-600">
                 <td className="px-3 py-1" colSpan={4}>
                   {t(UI_STRINGS.workstreamPanel.projectManagement, locale)} ({formatPercent(totals.pmPercent)} &middot;{" "}
