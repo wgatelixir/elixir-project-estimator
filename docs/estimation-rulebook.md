@@ -118,6 +118,13 @@ changed on its own afterwards). DealHub's same-named Setup lines are not
 linked: there "Playbook Setup" etc. is the build work itself, not
 preparation.
 
+The link carries the **range** (2026-11-23) the same way: setting a
+Session's Low range/High range bound sets its linked lines to the same
+bound, as long as their own complexity table has that level - each line
+can still be changed on its own afterwards. Reasoning: a Session Prep or
+write-up answers the same "what if this ran light vs. heavy" question as
+its Session, not a separate one.
+
 ### Workstream label: "Business Assessment" → "Assessment & Scoping" (2026-11-06)
 
 The `business_assessment` workstream's label changed from "Business

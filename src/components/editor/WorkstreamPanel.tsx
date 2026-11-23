@@ -26,7 +26,7 @@ import {
 } from "@/lib/style";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
-import { removeLine, setLineComplexity, setLineEnabled } from "@/lib/lineLinks";
+import { removeLine, setLineComplexity, setLineEnabled, setLineRange } from "@/lib/lineLinks";
 import { CUSTOM_WORKSTREAM_TYPES, CUSTOM_WORKSTREAM_TYPE_LABELS, DEFAULT_RETAINER_MONTHS } from "@/lib/customWorkstreams";
 import type { CustomWorkstreamType } from "@/lib/types";
 import { CollapsibleComplexityGuide } from "./Legend";
@@ -360,7 +360,7 @@ function LineItemGroup({
           <span className="flex items-center rounded border border-slate-200 bg-white">
             <select
               value={active.rangeLow ?? ""}
-              onChange={(e) => updateItem(active.id, { rangeLow: e.target.value || null })}
+              onChange={(e) => onChange(setLineRange(workstream, active.id, "rangeLow", e.target.value || null))}
               title={t(s.rangeLow, locale)}
               className="rounded-l border-0 bg-transparent px-1.5 py-1 text-xs font-medium text-slate-600 focus:outline-none"
             >
@@ -374,7 +374,7 @@ function LineItemGroup({
             <span className="text-slate-300">&ndash;</span>
             <select
               value={active.rangeHigh ?? ""}
-              onChange={(e) => updateItem(active.id, { rangeHigh: e.target.value || null })}
+              onChange={(e) => onChange(setLineRange(workstream, active.id, "rangeHigh", e.target.value || null))}
               title={t(s.rangeHigh, locale)}
               className="rounded-r border-0 bg-transparent px-1.5 py-1 text-xs font-medium text-slate-600 focus:outline-none"
             >

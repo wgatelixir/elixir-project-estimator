@@ -64,6 +64,32 @@ export function setLineComplexity(ws: StandardWorkstream, id: string, complexity
   };
 }
 
+/**
+ * Sets a line's low/high range bound; for a Session, its linked lines follow -
+ * same propagation as setLineComplexity, and for the same reason: a Session
+ * Prep/write-up answers the same "what if this ran light vs. heavy" question
+ * as its Session, not a separate one. Clearing a bound (value null) clears it
+ * on the linked lines too.
+ */
+export function setLineRange(
+  ws: StandardWorkstream,
+  id: string,
+  bound: "rangeLow" | "rangeHigh",
+  value: string | null
+): StandardWorkstream {
+  const isSession = ws.items.some((item) => item.id === id && item.activity === "Session");
+  return {
+    ...ws,
+    items: ws.items.map((item) => {
+      if (item.id === id) return { ...item, [bound]: value };
+      if (!isSession || item.linkedTo !== id) return item;
+      if (value === null) return { ...item, [bound]: null };
+      const table = item.complexityTable === "session" ? ws.sessionComplexity : ws.setupComplexity;
+      return value in table ? { ...item, [bound]: value } : item;
+    }),
+  };
+}
+
 /** Removes a line; lines that were linked to it stay, but unlinked. */
 export function removeLine(ws: StandardWorkstream, id: string): StandardWorkstream {
   return {
