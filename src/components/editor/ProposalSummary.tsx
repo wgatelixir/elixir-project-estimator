@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { EstimationState, EstimationStatus, Locale, ProjectPhase } from "@/lib/types";
+import type { EstimationState, EstimationStatus, Locale, ProjectPhase, StandardWorkstream } from "@/lib/types";
 import {
   computeEstimationTotals,
   groupByPhase,
@@ -11,6 +11,8 @@ import {
   lineItemPrice,
   lineItemRate,
   thirdPartyLineItemHours,
+  workstreamMonths,
+  workstreamSessionSetupSplit,
 } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
 import {
@@ -78,6 +80,98 @@ function PhasePill({ phase, locale }: { phase: ProjectPhase | null; locale: Loca
     <span className="mt-0.5 inline-flex w-fit items-center whitespace-nowrap rounded bg-brand-indigo/10 px-1 py-0.5 text-[10px] font-medium text-brand-indigo">
       {phase === null ? t(s.phaseNotApplicable, locale) : `${t(s.phase, locale)} ${phase}`}
     </span>
+  );
+}
+
+const SESSIONS_OVERVIEW_COLS = ["28%", "16%", "20%", "16%", "20%"];
+
+/**
+ * A dedicated "only the sessions" page: per workstream, Session hours/price
+ * (always including Session Prep) against Setup hours/price - see
+ * workstreamSessionSetupSplit for the fold-in rules. A workstream with
+ * nothing in either block (e.g. a custom workstream priced entirely as
+ * Consulting/Development/Support) is left out rather than shown as a row of
+ * dashes.
+ */
+function SessionsOverviewTable({ workstreams, locale }: { workstreams: StandardWorkstream[]; locale: Locale }) {
+  const s = UI_STRINGS.proposalSummary;
+  const rows = workstreams
+    .map((ws) => {
+      const months = workstreamMonths(ws);
+      const split = workstreamSessionSetupSplit(ws);
+      return {
+        ws,
+        sessionHours: split.sessionHours * months,
+        sessionPrice: split.sessionPrice * months,
+        setupHours: split.setupHours * months,
+        setupPrice: split.setupPrice * months,
+      };
+    })
+    .filter((row) => row.sessionHours > 0 || row.setupHours > 0);
+
+  const totalSessionHours = rows.reduce((sum, r) => sum + r.sessionHours, 0);
+  const totalSessionPrice = rows.reduce((sum, r) => sum + r.sessionPrice, 0);
+  const totalSetupHours = rows.reduce((sum, r) => sum + r.setupHours, 0);
+  const totalSetupPrice = rows.reduce((sum, r) => sum + r.setupPrice, 0);
+
+  return (
+    <table className="w-full table-fixed text-left">
+      <ColGroup widths={SESSIONS_OVERVIEW_COLS} />
+      <thead className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
+        <tr>
+          <th rowSpan={2} className="truncate px-3 py-1 align-bottom font-medium">
+            {t(s.columnWorkstream, locale)}
+          </th>
+          <th colSpan={2} className="truncate border-l border-slate-100 px-3 py-1 text-center font-medium">
+            {t(s.columnSession, locale)}
+          </th>
+          <th colSpan={2} className="truncate border-l border-slate-100 px-3 py-1 text-center font-medium">
+            {t(s.columnSetup, locale)}
+          </th>
+        </tr>
+        <tr>
+          <th className="truncate border-l border-slate-100 px-3 py-1 text-right font-medium">{t(s.columnHours, locale)}</th>
+          <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnPrice, locale)}</th>
+          <th className="truncate border-l border-slate-100 px-3 py-1 text-right font-medium">{t(s.columnHours, locale)}</th>
+          <th className="truncate px-3 py-1 text-right font-medium">{t(s.columnPrice, locale)}</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-200">
+        {rows.map((row) => (
+          <tr key={row.ws.key} className="print:break-inside-avoid">
+            <td className="truncate px-3 py-1 text-brand-ink">{t(row.ws.label, locale)}</td>
+            <td className="border-l border-slate-100 px-3 py-1 text-right tabular-nums text-slate-600">
+              {row.sessionHours > 0 ? formatHours(row.sessionHours, locale) : "—"}
+            </td>
+            <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+              {row.sessionHours > 0 ? formatCurrency(row.sessionPrice, locale) : "—"}
+            </td>
+            <td className="border-l border-slate-100 px-3 py-1 text-right tabular-nums text-slate-600">
+              {row.setupHours > 0 ? formatHours(row.setupHours, locale) : "—"}
+            </td>
+            <td className="px-3 py-1 text-right tabular-nums font-medium text-brand-ink">
+              {row.setupHours > 0 ? formatCurrency(row.setupPrice, locale) : "—"}
+            </td>
+          </tr>
+        ))}
+        {rows.length === 0 && (
+          <tr>
+            <td colSpan={5} className="px-3 py-2 text-center text-slate-400">
+              {t(s.noLineItems, locale)}
+            </td>
+          </tr>
+        )}
+      </tbody>
+      <tfoot>
+        <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-brand-ink">
+          <td className="px-3 py-1">{t(s.total, locale)}</td>
+          <td className="border-l border-slate-100 px-3 py-1 text-right tabular-nums">{formatHours(totalSessionHours, locale)}</td>
+          <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totalSessionPrice, locale)}</td>
+          <td className="border-l border-slate-100 px-3 py-1 text-right tabular-nums">{formatHours(totalSetupHours, locale)}</td>
+          <td className="px-3 py-1 text-right tabular-nums">{formatCurrency(totalSetupPrice, locale)}</td>
+        </tr>
+      </tfoot>
+    </table>
   );
 }
 
@@ -506,6 +600,15 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
     ),
   });
 
+  pages.push({
+    key: "sessions_overview",
+    content: (
+      <SectionCard title={t(s.sessionsOverview, locale)}>
+        <SessionsOverviewTable workstreams={enabledWorkstreams} locale={locale} />
+      </SectionCard>
+    ),
+  });
+
   // Onderdeel pages follow delivery order (stable within a phase).
   // (Overview has no phase and is moved to the front below; "n.v.t." pages go last.)
   const pageOrder = (phase: ProjectPhase | null | undefined) => (phase === undefined ? 0 : phase === null ? 4 : phase);
@@ -516,6 +619,12 @@ export function ProposalSummary({ meta, data }: { meta: Meta; data: EstimationSt
   if (overviewIndex > 0) {
     const [overviewPage] = pages.splice(overviewIndex, 1);
     pages.unshift(overviewPage);
+  }
+  // Sessions overview follows right behind the grand total, ahead of every onderdeel page.
+  const sessionsOverviewIndex = pages.findIndex((page) => page.key === "sessions_overview");
+  if (sessionsOverviewIndex > 1) {
+    const [sessionsOverviewPage] = pages.splice(sessionsOverviewIndex, 1);
+    pages.splice(1, 0, sessionsOverviewPage);
   }
 
   return (

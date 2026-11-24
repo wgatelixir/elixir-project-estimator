@@ -382,5 +382,8 @@ export const UI_STRINGS = {
     grandTotal: { en: "Grand total", nl: "Totaalbedrag" },
     totalEffort: { en: "total effort", nl: "totale inspanning" },
     budgetRange: { en: "Budget range", nl: "Budgetbandbreedte" },
+    sessionsOverview: { en: "Sessions overview", nl: "Sessieoverzicht" },
+    columnSession: { en: "Session", nl: "Sessie" },
+    columnSetup: { en: "Setup", nl: "Setup" },
   },
 } satisfies Record<string, Record<string, LocalizedString>>;

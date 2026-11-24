@@ -125,6 +125,33 @@ can still be changed on its own afterwards. Reasoning: a Session Prep or
 write-up answers the same "what if this ran light vs. heavy" question as
 its Session, not a separate one.
 
+### Sessions overview page (Proposal Summary, 2026-11-24)
+
+The client-facing Proposal Summary (and therefore the PDF export) has a
+"Sessions overview" page, right after the grand total - one row per
+workstream, each split into two blocks: **Session** and **Setup**
+(`workstreamSessionSetupSplit` in `src/lib/calculations.ts`). Risk Buffer,
+Consulting, Development, Support and Project Management lines are left out
+entirely - this page is only the sessions.
+
+General rule, every workstream: Session always includes Session Prep -
+a prep/write-up line answers the same question as its session, not a
+separate one - while Setup stays its own block (the workstream's own
+build/config work).
+
+Named exception: **Technical Assessment**'s Setup is folded into Session
+too, so its Setup block shows as "—". None of Technical Assessment's
+"Setup"-activity lines are independent build work - they're either a
+session's own write-up (`technical_assessment-7/10`, kept as Setup rather
+than reclassified to Session Prep, see above) or the closing Functional
+Requirements Document (`technical_assessment-11`, not linked to any
+session) - so there's nothing in that workstream that reads as separate
+configuration work the way Setup does for Sales/Marketing/Service
+Implementation (building out Companies, Contacts, Deals, Dashboards,
+etc.). No other workstream is named as an exception; a workstream with
+nothing in either block (fully custom Consulting/Development/Support
+pricing) is left off the page rather than shown as a row of dashes.
+
 ### Workstream label: "Business Assessment" → "Assessment & Scoping" (2026-11-06)
 
 The `business_assessment` workstream's label changed from "Business

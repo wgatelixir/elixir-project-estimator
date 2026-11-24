@@ -96,6 +96,51 @@ export function workstreamRangeTotals(
   return { lowHours, highHours, lowPrice, highPrice };
 }
 
+export interface SessionSetupSplit {
+  sessionHours: number;
+  sessionPrice: number;
+  setupHours: number;
+  setupPrice: number;
+}
+
+/**
+ * Splits a standard workstream's lines into the two client-facing blocks for
+ * the Proposal Summary's Sessions overview page: Session (always includes
+ * Session Prep - a prep/write-up line answers the same question as its
+ * session, not a separate one) and Setup (the workstream's own build/config
+ * work, kept separate). Technical Assessment is the one named exception:
+ * none of its "Setup"-activity lines are independent build work - they're
+ * either a session's own write-up or the closing Functional Requirements
+ * Document - so its Setup is folded into Session too, same as Session Prep.
+ * Risk Buffer, Consulting, Development, Support and Project Management
+ * lines are left out entirely - this view is only the sessions. Returns
+ * per-month figures, same convention as workstreamRangeTotals; multiply by
+ * workstreamMonths(ws) for a retainer.
+ */
+export function workstreamSessionSetupSplit(ws: StandardWorkstream): SessionSetupSplit {
+  const foldSetupIntoSession = ws.key === "technical_assessment";
+  let sessionHours = 0;
+  let sessionPrice = 0;
+  let setupHours = 0;
+  let setupPrice = 0;
+  for (const item of ws.items) {
+    if (!item.enabled) continue;
+    const isSessionLike = item.activity === "Session" || item.activity === "Session Prep";
+    const isSetup = item.activity === "Setup";
+    if (!isSessionLike && !isSetup) continue;
+    const hours = lineItemFinalEffort(item, ws);
+    const price = lineItemPrice(item, ws);
+    if (isSessionLike || (isSetup && foldSetupIntoSession)) {
+      sessionHours += hours;
+      sessionPrice += price;
+    } else {
+      setupHours += hours;
+      setupPrice += price;
+    }
+  }
+  return { sessionHours, sessionPrice, setupHours, setupPrice };
+}
+
 /** null = no phase ("n.v.t."); a missing value is phase 1 (saved before phases existed). */
 export function resolvePhase(phase: ProjectPhase | null | undefined): ProjectPhase | null {
   return phase === undefined ? 1 : phase;
