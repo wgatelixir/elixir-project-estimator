@@ -44,6 +44,14 @@ export interface StandardLineItem {
    * client-specific workstream price consulting, development and support differently.
    */
   hourlyRate?: number | null;
+  /**
+   * This line's own PM percentage (a fraction, e.g. 0.15); missing/null = the
+   * estimation's own pmPercent. Lets a client-specific workstream carry less
+   * (or more) PM overhead on one line than the rest - e.g. a Support line
+   * that isn't really project-managed. Has no effect on a "Project
+   * Management" line itself: those are already excluded from the PM base.
+   */
+  pmPercent?: number | null;
   /** Which of the workstream's two complexity tables this line's dropdown looks up. */
   complexityTable: "session" | "setup";
   /** Key into that table (e.g. "Standard", "High"). */

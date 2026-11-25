@@ -176,6 +176,14 @@ export interface WorkstreamTotals {
   /** This onderdeel's own share of project management, at the estimation's pmPercent/pmRate. */
   pmHours: number;
   pmPrice: number;
+  /**
+   * The estimation's own pmPercent - or, for a standard workstream where one
+   * or more lines override their own PM % (see StandardLineItem.pmPercent),
+   * the effective (blended) percentage: pmHours / (hours that PM % applies
+   * to). Shown next to pmHours so the two always agree, same reasoning as
+   * hourlyRate above.
+   */
+  pmPercent: number;
   /** Set for a monthly retainer: hours/price above are the totals over all months. */
   retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
   /**
@@ -205,11 +213,15 @@ export function isProjectManagementLine(item: Pick<StandardLineItem, "activity">
   return item.activity === "Project Management";
 }
 
-/** Per-month hours the PM % applies to: the included lines, minus explicit project management lines. */
-export function pmBaseHours(ws: StandardWorkstream): number {
+/**
+ * Per-month PM hours: each included, non-PM line's own hours times its own
+ * PM % override (see StandardLineItem.pmPercent), or the estimation's own
+ * pmPercent when a line doesn't override it.
+ */
+export function workstreamPmHours(ws: StandardWorkstream, pmPercent: number): number {
   return ws.items
     .filter((item) => item.enabled && !isProjectManagementLine(item))
-    .reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+    .reduce((sum, item) => sum + lineItemFinalEffort(item, ws) * (item.pmPercent ?? pmPercent), 0);
 }
 
 export function computeStandardWorkstreamTotals(
@@ -223,26 +235,35 @@ export function computeStandardWorkstreamTotals(
   const hasLineRates = lines.some((item) => item.hourlyRate != null && item.hourlyRate !== ws.hourlyRate);
   const months = workstreamMonths(ws);
   const hours = monthlyHours * months;
-  const pmHours = (ws.enabled ? pmBaseHours(ws) : 0) * months * pmPercent;
+  const pmHours = (ws.enabled ? workstreamPmHours(ws, pmPercent) : 0) * months;
+  const pmBaseMonthlyHours = lines
+    .filter((item) => !isProjectManagementLine(item))
+    .reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+  const effectivePmPercent = pmBaseMonthlyHours > 0 ? pmHours / (pmBaseMonthlyHours * months) : pmPercent;
   const wsPhase = resolvePhase(ws.phase);
 
   // Bucket this onderdeel's own lines by resolved phase, so a workstream whose
   // sessions span multiple phases can contribute to each phase's roadmap total.
-  const buckets = new Map<ProjectPhase | null, { hours: number; price: number; pmBase: number }>();
+  const buckets = new Map<ProjectPhase | null, { hours: number; price: number; pmHours: number }>();
   for (const item of lines) {
     const itemPhase = resolveLinePhase(item.phase, wsPhase);
-    const bucket = buckets.get(itemPhase) ?? { hours: 0, price: 0, pmBase: 0 };
+    const bucket = buckets.get(itemPhase) ?? { hours: 0, price: 0, pmHours: 0 };
     bucket.hours += lineItemFinalEffort(item, ws) * months;
     bucket.price += lineItemPrice(item, ws) * months;
-    if (!isProjectManagementLine(item)) bucket.pmBase += lineItemFinalEffort(item, ws) * months;
+    if (!isProjectManagementLine(item)) {
+      bucket.pmHours += lineItemFinalEffort(item, ws) * months * (item.pmPercent ?? pmPercent);
+    }
     buckets.set(itemPhase, bucket);
   }
   const phaseSlices: WorkstreamPhaseSlice[] =
     buckets.size > 0
-      ? [...buckets.entries()].map(([phase, b]) => {
-          const slicePmHours = b.pmBase * pmPercent;
-          return { phase, hours: b.hours, price: b.price, pmHours: slicePmHours, pmPrice: slicePmHours * pmRate };
-        })
+      ? [...buckets.entries()].map(([phase, b]) => ({
+          phase,
+          hours: b.hours,
+          price: b.price,
+          pmHours: b.pmHours,
+          pmPrice: b.pmHours * pmRate,
+        }))
       : [{ phase: wsPhase, hours: 0, price: 0, pmHours: 0, pmPrice: 0 }];
 
   const hasRange = lines.some((item) => item.rangeLow != null || item.rangeHigh != null);
@@ -259,6 +280,7 @@ export function computeStandardWorkstreamTotals(
     price: monthlyPrice * months,
     pmHours,
     pmPrice: pmHours * pmRate,
+    pmPercent: effectivePmPercent,
     ...(ws.custom?.retainerMonths ? { retainer: { months, monthlyHours, monthlyPrice } } : {}),
     phaseSlices,
     ...(rangeMonthly
@@ -306,6 +328,7 @@ export function computeThirdPartyTotals(
     price: hours * state.hourlyRate,
     pmHours,
     pmPrice: pmHours * pmRate,
+    pmPercent,
   };
 }
 
@@ -346,6 +369,7 @@ export function computeElixirSyncTotals(
     price: hours * state.hourlyRate,
     pmHours,
     pmPrice: pmHours * pmRate,
+    pmPercent,
     allStreamsHours,
   };
 }
@@ -481,6 +505,14 @@ export interface PhaseGroupRow {
   price: number;
   pmHours: number;
   pmPrice: number;
+  /**
+   * The onderdeel's own effective PM % (see WorkstreamTotals.pmPercent). For
+   * a workstream sliced across phases, this is still the whole workstream's
+   * blended percentage, not a per-slice one - close enough to pair with
+   * pmHours in every practical case, since per-line PM % overrides and
+   * multi-phase lines rarely combine.
+   */
+  pmPercent: number;
   retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
   /** True when this onderdeel's own lines span more than one phase, so this row is only part of it. */
   isPartial: boolean;
@@ -522,6 +554,7 @@ export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; 
         hourlyRate: slice.hours > 0 ? slice.price / slice.hours : w.hourlyRate,
         pmHours: slice.pmHours,
         pmPrice: slice.pmPrice,
+        pmPercent: w.pmPercent,
         retainer: w.retainer,
         isPartial,
       });
@@ -538,6 +571,7 @@ export function groupByPhase(totals: EstimationTotals): { groups: PhaseGroup[]; 
       hourlyRate: w.hourlyRate,
       pmHours: w.pmHours,
       pmPrice: w.pmPrice,
+      pmPercent: w.pmPercent,
       isPartial: false,
     });
   }

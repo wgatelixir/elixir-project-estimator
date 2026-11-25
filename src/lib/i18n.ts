@@ -208,6 +208,11 @@ export const UI_STRINGS = {
       en: "Hourly rate for this line. Leave empty to use the workstream's rate.",
       nl: "Uurtarief voor deze regel. Laat leeg om het tarief van de workstream te gebruiken.",
     },
+    columnPmPercent: { en: "PM %", nl: "PM %" },
+    linePmPercentTitle: {
+      en: "PM percentage for this line. Leave empty to use the estimation's own PM percentage.",
+      nl: "PM-percentage voor deze regel. Laat leeg om het PM-percentage van de estimate te gebruiken.",
+    },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
     total: { en: "Total (incl. PM)", nl: "Totaal (incl. PM)" },
     linePhaseTitle: {

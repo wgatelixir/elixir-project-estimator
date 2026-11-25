@@ -4,12 +4,13 @@ import { ChevronRight, Filter, GripVertical, Link2, X, Plus, iconProps } from "@
 import { useState } from "react";
 import type { ComplexityTable, LineActivityType, Locale, ProjectPhase, StandardLineItem, StandardWorkstream } from "@/lib/types";
 import {
+  isProjectManagementLine,
   lineItemFinalEffort,
   lineItemPrice,
   lineItemRangeHours,
-  pmBaseHours,
   resolvePhase,
   workstreamMonths,
+  workstreamPmHours,
   workstreamRangeTotals,
 } from "@/lib/calculations";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/format";
@@ -148,6 +149,7 @@ function LineItemGroup({
   childItems,
   workstream,
   isCustom,
+  pmPercent,
   locale,
   activityFilter,
   dragId,
@@ -164,6 +166,8 @@ function LineItemGroup({
   childItems: StandardLineItem[];
   workstream: StandardWorkstream;
   isCustom: boolean;
+  /** The estimation's own PM percentage - shown as this line's placeholder when it doesn't override it. */
+  pmPercent: number;
   locale: Locale;
   /** While set, pins the tab matching this activity instead of the manually-picked one. */
   activityFilter: ActivityBand | "all";
@@ -318,7 +322,30 @@ function LineItemGroup({
               className="w-20 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
             />
           </label>
-        ) : (
+        ) : null}
+        {isCustom && !isProjectManagementLine(active) ? (
+          <label className="flex items-center gap-1.5" title={t(s.linePmPercentTitle, locale)}>
+            {t(s.columnPmPercent, locale)}
+            {/* Empty = the estimation's own PM percentage (shown as placeholder); a value overrides it for this line. */}
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              value={active.pmPercent != null ? Math.round(active.pmPercent * 1000) / 10 : ""}
+              placeholder={String(Math.round(pmPercent * 1000) / 10)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === "") return updateItem(active.id, { pmPercent: null });
+                const value = Number(raw);
+                if (value >= 0 && value <= 100) updateItem(active.id, { pmPercent: value / 100 });
+              }}
+              className="w-16 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
+            />
+            %
+          </label>
+        ) : null}
+        {!isCustom ? (
           <label className="flex items-center gap-1.5" title={t(s.durationTitle, locale)}>
             {t(s.columnDuration, locale)}
             <input
@@ -330,7 +357,7 @@ function LineItemGroup({
               className="w-14 rounded border border-transparent bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-200 focus:border-brand-indigo focus:outline-none"
             />
           </label>
-        )}
+        ) : null}
         <label className="flex items-center gap-1.5">
           {t(isCustom ? s.columnHours : s.columnStandard, locale)}
           <input
@@ -567,8 +594,13 @@ export function WorkstreamPanel({
   const isRetainer = Boolean(workstream.custom?.retainerMonths);
   const totalHours = monthlyHours * months;
   const totalPrice = monthlyPrice * months;
-  const pmHours = pmBaseHours(workstream) * months * pmPercent;
+  const pmHours = workstreamPmHours(workstream, pmPercent) * months;
   const pmPrice = pmHours * pmRate;
+  // Matches the global pmPercent unless a line overrides its own - see workstreamPmHours.
+  const pmBaseMonthlyHours = workstream.items
+    .filter((item) => item.enabled && !isProjectManagementLine(item))
+    .reduce((sum, item) => sum + lineItemFinalEffort(item, workstream), 0);
+  const effectivePmPercent = pmBaseMonthlyHours > 0 ? pmHours / (pmBaseMonthlyHours * months) : pmPercent;
 
   // Only shown once something actually has a range set - otherwise it would
   // just repeat the total above it for no reason.
@@ -604,7 +636,7 @@ export function WorkstreamPanel({
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
+      <div className="border-b border-slate-200 p-4">
         <div className="min-w-0">
           {workstream.custom ? (
             <input
@@ -626,7 +658,7 @@ export function WorkstreamPanel({
             {t(s.includeWorkstream, locale)}
           </label>
         </div>
-        <div className="flex items-center gap-4 text-sm text-slate-500">
+        <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-500">
           <label className="flex items-center gap-1.5">
             {t(s.hourlyRate, locale)}
             <input
@@ -735,6 +767,7 @@ export function WorkstreamPanel({
             childItems={childItems}
             workstream={workstream}
             isCustom={isCustom}
+            pmPercent={pmPercent}
             locale={locale}
             activityFilter={activityFilter}
             dragId={dragId}
@@ -779,7 +812,7 @@ export function WorkstreamPanel({
         )}
         <div className="flex items-center justify-between gap-3 text-slate-600">
           <span>
-            {t(s.projectManagement, locale)} ({formatPercent(pmPercent)} &middot; {formatHours(pmHours, locale)})
+            {t(s.projectManagement, locale)} ({formatPercent(effectivePmPercent)} &middot; {formatHours(pmHours, locale)})
           </span>
           <span className="tabular-nums">{formatCurrency(pmPrice, locale)}</span>
         </div>

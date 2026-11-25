@@ -106,7 +106,7 @@ export function PhaseOverviewTable({ totals, locale }: { totals: EstimationTotal
               <OverviewPmRow
                 key={`${w.key}-pm`}
                 label={t(s.projectManagement, locale)}
-                pmPercent={totals.pmPercent}
+                pmPercent={w.pmPercent}
                 pmHours={w.pmHours}
                 pmRate={totals.pmRate}
                 pmPrice={w.pmPrice}
