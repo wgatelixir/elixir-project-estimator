@@ -130,6 +130,11 @@ export const UI_STRINGS = {
     pmRateInputLabel: { en: "Project management", nl: "Projectmanagement" },
     serviceRateInputLabel: { en: "Other services", nl: "Overige diensten" },
     pmPercentInputLabel: { en: "Project management share", nl: "Aandeel projectmanagement" },
+    pmHoursInputLabel: { en: "Project management hours", nl: "Projectmanagement-uren" },
+    pmHoursInputTitle: {
+      en: "Enter the total PM hours instead of a percentage - the share above updates to match. Changes with the project's scope, same as the percentage does.",
+      nl: "Vul het totale aantal PM-uren in in plaats van een percentage - het aandeel hierboven wordt daarop aangepast. Verandert mee met de scope van het project, net als het percentage.",
+    },
     projectTotal: { en: "Project total", nl: "Projecttotaal" },
     totalEffort: { en: "total effort", nl: "totale inspanning" },
   },

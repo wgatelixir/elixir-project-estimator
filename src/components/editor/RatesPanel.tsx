@@ -7,6 +7,7 @@ import type {
   StandardWorkstream,
   ThirdPartyIntegrationState,
 } from "@/lib/types";
+import type { EstimationTotals } from "@/lib/calculations";
 import { DEFAULT_HOURLY_RATES } from "@/lib/templates";
 import { t, UI_STRINGS } from "@/lib/i18n";
 import { FOUNDATION_KEYS, HUB_KEYS } from "@/lib/workstreamGroups";
@@ -59,6 +60,7 @@ function RateRow({
  */
 export function RatesPanel({
   data,
+  totals,
   onChangeWorkstream,
   onChangeThirdParty,
   onChangeElixirSync,
@@ -67,6 +69,7 @@ export function RatesPanel({
   locale,
 }: {
   data: EstimationState;
+  totals: EstimationTotals;
   onChangeWorkstream: (key: string, next: StandardWorkstream) => void;
   onChangeThirdParty: (next: ThirdPartyIntegrationState) => void;
   onChangeElixirSync: (next: ElixirSyncIntegrationState) => void;
@@ -85,6 +88,9 @@ export function RatesPanel({
       <RatesCard
         pmRate={data.pmRate}
         pmPercent={data.pmPercent}
+        pmHours={totals.pmHours}
+        pmFixedHours={totals.pmFixedHours}
+        pmVariableBaseHours={totals.pmVariableBaseHours}
         serviceRate={data.serviceRate}
         locale={locale}
         onChangePmRate={(pmRate) => onChangePm({ pmRate })}

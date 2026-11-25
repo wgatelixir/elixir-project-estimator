@@ -480,6 +480,9 @@ export function CoverPage({
       <RatesCard
         pmRate={data.pmRate}
         pmPercent={data.pmPercent}
+        pmHours={totals.pmHours}
+        pmFixedHours={totals.pmFixedHours}
+        pmVariableBaseHours={totals.pmVariableBaseHours}
         serviceRate={data.serviceRate}
         locale={locale}
         onChangePmRate={(pmRate) => onChangePm({ pmRate })}

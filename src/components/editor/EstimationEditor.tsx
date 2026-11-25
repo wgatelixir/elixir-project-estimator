@@ -480,6 +480,7 @@ export function EstimationEditor({ initial }: { initial: EstimationRecord }) {
               {activeTab === RATES_TAB_ID && (
                 <RatesPanel
                   data={data}
+                  totals={totals}
                   onChangeWorkstream={updateWorkstream}
                   onChangeThirdParty={updateThirdParty}
                   onChangeElixirSync={updateElixirSync}

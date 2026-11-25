@@ -184,6 +184,17 @@ export interface WorkstreamTotals {
    * hourlyRate above.
    */
   pmPercent: number;
+  /**
+   * The split of pmHours into a part driven by the estimation's own
+   * pmPercent (pmVariableBaseHours * pmPercent) and a part that's fixed
+   * regardless of it (from lines with their own PM % override): pmHours =
+   * pmFixedHours + pmVariableBaseHours * pmPercent. Lets the global PM
+   * setting be entered as hours and reverse-solved into a percentage - see
+   * RatesCard - without that solve having to know about every line's own
+   * override itself.
+   */
+  pmFixedHours: number;
+  pmVariableBaseHours: number;
   /** Set for a monthly retainer: hours/price above are the totals over all months. */
   retainer?: { months: number; monthlyHours: number; monthlyPrice: number };
   /**
@@ -236,10 +247,26 @@ export function computeStandardWorkstreamTotals(
   const months = workstreamMonths(ws);
   const hours = monthlyHours * months;
   const pmHours = (ws.enabled ? workstreamPmHours(ws, pmPercent) : 0) * months;
-  const pmBaseMonthlyHours = lines
-    .filter((item) => !isProjectManagementLine(item))
-    .reduce((sum, item) => sum + lineItemFinalEffort(item, ws), 0);
+  // Split the PM-eligible lines into those with their own override (fixed,
+  // regardless of the estimation's pmPercent) and those without (still
+  // driven by it) - see WorkstreamTotals.pmFixedHours/pmVariableBaseHours.
+  let overriddenBaseHours = 0;
+  let pmFixedMonthlyHours = 0;
+  let nonOverriddenBaseHours = 0;
+  for (const item of lines) {
+    if (isProjectManagementLine(item)) continue;
+    const itemHours = lineItemFinalEffort(item, ws);
+    if (item.pmPercent != null) {
+      overriddenBaseHours += itemHours;
+      pmFixedMonthlyHours += itemHours * item.pmPercent;
+    } else {
+      nonOverriddenBaseHours += itemHours;
+    }
+  }
+  const pmBaseMonthlyHours = overriddenBaseHours + nonOverriddenBaseHours;
   const effectivePmPercent = pmBaseMonthlyHours > 0 ? pmHours / (pmBaseMonthlyHours * months) : pmPercent;
+  const pmFixedHours = ws.enabled ? pmFixedMonthlyHours * months : 0;
+  const pmVariableBaseHours = ws.enabled ? nonOverriddenBaseHours * months : 0;
   const wsPhase = resolvePhase(ws.phase);
 
   // Bucket this onderdeel's own lines by resolved phase, so a workstream whose
@@ -281,6 +308,8 @@ export function computeStandardWorkstreamTotals(
     pmHours,
     pmPrice: pmHours * pmRate,
     pmPercent: effectivePmPercent,
+    pmFixedHours,
+    pmVariableBaseHours,
     ...(ws.custom?.retainerMonths ? { retainer: { months, monthlyHours, monthlyPrice } } : {}),
     phaseSlices,
     ...(rangeMonthly
@@ -329,6 +358,8 @@ export function computeThirdPartyTotals(
     pmHours,
     pmPrice: pmHours * pmRate,
     pmPercent,
+    pmFixedHours: 0,
+    pmVariableBaseHours: hours,
   };
 }
 
@@ -370,6 +401,8 @@ export function computeElixirSyncTotals(
     pmHours,
     pmPrice: pmHours * pmRate,
     pmPercent,
+    pmFixedHours: 0,
+    pmVariableBaseHours: hours,
     allStreamsHours,
   };
 }
@@ -393,6 +426,14 @@ export interface EstimationTotals {
   pmPrice: number;
   pmRate: number;
   pmPercent: number;
+  /**
+   * Same split as WorkstreamTotals.pmFixedHours/pmVariableBaseHours, summed
+   * across every workstream and integration: pmHours = pmFixedHours +
+   * pmVariableBaseHours * pmPercent. Lets the Rates tab's PM field be
+   * entered as hours and reverse-solved into pmPercent - see RatesCard.
+   */
+  pmFixedHours: number;
+  pmVariableBaseHours: number;
   totalEffortHours: number;
   totalEffortPrice: number;
   subscriptions: SubscriptionTotals[];
@@ -425,6 +466,12 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
   // are uniform across onderdelen, but structured so the breakdown and the total always agree.
   const pmHours = workstreams.reduce((sum, w) => sum + w.pmHours, 0) + thirdParty.pmHours + elixirSync.pmHours;
   const pmPrice = workstreams.reduce((sum, w) => sum + w.pmPrice, 0) + thirdParty.pmPrice + elixirSync.pmPrice;
+  const pmFixedHours =
+    workstreams.reduce((sum, w) => sum + w.pmFixedHours, 0) + thirdParty.pmFixedHours + elixirSync.pmFixedHours;
+  const pmVariableBaseHours =
+    workstreams.reduce((sum, w) => sum + w.pmVariableBaseHours, 0) +
+    thirdParty.pmVariableBaseHours +
+    elixirSync.pmVariableBaseHours;
 
   const totalEffortHours = billableHours + pmHours;
   const totalEffortPrice = billablePrice + pmPrice;
@@ -487,6 +534,8 @@ export function computeEstimationTotals(state: EstimationState): EstimationTotal
     pmPrice,
     pmRate: state.pmRate,
     pmPercent: state.pmPercent,
+    pmFixedHours,
+    pmVariableBaseHours,
     totalEffortHours,
     totalEffortPrice,
     subscriptions,
