@@ -218,6 +218,11 @@ export const UI_STRINGS = {
       en: "PM percentage for this line. Leave empty to use the estimation's own PM percentage.",
       nl: "PM-percentage voor deze regel. Laat leeg om het PM-percentage van de estimate te gebruiken.",
     },
+    columnPmHours: { en: "PM hours", nl: "PM-uren" },
+    linePmHoursTitle: {
+      en: "Enter this line's own PM hours instead of a percentage - the PM % above updates to match.",
+      nl: "Vul de eigen PM-uren van deze regel in in plaats van een percentage - het PM-percentage hierboven wordt daarop aangepast.",
+    },
     projectManagement: { en: "Project management", nl: "Projectmanagement" },
     total: { en: "Total (incl. PM)", nl: "Totaal (incl. PM)" },
     linePhaseTitle: {

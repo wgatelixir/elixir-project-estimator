@@ -190,6 +190,8 @@ function LineItemGroup({
   const activityStyle = ACTIVITY_STYLES[classifyActivity(active.activity)];
   const complexityStyle = COMPLEXITY_STYLES[classifyComplexity(active.complexity)];
   const range = lineItemRangeHours(active, workstream);
+  const activeHours = lineItemFinalEffort(active, workstream);
+  const activePmPercent = active.pmPercent ?? pmPercent;
 
   return (
     <div
@@ -343,6 +345,24 @@ function LineItemGroup({
               className="w-16 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-indigo focus:outline-none"
             />
             %
+          </label>
+        ) : null}
+        {isCustom && !isProjectManagementLine(active) ? (
+          <label className="flex items-center gap-1.5" title={t(s.linePmHoursTitle, locale)}>
+            {t(s.columnPmHours, locale)}
+            <input
+              type="number"
+              min={0}
+              step={0.5}
+              disabled={activeHours <= 0}
+              value={Math.round(activeHours * activePmPercent * 10) / 10}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                if (!(value >= 0) || activeHours <= 0) return;
+                updateItem(active.id, { pmPercent: Math.min(1, Math.max(0, value / activeHours)) });
+              }}
+              className="w-16 rounded border border-slate-200 bg-white px-1.5 py-1 text-right tabular-nums text-slate-700 hover:border-slate-300 focus:border-brand-indigo focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+            />
           </label>
         ) : null}
         {!isCustom ? (
